@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { ensureDir } from "#eleventy/file-utils.js";
@@ -191,7 +192,7 @@ export const waitForServer = async (baseUrl, maxAttempts = 30, delay = 250) => {
 };
 
 /**
- * @typedef {{ process: import("bun").Subprocess, port: number, baseUrl: string, stop: () => void }} DevServerHandle
+ * @typedef {{ process: import("node:child_process").ChildProcess, port: number, baseUrl: string, stop: () => void }} DevServerHandle
  */
 
 /**
@@ -200,14 +201,29 @@ export const waitForServer = async (baseUrl, maxAttempts = 30, delay = 250) => {
  * @returns {Promise<DevServerHandle>}
  */
 export const startServer = async (siteDir, port = 8080) => {
-  const serverProcess = Bun.spawn(
-    [
-      "bun",
-      "-e",
-      `Bun.serve({port:${port},async fetch(req){const url=new URL(req.url);let p=url.pathname;if(p.endsWith('/'))p+='index.html';const file=Bun.file('${siteDir}'+p);const exists=await file.exists();return exists?new Response(file):new Response('Not found',{status:404})}})`,
-    ],
-    { stdio: ["ignore", "pipe", "pipe"] },
-  );
+  // Static file server run in a child Node process: serves siteDir, maps
+  // trailing slashes to index.html, and sets the content types browsers
+  // are strict about.
+  const serverScript =
+    'const http = require("node:http"), fs = require("node:fs"), path = require("node:path");' +
+    `const dir = ${JSON.stringify(siteDir)};` +
+    'const TYPES = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript", ".json": "application/json", ".svg": "image/svg+xml", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".woff2": "font/woff2", ".woff": "font/woff", ".xml": "application/xml", ".txt": "text/plain" };' +
+    "http.createServer((req, res) => {" +
+    '  const url = new URL(req.url, "http://localhost");' +
+    "  const rawPath = decodeURIComponent(url.pathname);" +
+    '  const p = rawPath.endsWith("/") ? rawPath + "index.html" : rawPath;' +
+    "  const file = path.join(dir, path.normalize(p));" +
+    "  fs.readFile(file, (err, data) => {" +
+    '    if (err) { res.statusCode = 404; res.end("Not found"); return; }' +
+    "    const type = TYPES[path.extname(file).toLowerCase()];" +
+    '    if (type) res.setHeader("Content-Type", type);' +
+    "    res.end(data);" +
+    "  });" +
+    `}).listen(${port});`;
+
+  const serverProcess = spawn(process.execPath, ["-e", serverScript], {
+    stdio: ["ignore", "pipe", "pipe"],
+  });
 
   const baseUrl = `http://localhost:${port}`;
   await waitForServer(baseUrl, 30, 250);
@@ -238,8 +254,8 @@ export const launchChromeHeadless = async (chromePath) => {
 
 const BROWSER_NOT_INSTALLED_MSG =
   "Playwright browsers not installed.\n" +
-  "Run: bunx playwright install chromium\n" +
-  "(Use bunx to ensure the correct version is installed)";
+  "Run: npx playwright install chromium\n" +
+  "(Use npx to ensure the correct version is installed)";
 
 export const ensurePlaywrightBrowsers = async () => {
   const { chromium } = await import("playwright");

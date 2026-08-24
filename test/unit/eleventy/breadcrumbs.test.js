@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 import { DE, EN } from "#test/fixtures/languages.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";

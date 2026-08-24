@@ -1,7 +1,7 @@
-import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
+import { describe, expect, test } from "vitest";
 import { rootDir } from "#test/test-utils.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
@@ -107,12 +107,22 @@ window.PerformanceObserver = class {
   }
 
   const img = window.document.createElement("img");
+  markNotLoaded(img);
   for (const [attr, val] of Object.entries(imgAttrs)) {
     if (val !== undefined) img.setAttribute(attr, val);
   }
   window.document.getElementById("container").appendChild(img);
 
   return { window, img };
+};
+
+/**
+ * Model an image that has not finished loading. The polyfill skips images
+ * with `complete === true`; happy-dom marks every image complete because it
+ * never actually loads them, so the tests pin the pre-load state.
+ */
+const markNotLoaded = (img) => {
+  Object.defineProperty(img, "complete", { value: false, configurable: true });
 };
 
 /**
@@ -128,6 +138,7 @@ const runAutosizes = (window, img) => {
  */
 const makeImg = (window, attrs) => {
   const img = window.document.createElement("img");
+  markNotLoaded(img);
   for (const [k, v] of Object.entries(attrs)) img.setAttribute(k, v);
   return img;
 };

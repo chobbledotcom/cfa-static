@@ -8,7 +8,7 @@
  * - Be used in production code if they're valuable utilities
  * - Be added to ALLOWED_TEST_ONLY_EXPORTS if intentionally test-only
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { ALLOWED_TEST_ONLY_EXPORTS } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,

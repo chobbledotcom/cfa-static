@@ -1,11 +1,7 @@
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
-import {
-  cleanupAllTestSites,
-  createTestSite,
-  withSetupTestSite,
-} from "#test/test-site-factory.js";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { createTestSite, withSetupTestSite } from "#test/test-site-factory.js";
 import { expectAsyncThrows, rootDir } from "#test/test-utils.js";
 
 /** Minimal page file for tests that just need a valid site */
@@ -32,11 +28,6 @@ const defaultTestFiles = [
 ];
 
 describe("test-site-factory", () => {
-  // Clean up any leftover test sites after all tests
-  afterAll(() => {
-    cleanupAllTestSites();
-  });
-
   // =========================================================================
   // Tests that verify site SETUP (no build required)
   // =========================================================================
@@ -256,9 +247,4 @@ describe("test-site-factory", () => {
       });
     });
   });
-
-  // NOTE: cleanupAllTestSites has no in-suite test. It removes the shared
-  // .test-sites root, so exercising it mid-run would delete sites belonging
-  // to concurrently running tests. It runs in afterAll above, after every
-  // test in this file has finished.
 });

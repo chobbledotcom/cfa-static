@@ -14,6 +14,7 @@
  * Image cache is copied to _site/img/ after Eleventy build completes.
  */
 import fs from "node:fs";
+import { globSync } from "tinyglobby";
 
 /** @typedef {import("#lib/types").ImageProps} ImageProps */
 /** @typedef {import("#lib/types").ComputeImageProps} ComputeImageProps */
@@ -244,9 +245,9 @@ const processAndWrapImage = async ({
 };
 
 const configureImages = async (eleventyConfig) => {
-  const imageFiles = ["src/images/*.jpg"].flatMap((pattern) => [
-    ...new Bun.Glob(pattern).scanSync("."),
-  ]);
+  const imageFiles = ["src/images/*.jpg"].flatMap((pattern) =>
+    globSync(pattern, { cwd: "." }),
+  );
 
   const { eleventyImageOnRequestDuringServePlugin } = await getEleventyImg();
   eleventyConfig.addPlugin(eleventyImageOnRequestDuringServePlugin);

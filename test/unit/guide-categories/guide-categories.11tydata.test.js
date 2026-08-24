@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import guideCategoriesData from "#guide-categories/guide-categories.11tydata.js";
 
 const { eleventyComputed } = guideCategoriesData;

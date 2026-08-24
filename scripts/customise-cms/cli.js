@@ -44,7 +44,7 @@ const ALL_COLLECTIONS = map((c) => c.name)(COLLECTIONS);
 const generateHelp = () => `
 CMS Customisation Script - Non-Interactive Mode
 
-Usage: bun run customise-cms [options]
+Usage: npm run customise-cms [options]
 
 When no options are provided, runs in interactive mode.
 
@@ -81,19 +81,19 @@ FEATURES:
 
 EXAMPLES:
   # Regenerate .pages.yml using saved config (after updating generator)
-  bun run customise-cms --regenerate
+  npm run customise-cms --regenerate
 
   # Enable news and guides with FAQs and galleries
-  bun run customise-cms --collections news,guide-categories,guide-pages --enable faqs,galleries
+  npm run customise-cms --collections news,guide-categories,guide-pages --enable faqs,galleries
 
   # Enable all collections but disable visual editor
-  bun run customise-cms --all --disable use_visual_editor
+  npm run customise-cms --all --disable use_visual_editor
 
   # Preview configuration without saving
-  bun run customise-cms --collections pages,news --dry-run
+  npm run customise-cms --collections pages,news --dry-run
 
   # Use all defaults for a simple site
-  bun run customise-cms --collections news
+  npm run customise-cms --collections news
 `;
 
 /**

@@ -38,9 +38,9 @@ Do not use /* jscpd:ignore */ to silence it. Fix the duplication:
      certainly want option 1 or 2.
 `;
 
-export const loadCpdReport = () => {
+export const loadCpdReport = (reportPath = JSCPD_REPORT) => {
   try {
-    return JSON.parse(readFileSync(JSCPD_REPORT, "utf-8"));
+    return JSON.parse(readFileSync(reportPath, "utf-8"));
   } catch {
     return null;
   }
@@ -139,7 +139,7 @@ export const throwIfSpawnFailed = (result, commandName) => {
 };
 
 export const runCpd = (args = []) => {
-  const result = spawnSync("bunx", ["jscpd", ...args], {
+  const result = spawnSync("npx", ["jscpd", ...args], {
     cwd: ROOT_DIR,
     stdio: "inherit",
   });

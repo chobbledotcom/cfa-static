@@ -82,9 +82,8 @@ const STRICT_CLEAN_FILES = [
 ];
 
 const result = spawnSync(
-  "bun",
+  "npx",
   [
-    "run",
     "tsc",
     "--noEmit",
     "-p",

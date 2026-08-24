@@ -16,11 +16,11 @@
  *   });
  */
 
-import { afterAll, beforeAll } from "bun:test";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { afterAll, beforeAll } from "vitest";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
 import { filter, flatMap, map, pipe, unique } from "#toolkit/fp/array.js";
@@ -309,7 +309,7 @@ const createTestSite = async (options = {}) => {
         // Async spawn so concurrent tests can overlap builds. Sites skip
         // sharp image processing unless the test opts in via processImages.
         const child = spawn(
-          "bun",
+          process.execPath,
           ["./node_modules/@11ty/eleventy/cmd.cjs", "--quiet"],
           {
             cwd: siteDir,
@@ -418,17 +418,8 @@ const useSharedSite = (options) => {
   return () => site;
 };
 
-const cleanupAllTestSites = () => {
-  const testSitesDir = path.join(import.meta.dirname, ".test-sites");
-  if (fs.existsSync(testSitesDir)) {
-    fs.rmSync(testSitesDir, { recursive: true, force: true });
-  }
-};
+// The shared .test-sites root is swept by test/global-teardown.js after the
+// whole run, never mid-run: parallel workers build sibling sites in the same
+// root, so removing it from inside any single test file would race them.
 
-export {
-  cleanupAllTestSites,
-  createTestSite,
-  useSharedSite,
-  withSetupTestSite,
-  withTestSite,
-};
+export { createTestSite, useSharedSite, withSetupTestSite, withTestSite };

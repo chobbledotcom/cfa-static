@@ -1,8 +1,15 @@
 /**
  * Tests for js-toolkit memoize utilities
  */
-import { describe, expect, test } from "bun:test";
-import { dedupeAsync, memoizeByRef } from "#toolkit/fp/memoize.js";
+import { describe, expect, test } from "vitest";
+import {
+  dedupeAsync,
+  groupByWithCache,
+  indexBy,
+  jsonKey,
+  memoize,
+  memoizeByRef,
+} from "#toolkit/fp/memoize.js";
 
 /** Create a counter for tracking function calls in tests */
 const createCounter = () => ({ count: 0 });
@@ -143,5 +150,101 @@ describe("dedupeAsync", () => {
     expect(r1).toBe(3);
     expect(r2).toBe(3);
     expect(counter.count).toBe(1);
+  });
+});
+
+describe("memoize", () => {
+  test("caches by first argument by default", () => {
+    const counter = createCounter();
+    const compute = memoize((x) => {
+      counter.count++;
+      return x * 2;
+    });
+
+    expect(compute(3)).toBe(6);
+    expect(compute(3)).toBe(6);
+    expect(counter.count).toBe(1);
+
+    expect(compute(4)).toBe(8);
+    expect(counter.count).toBe(2);
+  });
+
+  test("uses a custom cacheKey over all arguments", () => {
+    const counter = createCounter();
+    const incrementAndArea = (w, h) => {
+      counter.count++;
+      return w * h;
+    };
+    const area = memoize(incrementAndArea, {
+      cacheKey: (args) => args.join("x"),
+    });
+
+    expect(area(2, 3)).toBe(6);
+    expect(area(2, 3)).toBe(6);
+    expect(area(3, 2)).toBe(6);
+    expect(counter.count).toBe(2);
+  });
+});
+
+describe("jsonKey", () => {
+  test("stringifies the first argument", () => {
+    expect(jsonKey([{ a: 1 }])).toBe('{"a":1}');
+  });
+
+  test("lets memoize treat equal-content objects as one key", () => {
+    const counter = createCounter();
+    const compute = memoize(
+      (obj) => {
+        counter.count++;
+        return obj.a;
+      },
+      { cacheKey: jsonKey },
+    );
+
+    expect(compute({ a: 1 })).toBe(1);
+    expect(compute({ a: 1 })).toBe(1);
+    expect(counter.count).toBe(1);
+  });
+});
+
+describe("indexBy", () => {
+  test("builds a key to item lookup", () => {
+    const bySlug = indexBy((item) => item.slug);
+    const items = [{ slug: "a" }, { slug: "b" }];
+
+    const lookup = bySlug(items);
+
+    expect(lookup.a).toBe(items[0]);
+    expect(lookup.b).toBe(items[1]);
+  });
+
+  test("returns the same cached object for the same array reference", () => {
+    const bySlug = indexBy((item) => item.slug);
+    const items = [{ slug: "a" }];
+
+    expect(bySlug(items)).toBe(bySlug(items));
+    expect(bySlug([{ slug: "a" }])).not.toBe(bySlug(items));
+  });
+});
+
+describe("groupByWithCache", () => {
+  test("groups items under every key they carry", () => {
+    const byCategory = groupByWithCache((item) => item.categories);
+    const items = [
+      { name: "one", categories: ["x", "y"] },
+      { name: "two", categories: ["y"] },
+    ];
+
+    const grouped = byCategory(items);
+
+    expect(grouped.x.map((i) => i.name)).toEqual(["one"]);
+    expect(grouped.y.map((i) => i.name)).toEqual(["one", "two"]);
+  });
+
+  test("caches the index per array reference", () => {
+    const byCategory = groupByWithCache((item) => item.categories);
+    const items = [{ categories: ["x"] }];
+
+    expect(byCategory(items)).toBe(byCategory(items));
   });
 });

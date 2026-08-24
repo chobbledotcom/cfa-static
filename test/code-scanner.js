@@ -2,7 +2,7 @@
  * Code scanner utilities for code quality tests.
  * Written in a functional, immutable style.
  */
-import { expect } from "bun:test";
+import { expect } from "vitest";
 import { fs, omit, path, rootDir } from "#test/test-utils.js";
 import { notMemberOf, pluralize } from "#toolkit/fp/array.js";
 import { frozenObject } from "#toolkit/fp/object.js";

@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 import {
   checkMetric,
   checkRecord,
@@ -11,7 +11,6 @@ import {
   parseLcov,
   printSummary,
   printTruncatedList,
-  readCoverageIgnorePatterns,
   reportCoverageFailures,
   runStep,
 } from "#test/test-runner-utils.js";
@@ -714,70 +713,25 @@ Failed to compile
       });
     });
 
-    describe("readCoverageIgnorePatterns", () => {
-      test("extracts quoted entries from the coveragePathIgnorePatterns array", () =>
-        withTempDir("ignore-patterns", (tempDir) => {
-          const bunfigPath = path.join(tempDir, "bunfig.toml");
-          fs.writeFileSync(
-            bunfigPath,
-            [
-              "[test]",
-              "coveragePathIgnorePatterns = [",
-              '  "src/skip-a.js",',
-              '  "src/skip-b.js",',
-              "]",
-              "",
-            ].join("\n"),
-          );
-
-          expect(readCoverageIgnorePatterns(bunfigPath)).toEqual([
-            "src/skip-a.js",
-            "src/skip-b.js",
-          ]);
-        }));
-
-      test("returns empty array when the file does not exist", () => {
-        expect(
-          readCoverageIgnorePatterns("/nonexistent/missing-bunfig.toml"),
-        ).toEqual([]);
-      });
-
-      test("throws when the array block is missing from an existing file", () =>
-        withTempDir("ignore-patterns-missing", (tempDir) => {
-          const bunfigPath = path.join(tempDir, "bunfig.toml");
-          fs.writeFileSync(bunfigPath, "[test]\ntimeout = 1500\n");
-
-          expect(() => readCoverageIgnorePatterns(bunfigPath)).toThrow(
-            /coveragePathIgnorePatterns/,
-          );
-        }));
-    });
-
     describe("reportCoverageFailures", () => {
-      const writeCoverageFixture = (tempDir, { lcovLines, bunfigBody }) => {
+      const writeLcovFixture = (tempDir, lcovLines) => {
         const lcovPath = path.join(tempDir, "lcov.info");
-        const bunfigPath = path.join(tempDir, "bunfig.toml");
         fs.writeFileSync(lcovPath, [...lcovLines, ""].join("\n"));
-        fs.writeFileSync(bunfigPath, bunfigBody);
-        return { lcovPath, bunfigPath };
+        return lcovPath;
       };
 
       test("prints per-file gaps and returns true when lcov has failures", () =>
         withTempDir("coverage-gaps", (tempDir) => {
-          const { lcovPath, bunfigPath } = writeCoverageFixture(tempDir, {
-            lcovLines: [
-              "SF:src/a.js",
-              "DA:1,0",
-              "LH:0",
-              "LF:1",
-              "end_of_record",
-            ],
-            bunfigBody:
-              'coveragePathIgnorePatterns = [\n  "src/ignored.js",\n]\n',
-          });
+          const lcovPath = writeLcovFixture(tempDir, [
+            "SF:src/a.js",
+            "DA:1,0",
+            "LH:0",
+            "LF:1",
+            "end_of_record",
+          ]);
 
           const logs = captureConsole(() => {
-            const returned = reportCoverageFailures(lcovPath, bunfigPath);
+            const returned = reportCoverageFailures(lcovPath);
             expect(returned).toBe(true);
           });
 
@@ -790,22 +744,19 @@ Failed to compile
         }));
 
       test("returns false when lcov file does not exist", () => {
-        expect(
-          reportCoverageFailures(
-            "/nonexistent/lcov.info",
-            "/nonexistent/bunfig.toml",
-          ),
-        ).toBe(false);
+        expect(reportCoverageFailures("/nonexistent/lcov.info")).toBe(false);
       });
 
       test("returns false when every record in lcov is fully covered", () =>
         withTempDir("coverage-clean", (tempDir) => {
-          const { lcovPath, bunfigPath } = writeCoverageFixture(tempDir, {
-            lcovLines: ["SF:src/a.js", "LH:1", "LF:1", "end_of_record"],
-            bunfigBody: "coveragePathIgnorePatterns = [\n]\n",
-          });
+          const lcovPath = writeLcovFixture(tempDir, [
+            "SF:src/a.js",
+            "LH:1",
+            "LF:1",
+            "end_of_record",
+          ]);
 
-          const returned = reportCoverageFailures(lcovPath, bunfigPath);
+          const returned = reportCoverageFailures(lcovPath);
 
           expect(returned).toBe(false);
         }));

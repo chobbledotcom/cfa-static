@@ -39,4 +39,7 @@ if (errors.length > 0) {
   throw new Error(`${heading}\n${body}`);
 }
 
-export const siteUrl = site.url;
+// SITE_URL lets a deployment (e.g. the GitHub Pages workflow) override the
+// canonical origin without editing site.json. site.json's url is still
+// validated above so local builds fail loudly on a bad value.
+export const siteUrl = process.env.SITE_URL || site.url;

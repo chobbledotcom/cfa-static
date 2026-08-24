@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { configureScss, createScssCompiler } from "#build/scss.js";
 import {
   compileScss,

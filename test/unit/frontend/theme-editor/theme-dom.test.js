@@ -4,7 +4,7 @@
 // document state (body markup, body classes, and root inline styles)
 // between each test.
 
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
   collectActiveClasses,
   controlToVarEntry,

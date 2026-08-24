@@ -1,7 +1,7 @@
 // Search UI tests
 // Tests renderResult, createSearchController, and initSearch behavior
 
-import { afterEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   createSearchController,
   handleSubmit,
@@ -26,12 +26,12 @@ const createMockResult = (overrides = {}) => ({
 });
 
 const createMockResultHandle = (overrides = {}) => ({
-  data: mock(() => Promise.resolve(createMockResult(overrides))),
+  data: vi.fn(() => Promise.resolve(createMockResult(overrides))),
 });
 
 const createMockPagefind = (resultHandles = []) => ({
-  init: mock(() => Promise.resolve()),
-  search: mock(() => Promise.resolve({ results: resultHandles })),
+  init: vi.fn(() => Promise.resolve()),
+  search: vi.fn(() => Promise.resolve({ results: resultHandles })),
 });
 
 // ============================================
@@ -165,9 +165,9 @@ describe("handleSubmit", () => {
   test("calls runSearch with trimmed input value", () => {
     const controller = {
       input: { value: "  widgets  " },
-      runSearch: mock(),
+      runSearch: vi.fn(),
     };
-    const event = { preventDefault: mock() };
+    const event = { preventDefault: vi.fn() };
 
     handleSubmit(controller)(event);
 
@@ -178,10 +178,10 @@ describe("handleSubmit", () => {
   test("updates URL with query parameter", () => {
     const controller = {
       input: { value: "gadgets" },
-      runSearch: mock(),
+      runSearch: vi.fn(),
     };
 
-    handleSubmit(controller)({ preventDefault: mock() });
+    handleSubmit(controller)({ preventDefault: vi.fn() });
 
     expect(window.location.search).toContain("q=gadgets");
   });
@@ -189,10 +189,10 @@ describe("handleSubmit", () => {
   test("does not search when input is empty", () => {
     const controller = {
       input: { value: "   " },
-      runSearch: mock(),
+      runSearch: vi.fn(),
     };
 
-    handleSubmit(controller)({ preventDefault: mock() });
+    handleSubmit(controller)({ preventDefault: vi.fn() });
 
     expect(controller.runSearch).not.toHaveBeenCalled();
   });
@@ -206,7 +206,7 @@ describe("createSearchController", () => {
   test("uses custom loader when provided", async () => {
     document.body.innerHTML = SEARCH_HTML;
     const pagefind = createMockPagefind([createMockResultHandle()]);
-    const loader = mock(() => Promise.resolve(pagefind));
+    const loader = vi.fn(() => Promise.resolve(pagefind));
     const controller = createSearchController(getElements(), loader);
 
     await controller.runSearch("test");
@@ -273,7 +273,7 @@ describe("createSearchController", () => {
     await controller.runSearch("first query");
     expect(document.querySelectorAll(".search-result").length).toBe(2);
 
-    pagefind.search = mock(() =>
+    pagefind.search = vi.fn(() =>
       Promise.resolve({
         results: [createMockResultHandle({ url: "/third/" })],
       }),

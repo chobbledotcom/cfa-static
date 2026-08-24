@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { withTestSite } from "#test/test-site-factory.js";
 
 const contentFile = (collection, slug, name, extras = {}) => ({

@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, test } from "vitest";
 import YAML from "yaml";
 import { rootDir } from "#test/test-utils.js";
 import { collectBlockReferences } from "#test/unit/utils/pages-yml-helpers.js";

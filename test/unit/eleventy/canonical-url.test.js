@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import siteData from "#data/site.json" with { type: "json" };
 import { canonicalUrl } from "#utils/canonical-url.js";
 

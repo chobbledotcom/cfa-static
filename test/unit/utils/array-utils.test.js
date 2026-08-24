@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { data, expectObjectProps, toData } from "#test/test-utils.js";
 import {
   compact,

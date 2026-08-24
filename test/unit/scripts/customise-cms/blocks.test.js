@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { generateBlocksField } from "#scripts/customise-cms/blocks.js";
 import { BLOCK_CMS_FIELDS } from "#utils/block-schema.js";
 

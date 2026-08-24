@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import path from "node:path";
 import { runInternalLinkCheck } from "#scripts/internal-links.js";

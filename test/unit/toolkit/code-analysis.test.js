@@ -1,7 +1,7 @@
 /**
  * Tests for js-toolkit code-analysis utilities
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { createTempFile, withTempDir } from "#test/test-utils.js";
 import { createExtractor } from "#toolkit/test-utils/code-analysis.js";
 

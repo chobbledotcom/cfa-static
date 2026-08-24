@@ -1,9 +1,9 @@
 /**
  * Test assertion utilities
  *
- * These utilities work with bun:test's expect function.
- * Import expect from bun:test in your test files.
+ * These utilities work with vitest's expect function.
  */
+import { expect } from "vitest";
 
 /**
  * Assert that an object has expected property values.
@@ -24,7 +24,6 @@
  */
 const expectObjectProps = (propMap) => (obj) => {
   // Dynamically import expect at runtime to avoid hard dependency
-  const { expect } = require("bun:test");
   for (const [key, value] of Object.entries(propMap)) {
     expect(obj[key]).toBe(value);
   }
@@ -44,7 +43,6 @@ const expectObjectProps = (propMap) => (obj) => {
  * expectArrayProp(item => item.data.title)(result, ["Product 1", "Product 2"]);
  */
 const expectArrayProp = (getter) => (result, expectedValues) => {
-  const { expect } = require("bun:test");
   expect(result.length).toBe(expectedValues.length);
   expectedValues.forEach((value, i) => {
     const actual = getter(result[i]);
@@ -98,7 +96,6 @@ const expectDataArray = (key) => expectArrayProp((item) => item.data[key]);
 const expectErrorsInclude =
   (...conditions) =>
   (errors) => {
-    const { expect } = require("bun:test");
     for (const condition of conditions) {
       if (typeof condition === "function") {
         expect(errors.some(condition)).toBe(true);
@@ -125,7 +122,6 @@ const expectErrorsInclude =
  * expect(error.stdout || error.stderr).toBeTruthy();
  */
 const expectAsyncThrows = async (asyncFn) => {
-  const { expect } = require("bun:test");
   let threwError = false;
   let error;
   try {

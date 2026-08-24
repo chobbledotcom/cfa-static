@@ -5,7 +5,7 @@
  * to unify code into shared utilities. This scanner identifies all cases
  * where the same function name appears in multiple files.
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { assertNoViolations, readSource } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
 import { frozenSet } from "#toolkit/fp/set.js";

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { configureCacheBuster } from "#eleventy/cache-buster.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 

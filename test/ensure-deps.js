@@ -12,13 +12,13 @@ const projectRoot = ROOT_DIR;
 const nodeModulesPath = join(projectRoot, "node_modules");
 
 if (!existsSync(nodeModulesPath)) {
-  console.log("\n⚠ node_modules not found - running bun install...\n");
+  console.log("\n⚠ node_modules not found - running npm install...\n");
   try {
-    execSync("bun install", { cwd: projectRoot, stdio: "inherit" });
+    execSync("npm install", { cwd: projectRoot, stdio: "inherit" });
     console.log("\n✓ Dependencies installed successfully\n");
   } catch (error) {
     console.error("\n✗ Failed to install dependencies:", error.message);
-    console.error("Please run: bun install\n");
+    console.error("Please run: npm install\n");
     process.exit(1);
   }
 }

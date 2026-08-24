@@ -1,7 +1,7 @@
-import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { ROOT_DIR } from "#lib/paths.js";
 
 const SAMPLE_DUPLICATE = {
@@ -13,12 +13,14 @@ const SAMPLE_DUPLICATE = {
 };
 
 const SAMPLE_REPORT = { duplicates: [SAMPLE_DUPLICATE] };
-const REPORT_DIR = join(ROOT_DIR, ".jscpd-report");
+// A test-local report dir: the real .jscpd-report is written by the cpd
+// steps of the full suite, which run concurrently with this file.
+const REPORT_DIR = join(import.meta.dirname, ".cpd-report-fixture");
 const REPORT_PATH = join(REPORT_DIR, "jscpd-report.json");
 const CPD_PATH = join(ROOT_DIR, "scripts", "cpd.js");
 const ORIGINAL_ARGV = [...process.argv];
 const noop = () => undefined;
-const exitSpy = spyOn(process, "exit").mockImplementation(noop);
+const exitSpy = vi.spyOn(process, "exit").mockImplementation(noop);
 
 process.argv.splice(
   0,
@@ -142,14 +144,14 @@ describe("cpd failure guidance", () => {
     mkdirSync(REPORT_DIR, { recursive: true });
     writeFileSync(REPORT_PATH, JSON.stringify(SAMPLE_REPORT));
 
-    expect(loadCpdReport()).toEqual(SAMPLE_REPORT);
+    expect(loadCpdReport(REPORT_PATH)).toEqual(SAMPLE_REPORT);
   });
 
   test("returns null when the jscpd report cannot be loaded", () => {
-    expect(loadCpdReport()).toBeNull();
+    expect(loadCpdReport(REPORT_PATH)).toBeNull();
     mkdirSync(REPORT_DIR, { recursive: true });
     writeFileSync(REPORT_PATH, "{");
-    expect(loadCpdReport()).toBeNull();
+    expect(loadCpdReport(REPORT_PATH)).toBeNull();
   });
 
   test("throws a readable error when the jscpd spawn fails", () => {
@@ -161,12 +163,14 @@ describe("cpd failure guidance", () => {
     ).toThrow("Failed to run example-command: spawn ENOENT");
   });
 
+  // The two runCpd tests spawn a real jscpd via npx, which can take well
+  // over the default 1500ms when the full suite's lanes load the machine.
   test("runs jscpd and returns its status", () => {
     expect(runCpd(["--version"])).toBe(0);
-  });
+  }, 30_000);
 
   test("prints guidance when jscpd exits with a failure status", () => {
-    const errorSpy = spyOn(console, "error").mockImplementation(noop);
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(noop);
 
     const status = runCpd(["--bad-option-for-coverage"]);
 
@@ -175,5 +179,5 @@ describe("cpd failure guidance", () => {
       expect.stringContaining("jscpd found duplicated code"),
     );
     errorSpy.mockRestore();
-  });
+  }, 30_000);
 });

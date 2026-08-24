@@ -11,9 +11,9 @@
 # run, so this list cannot silently rot.
 #
 # The entries below come from mutation-testing the mutation tooling itself:
-#   bun run mutation --source scripts/mutation/generate.js \
+#   npm run mutation -- --source scripts/mutation/generate.js \
 #     --source scripts/mutation/operators.js --test test/unit/mutation/generate.test.js
-#   bun run mutation --source scripts/mutation/summary.js \
+#   npm run mutation -- --source scripts/mutation/summary.js \
 #     --source scripts/mutation/ignore.js --test test/unit/mutation/reporting.test.js
 
 # --- generate.js: defensive guards that cannot fire for a real parsed AST ---

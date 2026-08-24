@@ -1,7 +1,7 @@
 # CfA Static
 
 A static-site template for small informational and marketing sites, built on
-[Eleventy](https://www.11ty.dev/) and [Bun](https://bun.sh/). Pages are
+[Eleventy](https://www.11ty.dev/) and Node.js (≥22). Pages are
 assembled from composable, schema-validated content blocks written in YAML
 frontmatter, so engineering-adjacent authors (and AI assistants) can build and
 edit pages without touching templates.
@@ -29,21 +29,34 @@ data handling — just fast, accessible, static pages.
 - **SEO** — schema.org JSON-LD (WebSite, Organization, BreadcrumbList,
   BlogPosting, FAQPage), canonical URLs, sitemap, social cards.
 - **Editing layer** — a generated [PagesCMS](https://pagescms.org/) config
-  (`.pages.yml`) wired to the block schemas, plus `bun run customise-cms`, an
+  (`.pages.yml`) wired to the block schemas, plus `npm run customise-cms`, an
   interactive/non-interactive wizard that tailors the editor to the
   collections a site actually uses.
 
 ## Quick start
 
 ```bash
-bun install          # install dependencies (Bun, not npm)
-bun run serve        # dev server with hot reload
-bun run build        # build to _site/ (includes internal link check)
-bun test             # full suite: lint, typecheck, build, tests, coverage
+npm install          # install dependencies (Node.js 22+)
+npm run serve        # dev server with hot reload
+npm run build        # build to _site/ (includes internal link check)
+npm test             # full suite: lint, typecheck, build, tests, coverage
 ```
 
 The build needs no secrets and no network services. The deployable artifact is
 the `_site/` directory — publish it with any static host or pipeline.
+
+## Deploying to GitHub Pages
+
+The repo ships a workflow (`.github/workflows/pages.yml`) that builds and
+deploys to GitHub Pages on every push to `main`. One-time setup: under the
+repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
+
+The workflow handles both hosting shapes automatically: on a project site
+(`https://<owner>.github.io/<repo>/`) it builds with the `/<repo>/` path
+prefix and rewrites internal URLs to match; with a custom domain or a
+user/organization site it builds with no prefix. Canonical URLs, the sitemap,
+and feeds pick up the deployed origin via `SITE_URL`, so `site.json`'s `url`
+does not need to change per fork.
 
 ## Configuration
 
@@ -74,7 +87,7 @@ and no translations, which renders with no hreflang tags and no switcher.
   detection, [jscpd](https://github.com/kucherenko/jscpd) duplicate detection
 - TypeScript checking via JSDoc, with a strictness ratchet
 - 140+ test files (unit, integration, code-quality) with mutation testing
-  (`bun run mutation`)
+  (`npm run mutation`)
 - [Nix flakes](https://nixos.wiki/wiki/Flakes) with [direnv](https://direnv.net/)
   support
 

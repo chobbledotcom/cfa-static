@@ -1,7 +1,7 @@
 /**
  * Tests for js-toolkit frozen set utilities
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { frozenSet, frozenSetFrom, setHas, setLacks } from "#toolkit/fp/set.js";
 
 const expectHasAB = (set) => {

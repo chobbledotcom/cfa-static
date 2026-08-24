@@ -1,6 +1,11 @@
-import { RenderPlugin } from "@11ty/eleventy";
+import { EleventyHtmlBasePlugin, RenderPlugin } from "@11ty/eleventy";
 import schemaPlugin from "@quasibit/eleventy-plugin-schema";
 import config from "#data/config.json" with { type: "json" };
+
+// Path prefix for deployments that serve the site from a subdirectory
+// (e.g. a GitHub Pages project site at /cfa-static/). The HTML base plugin
+// rewrites rendered URLs; templates and frontend code read `pathPrefix`.
+const PATH_PREFIX = process.env.PATH_PREFIX || "/";
 
 // Build tools
 import { configureJsBundler } from "#build/js-bundler.js";
@@ -59,6 +64,8 @@ export default async function (eleventyConfig) {
 
   eleventyConfig.addPlugin(schemaPlugin);
   eleventyConfig.addPlugin(RenderPlugin);
+  eleventyConfig.addPlugin(EleventyHtmlBasePlugin);
+  eleventyConfig.addGlobalData("pathPrefix", PATH_PREFIX);
 
   eleventyConfig.amendLibrary("md", amendMarkdown);
 
@@ -102,6 +109,7 @@ export default async function (eleventyConfig) {
       layouts: "_layouts",
       data: "_data",
     },
+    pathPrefix: PATH_PREFIX,
     templateFormats: ["liquid", "md", "html"],
     htmlTemplateEngine: "liquid",
     markdownTemplateEngine: "liquid",

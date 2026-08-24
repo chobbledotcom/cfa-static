@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { useSharedSite } from "#test/test-site-factory.js";
 
 const SITE_URL = "https://cfa-static.example.com";

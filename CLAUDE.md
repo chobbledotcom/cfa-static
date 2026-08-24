@@ -3,9 +3,9 @@
 ## Project Overview
 
 **CfA Static** is an Eleventy (11ty) static-site template for small
-informational and marketing sites. It uses **Bun** as the package manager and
-runtime. Pages are assembled from composable, schema-validated content blocks
-declared in YAML frontmatter.
+informational and marketing sites. It runs on **Node.js (≥22)** with **npm**
+as the package manager. Pages are assembled from composable, schema-validated
+content blocks declared in YAML frontmatter.
 
 ### Key Features
 - Content types: Pages, News, Guides (categorised documentation), Snippets
@@ -25,25 +25,25 @@ declared in YAML frontmatter.
 
 ### Essential Commands
 ```bash
-bun install          # Install dependencies (MUST use bun, not npm)
-bun run build        # Build the site to _site/
-bun run serve        # Development server with hot reload
-bun test             # Full test suite (lint + build + tests + coverage)
-bun run test:unit    # Unit tests only
-bun run mutation <src-glob> <test-glob>  # Mutation test ("tests for your tests")
-bun run lint         # Check code with Biome
-bun run lint:fix     # Auto-fix lint issues
-bun run precommit    # Pre-commit checks
+npm install          # Install dependencies (Node.js 22+)
+npm run build        # Build the site to _site/
+npm run serve        # Development server with hot reload
+npm test             # Full test suite (lint + build + tests + coverage)
+npm run test:unit    # Unit tests only
+npm run mutation <src-glob> <test-glob>  # Mutation test ("tests for your tests")
+npm run lint         # Check code with Biome
+npm run lint:fix     # Auto-fix lint issues
+npm run precommit    # Pre-commit checks
 ```
 
 ### Mutation Testing
-`bun run mutation` proves your tests actually catch bugs: it mutates operators in
+`npm run mutation` proves your tests actually catch bugs: it mutates operators in
 the source file(s), runs the mapped test file(s), and reports which mutants
 **survived** (changes no test noticed). The tooling lives in `scripts/mutation/`.
 
 ```bash
-bun run mutation src/_lib/utils/slug-utils.js test/unit/utils/slug-utils.test.js
-bun run mutation 'src/_lib/eleventy/*.js' 'test/unit/eleventy/*.test.js' --exhaustive
+npm run mutation src/_lib/utils/slug-utils.js test/unit/utils/slug-utils.test.js
+npm run mutation 'src/_lib/eleventy/*.js' 'test/unit/eleventy/*.test.js' -- --exhaustive
 ```
 
 Confirmed-equivalent survivors (no input can distinguish them) go in
@@ -62,7 +62,7 @@ src/
 │   ├── config/      # Configuration helpers
 │   ├── eleventy/    # Eleventy plugins (blocks, breadcrumbs, feed, …)
 │   ├── media/       # Image processing (sharp, eleventy-img)
-│   ├── public/      # Frontend JavaScript (bundled by Bun)
+│   ├── public/      # Frontend JavaScript (bundled by esbuild)
 │   └── utils/       # Pure utility functions (block-schema, i18n, …)
 ├── css/             # SCSS stylesheets (design-system/ per-block partials)
 ├── pages/           # Page markdown files (blocks in frontmatter)
@@ -93,9 +93,9 @@ SCSS partial in `src/css/design-system/`. The registry in
 build time and unknown types or keys fail the build loudly.
 
 Three artifacts are **generated from the schemas** and enforced fresh by CI:
-- `BLOCKS_LAYOUT.md` — `bun run generate-blocks-reference`
-- `.pages.yml` — `bun run generate-pages-yml`
-- `src/_lib/types/pages-cms-generated.d.ts` — `bun run generate-cms-types`
+- `BLOCKS_LAYOUT.md` — `npm run generate-blocks-reference`
+- `.pages.yml` — `npm run generate-pages-yml`
+- `src/_lib/types/pages-cms-generated.d.ts` — `npm run generate-cms-types`
 
 Regenerate all three after any block schema change.
 
@@ -239,32 +239,32 @@ The project enforces strict code quality via Biome. Key rules:
 
 ### Formatting
 - 2-space indentation
-- Run `bun run lint:fix` to auto-format
+- Run `npm run lint:fix` to auto-format
 
 ---
 
 ## Testing Requirements
 
 ### Test Framework
-- **Bun's native test runner** with happy-dom for DOM simulation
+- **Vitest** with happy-dom for DOM simulation (config in `vitest.config.js`)
 - Tests in `/test/unit/` and `/test/integration/`
 - Shared utilities in `/test/test-utils.js`
 
 ### Running Tests Efficiently
 
-**Do NOT run `bun test` or `bun run test` to diagnose a specific issue.** The full suite is slow (lint + build + unit tests + coverage). Running it repeatedly while iterating wastes minutes every loop.
+**Do NOT run `npm test` to diagnose a specific issue.** The full suite is slow (lint + build + unit tests + coverage). Running it repeatedly while iterating wastes minutes every loop.
 
 Instead:
-1. **Target the specific file** - `bun test test/unit/path/to/file.test.js` runs in seconds
-2. **Target a single test** - `bun test test/unit/foo.test.js -t "describes the failing case"`
-3. **Scope by directory** - `bun test test/unit/collections/` for a subsystem
+1. **Target the specific file** - `npx vitest run test/unit/path/to/file.test.js` runs in seconds
+2. **Target a single test** - `npx vitest run test/unit/foo.test.js -t "describes the failing case"`
+3. **Scope by directory** - `npx vitest run test/unit/collections/` for a subsystem
 
 **If you genuinely need the full suite output** (e.g. finding which test broke after a wide change):
-1. Run it **once**, redirecting to a file: `bun test > /tmp/test-output.txt 2>&1`
-2. Grep that file repeatedly: `grep -n "(fail)" /tmp/test-output.txt` (bun marks failing tests lowercase `(fail)`)
-3. **Never** pipe `bun test | grep ...` and re-run — you pay the full suite cost each time
+1. Run it **once**, redirecting to a file: `npm test > /tmp/test-output.txt 2>&1`
+2. Grep that file repeatedly: `grep -n "×" /tmp/test-output.txt` (vitest marks failing tests with `×`)
+3. **Never** pipe `npm test | grep ...` and re-run — you pay the full suite cost each time
 
-Only run the full `bun test` once at the end to confirm everything passes before committing.
+Only run the full `npm test` once at the end to confirm everything passes before committing.
 
 ### Test Quality Criteria (ALL tests must satisfy)
 
@@ -326,7 +326,7 @@ export const configureNews = (eleventyConfig) => {
 2. Register it in `BLOCK_MODULES` in `src/_lib/utils/block-schema.js`
 3. Create the template `src/_includes/design-system/blocks/<type>.html`
 4. Add SCSS in `src/css/design-system/` and forward it from `_index.scss`
-5. Regenerate: `bun run generate-blocks-reference && bun run generate-pages-yml && bun run generate-cms-types`
+5. Regenerate: `npm run generate-blocks-reference && npm run generate-pages-yml && npm run generate-cms-types`
 
 ### Image Processing
 ```javascript
@@ -362,14 +362,14 @@ import { configureImages } from "#media/image.js";
 | `BLOCKS_LAYOUT.md` | Generated block reference (do not edit by hand) |
 | `.pages.yml` | Generated PagesCMS config (do not edit by hand) |
 | `biome.json` | Linting and formatting rules |
-| `bunfig.toml` | Bun test configuration |
+| `vitest.config.js` | Vitest test configuration |
 | `test/TEST-QUALITY-CRITERIA.md` | Detailed testing standards |
 
 ---
 
 ## Anti-Patterns to Avoid
 
-1. **Don't use npm** - This project requires Bun
+1. **Don't use bun/yarn/pnpm** - This project uses npm (`package-lock.json` is enforced)
 2. **Don't use `forEach`** - Use `for...of` loops or curried `map`/`filter`
 3. **Don't accumulate with spread** - Use `accumulate()` helper for O(1) operations
 4. **Don't use `var`** - Always use `const` (or `let` when reassignment needed)
@@ -388,8 +388,8 @@ import { configureImages } from "#media/image.js";
 
 1. **Read existing code first** - Understand patterns before modifying
 2. **Follow existing conventions** - Match the style of surrounding code
-3. **Run tests** - `bun test` before committing
-4. **Run linter** - `bun run lint:fix` to auto-fix issues
+3. **Run tests** - `npm test` before committing
+4. **Run linter** - `npm run lint:fix` to auto-fix issues
 5. **Keep functions small** - Stay under complexity limit of 10
 6. **Use functional patterns** - Prefer `pipe`, curried functions, immutability
 7. **Write tests** - Follow the 6 mandatory test quality criteria

@@ -70,7 +70,7 @@ const ALLOWED_PROCESS_CWD = frozenSet([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = frozenSet([
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:156", // createExtractor accumulates results in a Set
+  "test/test-utils.js:157", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
@@ -153,6 +153,10 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/duplicate-methods.test.js",
   "test/unit/code-quality/html-in-js.test.js",
+  // Step-output parsing helpers kept separate for clarity. Surfaced by the
+  // Node port: the scanner previously bailed on this file over a regex
+  // literal inside the (now removed) bunfig parser, hiding these.
+  "test/test-runner-utils.js",
 ]);
 
 // ============================================
@@ -179,6 +183,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "packages/js-toolkit/fp/memoize.js:memoizeByRef", // Toolkit API surface
   "packages/js-toolkit/fp/object.js:mapBoth", // Toolkit API surface
   "packages/js-toolkit/fp/object.js:pickTruthy", // Toolkit API surface
+  "packages/js-toolkit/fp/array.js:reduce", // Used by fp/grouping.js via relative import
   "packages/js-toolkit/fp/array.js:findDuplicate", // Toolkit API surface
   "packages/js-toolkit/fp/array.js:pick", // Toolkit API surface
   "packages/js-toolkit/fp/array.js:uniqueBy", // Toolkit API surface

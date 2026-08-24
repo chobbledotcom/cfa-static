@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { configureUnusedImages } from "#media/unused-images.js";
 import {
   captureConsoleLogAsync,

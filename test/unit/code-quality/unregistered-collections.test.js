@@ -9,7 +9,7 @@
  * The build-time check runs during `bun run build`.
  * This test runs during `bun test` for faster feedback.
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   assertNoViolations,
   scanFilesForViolations,

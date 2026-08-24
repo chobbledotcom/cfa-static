@@ -44,17 +44,17 @@ const printTruncatedList =
 
 /**
  * Common step definitions used by test runners.
- * These use bun as the command runner.
+ * These use npm/npx as the command runner.
  * @type {Object.<string, Object>}
  */
 const COMMON_STEPS = frozenObject({
-  install: { name: "install", cmd: "bun", args: ["install"] },
-  lint: { name: "lint", cmd: "bun", args: ["run", "lint"] },
-  lintFix: { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
-  knipFix: { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
-  typecheck: { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
-  cpd: { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
-  test: { name: "test", cmd: "bun", args: ["test", "--timeout", "30000"] },
+  install: { name: "install", cmd: "npm", args: ["install"] },
+  lint: { name: "lint", cmd: "npm", args: ["run", "lint"] },
+  lintFix: { name: "lint:fix", cmd: "npm", args: ["run", "lint:fix"] },
+  knipFix: { name: "knip:fix", cmd: "npm", args: ["run", "knip:fix"] },
+  typecheck: { name: "typecheck", cmd: "npm", args: ["run", "typecheck"] },
+  cpd: { name: "cpd", cmd: "npm", args: ["run", "cpd"] },
+  test: { name: "test", cmd: "npx", args: ["vitest", "run"] },
 });
 
 /**
@@ -64,16 +64,12 @@ const COMMON_STEPS = frozenObject({
  */
 const coverageStep = (verbose) => ({
   name: "tests",
-  cmd: "bun",
+  cmd: "npx",
   args: [
-    "test",
+    "vitest",
+    "run",
     "--coverage",
-    "--coverage-reporter=lcov",
-    "--coverage-reporter=text",
-    "--concurrent",
-    "--timeout",
-    "30000",
-    ...(verbose ? ["--verbose"] : []),
+    ...(verbose ? ["--reporter=verbose"] : []),
   ],
 });
 
@@ -276,7 +272,7 @@ const printSummary = (steps, results, title = "SUMMARY") => {
             "  Coverage threshold not met. Check coverage output above.",
           );
           console.log(
-            "  Thresholds are defined in bunfig.toml (coverageThreshold).",
+            "  Thresholds are defined in the vitest coverage config.",
           );
         } else {
           console.log(

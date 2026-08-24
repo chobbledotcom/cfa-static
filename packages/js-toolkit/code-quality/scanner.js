@@ -2,8 +2,10 @@
  * Code scanner utilities for code quality tests.
  * Written in a functional, immutable style.
  */
+
 import fs from "node:fs";
 import path from "node:path";
+import { expect } from "vitest";
 import { notMemberOf, pluralize } from "../fp/array.js";
 import { frozenObject, omit } from "../fp/object.js";
 
@@ -166,7 +168,6 @@ const formatViolationReport = (violations, options = {}) => {
  * @param {Object} options - Report options
  */
 const assertNoViolations = (violations, options = {}) => {
-  const { expect } = require("bun:test");
   const { count, report } = formatViolationReport(violations, options);
   if (report) console.log(report);
   expect(count).toBe(0);
@@ -381,7 +382,6 @@ const assertNoStaleEntries = (
   label,
   formatEntry = (s) => (s.reason ? `${s.entry}: ${s.reason}` : s.entry),
 ) => {
-  const { expect } = require("bun:test");
   if (stale.length > 0) {
     console.log(`\n  Stale ${label} entries:`);
     for (const s of stale) {

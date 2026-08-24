@@ -1,7 +1,7 @@
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import YAML from "yaml";
 import { ROOT_DIR } from "#lib/paths.js";
 

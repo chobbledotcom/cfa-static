@@ -22,7 +22,7 @@
  *   const categoryById = indexBy((c) => c.id)(categories);
  *   products.map((p) => ({ ...p, category: categoryById[p.categoryId] }));
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   assertNoViolations,
   isCommentLine,

@@ -4,10 +4,11 @@
  * Re-exports generic utilities from @chobble/js-toolkit with project-specific
  * wrappers, plus Eleventy-specific test helpers.
  */
-import { afterAll, expect, mock } from "bun:test";
+
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { expect } from "vitest";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
 import { omit } from "#toolkit/fp/object.js";
 
@@ -319,32 +320,6 @@ const withConfiguredMock = (configureFn) => () => {
 // Module mocking with auto-restore
 // ============================================
 
-/**
- * Mock a module's exports and automatically restore the real exports after
- * the current test file finishes.
- *
- * Bun's `mock.module()` is process-global and persists across files. Without
- * restoration, a mock from one test file silently changes module behavior in
- * every other test file sharing the same worker, producing bugs that look
- * flaky but are really order-dependent.
- *
- * The real module is imported first so its exports can be re-installed via
- * `afterAll`. If it cannot load in the test environment (e.g. reads `document`
- * at import time), this throws — those modules must be stubbed with a bare
- * `mock.module` call instead (see the allowlist in mock-module-usage.test.js).
- *
- * @param {string} specifier - Module specifier to mock (e.g. "#data/config.js")
- * @param {() => Record<string, unknown>} factory - Replacement module factory
- * @returns {Promise<void>} Resolves once the mock is installed
- */
-const mockModule = async (specifier, factory) => {
-  const original = { ...(await import(specifier)) };
-  mock.module(specifier, factory);
-  afterAll(() => {
-    mock.module(specifier, () => original);
-  });
-};
-
 // ============================================
 // Exports
 // ============================================
@@ -396,7 +371,6 @@ export {
   // Fixture factories
   item,
   mockFetch,
-  mockModule,
   omit,
   path,
   popupSlideAlts,

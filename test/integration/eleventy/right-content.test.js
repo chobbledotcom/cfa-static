@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { createTestSite, useSharedSite } from "#test/test-site-factory.js";
 
 const SIDEBAR_TEXT = "Sidebar contact details";

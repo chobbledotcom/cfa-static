@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { DEFAULTS } from "#config/helpers.js";
 import { expectObjectProps } from "#test/test-utils.js";
 

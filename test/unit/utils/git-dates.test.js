@@ -1,7 +1,7 @@
-import { describe, expect, test } from "bun:test";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 import { withTempDirAsync } from "#test/test-utils.js";
 import { datesFor, formatHuman, formatIso } from "#utils/git-dates.js";
 

@@ -11,7 +11,7 @@
  * - Callback/handler functions passed as arguments
  * - Test files are included (no exclusion)
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { ALLOWED_SINGLE_USE_FUNCTIONS } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,

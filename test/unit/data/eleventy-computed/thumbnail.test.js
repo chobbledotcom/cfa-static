@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import eleventyComputed from "#data/eleventyComputed.js";
 import { PLACEHOLDER_COLORS } from "#media/thumbnail-placeholder.js";
 

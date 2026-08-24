@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { groupByWithCache, indexBy, memoize } from "#toolkit/fp/memoize.js";
 
 describe("memoize", () => {

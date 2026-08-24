@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { COLUMN_DISALLOWED_TYPES } from "#utils/block-columns.js";
 import {
   splitHoistedBanner,

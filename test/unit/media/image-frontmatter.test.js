@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { getFirstValidImage, isValidImage } from "#media/image-frontmatter.js";
 import { createTempFile, fs, path, withTempDir } from "#test/test-utils.js";
 
