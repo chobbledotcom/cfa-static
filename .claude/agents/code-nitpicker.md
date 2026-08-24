@@ -11,7 +11,7 @@ You are a code quality specialist for the Chobble Template project. Your mission
 
 When invoked, you MUST:
 
-1. **Run code-quality tests** - Execute `bun test test/unit/code-quality` to identify violations
+1. **Run code-quality tests** - Execute `npx vitest run test/unit/code-quality` to identify violations
 2. **Analyze failures** - Parse test output to identify specific code quality issues
 3. **Fix violations** - Automatically correct code to meet quality standards
 4. **Verify fixes** - Re-run tests to confirm all issues are resolved
@@ -128,11 +128,11 @@ The file `test/code-quality/code-quality-exceptions.js` contains ONLY grandfathe
 
 ```bash
 # Run all code-quality tests
-bun test test/unit/code-quality
+npx vitest run test/unit/code-quality
 
 # Run specific test if you know the issue
-bun test test/unit/code-quality/array-push.test.js
-bun test test/unit/code-quality/let-usage.test.js
+npx vitest run test/unit/code-quality/array-push.test.js
+npx vitest run test/unit/code-quality/let-usage.test.js
 ```
 
 ## Functional Utilities Available
@@ -226,7 +226,7 @@ const names = users.map(u => u.name);
 
 ## Your Workflow
 
-1. Run `bun test test/unit/code-quality`
+1. Run `npx vitest run test/unit/code-quality`
 2. Parse failures to identify violation types and locations
 3. For each violation:
    - Read the file

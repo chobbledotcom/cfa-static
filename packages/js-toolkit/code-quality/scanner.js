@@ -163,7 +163,7 @@ const formatViolationReport = (violations, options = {}) => {
 
 /**
  * Assert no violations, logging report if any found.
- * Uses Bun's expect internally.
+ * Uses vitest's expect internally.
  * @param {Array} violations - Violations to check
  * @param {Object} options - Report options
  */

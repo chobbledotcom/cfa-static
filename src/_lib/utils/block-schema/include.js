@@ -15,3 +15,8 @@ export const docs = {
   notes:
     "Escape hatch for custom content that doesn't fit the block system. The `file` value is passed straight to `{% include %}`.",
 };
+
+export const example = {
+  type: "include",
+  file: "demo-include.html",
+};

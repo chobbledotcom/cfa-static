@@ -11,9 +11,9 @@ const USAGE = `
 Lighthouse Tool - Run Lighthouse audits on rendered pages
 
 Usage:
-  bun scripts/lighthouse.js [options] <page-path>
-  bun scripts/lighthouse.js [options] --pages <path1> <path2> ...
-  bun scripts/lighthouse.js --serve <site-dir> [options] <page-path>
+  node scripts/lighthouse.js [options] <page-path>
+  node scripts/lighthouse.js [options] --pages <path1> <path2> ...
+  node scripts/lighthouse.js --serve <site-dir> [options] <page-path>
 
 Options:
   -h, --help              Show this help message
@@ -33,22 +33,22 @@ Options:
 
 Examples:
   # Audit homepage (server must be running)
-  bun scripts/lighthouse.js /
+  node scripts/lighthouse.js /
 
   # Audit with specific category
-  bun scripts/lighthouse.js -c performance /
+  node scripts/lighthouse.js -c performance /
 
   # Audit multiple pages
-  bun scripts/lighthouse.js -p / /about/ /products/
+  node scripts/lighthouse.js -p / /about/ /products/
 
   # Start server and audit
-  bun scripts/lighthouse.js -s _site /
+  node scripts/lighthouse.js -s _site /
 
   # JSON output with thresholds
-  bun scripts/lighthouse.js -f json --threshold performance=90 --threshold accessibility=95 /
+  node scripts/lighthouse.js -f json --threshold performance=90 --threshold accessibility=95 /
 
   # Custom output path
-  bun scripts/lighthouse.js -o my-report.html /
+  node scripts/lighthouse.js -o my-report.html /
 `;
 
 const PARSE_OPTIONS = {

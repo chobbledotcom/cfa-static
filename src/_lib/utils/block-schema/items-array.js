@@ -23,3 +23,10 @@ export const docs = {
     "Renders items from an explicit list of paths. The collection is inferred dynamically from each item's path. Directory paths (ending in `/` or with no `.md` extension) expand to every item in that directory.",
   scss: ITEMS_GRID_META.scss,
 };
+
+export const example = {
+  type: "items-array",
+  items: ["news"],
+  intro_content:
+    "## Hand-picked items\n\nList file paths, or a directory to include everything in it.",
+};

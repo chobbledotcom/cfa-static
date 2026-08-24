@@ -29,3 +29,9 @@ export const docs = {
     "Renders a collection as a plain-text unordered list of links arranged in responsive CSS columns. Optionally strips matching text via a regex so repetitive prefixes/suffixes can be removed.",
   scss: "src/css/design-system/_link-columns.scss",
 };
+
+export const example = {
+  type: "link-columns",
+  collection: "news",
+  intro_content: "## A collection as link columns",
+};

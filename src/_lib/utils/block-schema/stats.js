@@ -31,3 +31,12 @@ export const docs = {
   scss: "src/css/design-system/_stats.scss",
   htmlRoot: '<dl class="stats">',
 };
+
+export const example = {
+  type: "stats",
+  items: [
+    { value: "35+", label: "Block types" },
+    { value: "100%", label: "Line coverage" },
+    { value: "0", label: "Servers to run" },
+  ],
+};

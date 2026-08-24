@@ -27,3 +27,10 @@ export const docs = {
   scss: "src/css/design-system/_cta.scss",
   htmlRoot: '<aside class="cta">',
 };
+
+export const example = {
+  type: "cta",
+  content:
+    "## Ready to try it?\n\nA call-to-action closes the page with one clear next step.",
+  button: { text: "Read the guides", href: "/guide/", size: "lg" },
+};

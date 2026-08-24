@@ -156,3 +156,18 @@ describe("eleventyComputed.blocks", () => {
     expect(result[1].reveal).toBe(true);
   });
 });
+
+describe("eleventyComputed.blocks block gallery", () => {
+  test("a block_gallery page builds its blocks from the canonical examples", async () => {
+    const blocks = await eleventyComputed.blocks({
+      block_gallery: true,
+      page,
+      name,
+    });
+
+    expect(blocks.length).toBeGreaterThan(100);
+    expect(blocks[0].type).toBe("hero");
+    // Defaults are applied to the generated blocks like any others
+    expect(blocks.every((block) => "dark" in block)).toBe(true);
+  });
+});

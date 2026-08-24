@@ -30,3 +30,10 @@ export const docs = {
   scss: "src/css/design-system/_code-block.scss",
   htmlRoot: '<div class="code-block">',
 };
+
+export const example = {
+  type: "code-block",
+  filename: "quick-start.sh",
+  language: "bash",
+  code: "npm install\nnpm run serve",
+};

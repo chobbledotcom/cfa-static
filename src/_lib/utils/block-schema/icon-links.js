@@ -36,3 +36,13 @@ export const docs = {
   scss: "src/css/design-system/_icon-links.scss",
   htmlRoot: '<ul class="icon-links" role="list">',
 };
+
+export const example = {
+  type: "icon-links",
+  intro_content: "## Links with icons",
+  items: [
+    { icon: "hugeicons:book-02", text: "Read the guides", url: "/guide/" },
+    { icon: "hugeicons:news", text: "Latest news", url: "/news/" },
+    { icon: "hugeicons:search-01", text: "Search the site", url: "/search/" },
+  ],
+};

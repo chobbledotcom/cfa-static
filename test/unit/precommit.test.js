@@ -153,9 +153,9 @@ jscpd found duplicated code.
   });
 
   test("extractErrorsFromOutput correctly parses test failures", () => {
-    // Simulate real bun test failure output
+    // Simulate real test-runner failure output
     const testOutput = `
-$ bun test test/unit
+$ npm test
 
 ❌ utils.test.js > formatDate handles invalid dates
 AssertionError: expected "Invalid Date" to equal "N/A"
@@ -177,7 +177,7 @@ AssertionError: expected undefined to be defined
   });
 
   test("extractErrorsFromOutput correctly parses coverage errors", () => {
-    // Simulate real coverage error output from bun test --coverage
+    // Simulate real coverage error output from a --coverage run
     const coverageOutput = `
 ❌ Coverage below threshold for statements: 85.5% < 90%
 ❌ Coverage below threshold for branches: 75.2% < 80%
@@ -210,7 +210,7 @@ src/utils/new-helper.js
 
   test("extractErrorsFromOutput filters out noise but keeps errors", () => {
     const noisyOutput = `
-$ bun test
+$ npm test
 
 /home/user/project/test/unit/something.test.js
 
@@ -231,7 +231,7 @@ error: something went wrong
     const errors = extractErrorsFromOutput(noisyOutput);
 
     // Should filter out command lines starting with $
-    expect(errors.some((e) => e.startsWith("$ bun"))).toBe(false);
+    expect(errors.some((e) => e.startsWith("$ npm"))).toBe(false);
 
     // Should filter out file paths starting with /
     expect(errors.some((e) => e.startsWith("/home"))).toBe(false);

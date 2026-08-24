@@ -26,3 +26,19 @@ export const docs = {
   notes:
     "Define FAQs inline via `items`, or omit to fall back to the page-level `faqs` array (useful for properties/guide-pages that declare FAQs in frontmatter). Answers are rendered as markdown.",
 };
+
+export const example = {
+  type: "faqs",
+  intro_content: "## Frequently asked questions",
+  items: [
+    {
+      question: "How are FAQ answers formatted?",
+      answer: "Answers support **markdown**, including links and lists.",
+    },
+    {
+      question: "Where else can FAQs come from?",
+      answer:
+        "Omit `items` and the block falls back to the page-level `faqs` array.",
+    },
+  ],
+};

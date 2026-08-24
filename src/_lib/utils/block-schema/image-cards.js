@@ -27,3 +27,25 @@ export const docs = {
     "Grid of cards featuring images with names and optional descriptions.",
   ...ITEMS_GRID_META,
 };
+
+export const example = {
+  type: "image-cards",
+  items: [
+    {
+      image: "breakfast.jpg",
+      name: "Breakfast",
+      description: "Cards pair an image with a name and description.",
+      link: "/news/",
+    },
+    {
+      image: "lunch.jpg",
+      name: "Lunch",
+      description: "Images get responsive srcset and LQIP placeholders.",
+    },
+    {
+      image: "dinner.jpg",
+      name: "Dinner",
+      description: "An optional link makes the whole card clickable.",
+    },
+  ],
+};

@@ -34,3 +34,15 @@ export const docs = {
   summary: "Image grid with optional aspect ratio cropping and captions.",
   ...ITEMS_GRID_META,
 };
+
+export const example = {
+  type: "gallery",
+  intro_content: "## An image grid",
+  aspect_ratio: "4/3",
+  items: [
+    { image: "breakfast.jpg", caption: "Breakfast" },
+    { image: "lunch.jpg", caption: "Lunch" },
+    { image: "dinner.jpg", caption: "Dinner" },
+    { image: "fireworks.jpg", caption: "Fireworks" },
+  ],
+};

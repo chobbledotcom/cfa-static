@@ -354,9 +354,25 @@ const validateBlocks = (blocks, context = "") => {
   }
 };
 
+/**
+ * Canonical example per block type, in BLOCK_MODULES order. Each entry's
+ * `example` is a valid `blocks[]` entry: the block gallery page renders
+ * them live and the test suite validates every one against its schema,
+ * so each type always has one demonstrable, working usage.
+ */
+const BLOCK_EXAMPLES = BLOCK_MODULES.map((m) => {
+  return {
+    type: m.type,
+    summary: m.docs.summary,
+    collections: "collections" in m ? m.collections : null,
+    example: m.example,
+  };
+});
+
 export {
   BLOCK_CMS_FIELDS,
   BLOCK_DOCS,
+  BLOCK_EXAMPLES,
   BLOCK_SCHEMAS,
   collectBlockErrors,
   getBlockContainerWidth,

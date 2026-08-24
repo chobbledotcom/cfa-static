@@ -38,3 +38,25 @@ export const docs = {
   htmlRoot:
     '<ul class="features" role="list"> containing <li><article class="feature"> items',
 };
+
+export const example = {
+  type: "features",
+  intro_content: "## A grid of features",
+  items: [
+    {
+      icon: "hugeicons:cube",
+      name: "Composable",
+      description: "Pages are YAML lists of typed blocks.",
+    },
+    {
+      icon: "hugeicons:shield-01",
+      name: "Validated",
+      description: "Unknown types or keys fail the build loudly.",
+    },
+    {
+      icon: "hugeicons:rocket",
+      name: "Static",
+      description: "Everything renders to plain HTML at build time.",
+    },
+  ],
+};

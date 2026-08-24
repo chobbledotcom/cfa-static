@@ -16,7 +16,9 @@ static pages.
 - **Content blocks** — ~35 block types (hero, FAQs, callouts, image cards,
   split layouts, galleries, stats…) declared in frontmatter and validated at
   build time with loud, file-specific errors. See [BLOCKS_LAYOUT.md](BLOCKS_LAYOUT.md)
-  for the full reference (generated from the block schemas, so it can't drift).
+  for the full reference (generated from the block schemas, so it can't drift),
+  or the deployed site's `/blocks/` page, where every type renders live next
+  to the YAML that produces it — from the same tested fixtures.
 - **Content types** — Pages, News (with Atom feed), Guides (categorised
   documentation pages), and reusable Snippets.
 - **Multi-language** — publish the same page in more than one language with

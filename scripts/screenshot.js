@@ -12,10 +12,10 @@ const USAGE = `
 Screenshot Tool - Capture screenshots of rendered pages
 
 Usage:
-  bun scripts/screenshot.js [options] <page-path>
-  bun scripts/screenshot.js [options] --pages <path1> <path2> ...
-  bun scripts/screenshot.js --all-viewports <page-path>
-  bun scripts/screenshot.js --serve <site-dir> [options] <page-path>
+  node scripts/screenshot.js [options] <page-path>
+  node scripts/screenshot.js [options] --pages <path1> <path2> ...
+  node scripts/screenshot.js --all-viewports <page-path>
+  node scripts/screenshot.js --serve <site-dir> [options] <page-path>
 
 Options:
   -h, --help              Show this help message
@@ -32,22 +32,22 @@ Options:
 
 Examples:
   # Screenshot homepage (server must be running)
-  bun scripts/screenshot.js /
+  node scripts/screenshot.js /
 
   # Screenshot a specific page with mobile viewport
-  bun scripts/screenshot.js -v mobile /products/
+  node scripts/screenshot.js -v mobile /products/
 
   # Screenshot multiple pages
-  bun scripts/screenshot.js -p / /about/ /products/
+  node scripts/screenshot.js -p / /about/ /products/
 
   # Screenshot in all viewports
-  bun scripts/screenshot.js -a /
+  node scripts/screenshot.js -a /
 
   # Start server and take screenshot
-  bun scripts/screenshot.js -s _site /
+  node scripts/screenshot.js -s _site /
 
   # Custom output path
-  bun scripts/screenshot.js -o my-screenshot.png /
+  node scripts/screenshot.js -o my-screenshot.png /
 `;
 
 const PARSE_OPTIONS = {

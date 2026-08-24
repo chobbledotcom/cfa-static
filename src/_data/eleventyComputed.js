@@ -1,6 +1,7 @@
 import getConfig from "#data/config.js";
 import { getFirstValidImage } from "#media/image-frontmatter.js";
 import { getPlaceholderForPath } from "#media/thumbnail-placeholder.js";
+import { buildGalleryBlocks } from "#utils/block-gallery.js";
 import { collectBlockErrors } from "#utils/block-schema.js";
 import { languageForUrl, translationForUrl } from "#utils/i18n.js";
 import { withNavigationAnchor } from "#utils/navigation-utils.js";
@@ -174,15 +175,20 @@ export default {
   blocks: async (data) => {
     const context = ` in ${data.page.inputPath}`;
     const itemErrors = collectItemErrors(data, context);
-    if (!data.blocks) {
+    // A page flagged `block_gallery` builds its blocks from the canonical
+    // per-type examples instead of frontmatter - see #utils/block-gallery.js.
+    const sourceBlocks = data.block_gallery
+      ? buildGalleryBlocks()
+      : data.blocks;
+    if (!sourceBlocks) {
       if (itemErrors.length > 0) throw new Error(itemErrors.join("\n"));
-      return data.blocks;
+      return sourceBlocks;
     }
     const allErrors = [
       ...itemErrors,
-      ...collectBlockErrors(data.blocks, context),
+      ...collectBlockErrors(sourceBlocks, context),
     ];
     if (allErrors.length > 0) throw new Error(allErrors.join("\n"));
-    return data.blocks.map(applyBlockDefaults);
+    return sourceBlocks.map(applyBlockDefaults);
   },
 };

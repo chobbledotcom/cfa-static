@@ -5,7 +5,7 @@
  * The script replaces everything between <!-- BEGIN GENERATED BLOCKS -->
  * and <!-- END GENERATED BLOCKS --> markers in BLOCKS_LAYOUT.md.
  *
- * Run: bun scripts/generate-blocks-reference.js
+ * Run: npm run generate-blocks-reference
  */
 
 import { readFileSync, writeFileSync } from "node:fs";

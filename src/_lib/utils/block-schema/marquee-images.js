@@ -40,3 +40,14 @@ export const docs = {
   scss: "src/css/design-system/_marquee-images.scss",
   htmlRoot: '<div class="marquee-images">',
 };
+
+export const example = {
+  type: "marquee-images",
+  height: "60px",
+  items: [
+    { image: "breakfast.jpg", alt: "Breakfast" },
+    { image: "lunch.jpg", alt: "Lunch" },
+    { image: "dinner.jpg", alt: "Dinner" },
+    { image: "fireworks.jpg", alt: "Fireworks" },
+  ],
+};

@@ -155,7 +155,7 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "test/unit/code-quality/html-in-js.test.js",
   // Step-output parsing helpers kept separate for clarity. Surfaced by the
   // Node port: the scanner previously bailed on this file over a regex
-  // literal inside the (now removed) bunfig parser, hiding these.
+  // literal inside a since-removed config parser, hiding these.
   "test/test-runner-utils.js",
 ]);
 

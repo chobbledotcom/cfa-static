@@ -6,7 +6,7 @@
  *
  * Run with: node test/build-profiling.js
  *
- * The outer script runs under Bun (the project runtime); the per-module and
+ * The outer script runs under Node (the project runtime); the per-module and
  * Node-startup measurements below spawn their own `node` subprocesses, so those
  * figures stay Node-based regardless of what runs this orchestration.
  */
