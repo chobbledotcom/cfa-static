@@ -6,9 +6,10 @@ assembled from composable, schema-validated content blocks written in YAML
 frontmatter, so engineering-adjacent authors (and AI assistants) can build and
 edit pages without touching templates.
 
-Derived from the [Chobble Template](https://github.com/chobbledotcom/chobble-template)
-(MIT), cut down to an informational core: no e-commerce, no forms, no user
-data handling — just fast, accessible, static pages.
+Derived from the [Chobble Template](https://github.com/chobbledotcom/chobble-template),
+relicensed to MIT here by its sole author, and cut down to an informational
+core: no e-commerce, no forms, no user data handling — just fast, accessible,
+static pages.
 
 ## What's included
 
