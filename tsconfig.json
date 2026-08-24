@@ -6,7 +6,8 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "ES2022",
-    "types": ["bun-types"],
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "types": ["node"],
     "baseUrl": ".",
     "paths": {
       "#data/*": ["./src/_data/*"],

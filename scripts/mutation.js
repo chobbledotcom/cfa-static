@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
  * In-house mutation tester — "tests for your tests".
  *
@@ -10,19 +10,20 @@
  * The operator tables and AST walk are derived from Mutasaurus (MIT); the
  * execution model is our own — see scripts/mutation/LICENSE.mutasaurus.md.
  *
- * Usage: bun run mutation <source-glob> <test-glob> [options]
+ * Usage: npm run mutation -- <source-glob> <test-glob> [options]
  */
 
 import { existsSync, statSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
+import { globSync } from "tinyglobby";
 import { ROOT_DIR } from "#lib/paths.js";
 import { runMutationTesting } from "./mutation/runner.js";
 
 const DEFAULT_TIMEOUT = 10_000;
 
 const USAGE = `Usage:
-  bun run mutation <source-glob> <test-glob> [options]
-  bun run mutation --source <glob> --test <glob> [--source …] [--test …]
+  npm run mutation -- <source-glob> <test-glob> [options]
+  npm run mutation -- --source <glob> --test <glob> [--source …] [--test …]
 
 Mutates operators in the source file(s), runs the mapped test file(s), and
 reports which mutants survived (were NOT caught by your tests).
@@ -33,8 +34,8 @@ Options:
   -h, --help       Show this help.
 
 Examples:
-  bun run mutation src/_lib/utils/slug-utils.js test/unit/utils/slug-utils.test.js
-  bun run mutation 'src/_lib/filters/*.js' 'test/unit/filters/*.test.js' --exhaustive`;
+  npm run mutation -- src/_lib/utils/slug-utils.js test/unit/utils/slug-utils.test.js
+  npm run mutation -- 'src/_lib/filters/*.js' 'test/unit/filters/*.test.js' --exhaustive`;
 
 /** Boolean flags: set a field on the accumulator and consume no extra args. */
 const BOOLEAN_FLAGS = {
@@ -131,10 +132,10 @@ const parseArgs = (args) => {
 /** Resolve one glob (or plain path) to absolute file paths. */
 const matchGlob = (glob) => {
   // A plain path (absolute or relative, no wildcard) won't match through
-  // Bun.Glob's cwd-relative scan, so take an existing file as-is first.
+  // a cwd-relative glob scan, so take an existing file as-is first.
   const abs = isAbsolute(glob) ? glob : resolve(ROOT_DIR, glob);
   if (existsSync(abs) && statSync(abs).isFile()) return [abs];
-  return [...new Bun.Glob(glob).scanSync({ absolute: true, cwd: ROOT_DIR })];
+  return globSync(glob, { absolute: true, cwd: ROOT_DIR });
 };
 
 /** Expand source/test globs to absolute, sorted, de-duplicated file paths. */

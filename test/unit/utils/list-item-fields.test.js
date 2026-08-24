@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, test } from "vitest";
 import { selectListItemFields } from "#config/list-config.js";
 import listItemFields from "#data/listItemFields.js";
 import { ROOT_DIR } from "#lib/paths.js";

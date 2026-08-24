@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { ALLOWED_PROCESS_CWD } from "#test/code-quality/code-quality-exceptions.js";
 import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
 import { ALL_JS_FILES, TEST_FILES } from "#test/test-utils.js";

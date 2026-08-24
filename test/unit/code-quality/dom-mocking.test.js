@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { ALLOWED_DOM_CONSTRUCTOR } from "#test/code-quality/code-quality-exceptions.js";
 import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
 import { TEST_FILES } from "#test/test-utils.js";

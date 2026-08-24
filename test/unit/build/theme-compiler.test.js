@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { generateThemeSwitcherContent } from "#build/theme-compiler.js";
 
 describe("theme-compiler", () => {

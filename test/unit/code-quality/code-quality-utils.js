@@ -43,7 +43,7 @@ const logAllowedItems = (items, label, showReason = false) => {
  */
 const regenerateToTemp = (script, envVar, tempDir) => {
   const outputPath = join(tempDir, "generated-output");
-  execSync(`bun ${script}`, {
+  execSync(`"${process.execPath}" ${script}`, {
     cwd: rootDir,
     stdio: "pipe",
     env: { ...process.env, [envVar]: outputPath },

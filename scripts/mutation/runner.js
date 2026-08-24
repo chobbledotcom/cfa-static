@@ -2,7 +2,7 @@
  * Mutation test runner.
  *
  * For each mutant we write the mutated source over the real file, run the
- * mapped test files in a fresh `bun test` subprocess, then restore the
+ * mapped test files in a fresh `vitest run` subprocess, then restore the
  * original. Mutating in place (rather than in a temp copy) is what makes
  * mutations bind through this project's `#…` import aliases — a fresh
  * subprocess re-imports the changed file, so the tests run against the mutant.
@@ -14,6 +14,7 @@
 
 import { spawn } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve as resolvePath } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
 import { dim, green, red, write, yellow } from "#test/precommit/colors.js";
 import { applyMutant, generateMutants } from "./generate.js";
@@ -45,8 +46,18 @@ const runTests = (testFiles, timeoutMs, abortSignal) =>
     // SIGKILL (not the default SIGTERM) so an aborted run dies promptly and
     // fires `close` quickly — a test that ignored SIGTERM could otherwise keep
     // the process (and its open handles on the source file) alive.
-    const child = spawn("bun", ["test", ...testFiles], {
-      cwd: ROOT_DIR,
+    // Vitest only collects files matching the config's include globs, which
+    // are relative to its root. Repo tests run from ROOT_DIR with the project
+    // config; fixture tests outside the repo (the mutation end-to-end test)
+    // run from their own directory, where vitest falls back to defaults that
+    // match any *.test.js.
+    const inRoot = testFiles.every((file) =>
+      resolvePath(file).startsWith(`${ROOT_DIR}/`),
+    );
+    const cwd = inRoot ? ROOT_DIR : dirname(resolvePath(testFiles[0]));
+    const vitestBin = join(ROOT_DIR, "node_modules/vitest/vitest.mjs");
+    const child = spawn(process.execPath, [vitestBin, "run", ...testFiles], {
+      cwd,
       env: process.env,
       killSignal: "SIGKILL",
       signal: controller.signal,
@@ -63,7 +74,7 @@ const runTests = (testFiles, timeoutMs, abortSignal) =>
     // runs on the same file — so the timeout path waits for `close`.
     //
     // A non-abort `error` is a genuine spawn failure (e.g. EMFILE/EAGAIN, or
-    // bun missing): the tests never ran, so this is NOT a detected mutant.
+    // vitest missing): the tests never ran, so this is NOT a detected mutant.
     // Reject so the whole run fails loudly rather than scoring a false pass.
     child.on("error", (err) => {
       if (timedOut) return;

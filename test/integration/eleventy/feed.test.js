@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { createTestSite } from "#test/test-site-factory.js";
 
 // Test the actual feed output using isolated test sites

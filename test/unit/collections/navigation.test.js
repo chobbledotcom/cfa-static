@@ -1,21 +1,22 @@
-import { describe, expect, test } from "bun:test";
-import { DEFAULTS } from "#config/helpers.js";
+import { describe, expect, test, vi } from "vitest";
 import {
   createMockEleventyConfig,
   expectResultTitles,
   item,
-  mockModule,
   withMockFetch,
 } from "#test/test-utils.js";
 import { map } from "#toolkit/fp/array.js";
 
-await mockModule("#data/config.js", () => ({
-  default: () => ({
-    ...DEFAULTS,
-    nav_thumbnails: true,
-    internal_link_suffix: "",
-  }),
-}));
+vi.mock("#data/config.js", async () => {
+  const { DEFAULTS } = await import("#config/helpers.js");
+  return {
+    default: () => ({
+      ...DEFAULTS,
+      nav_thumbnails: true,
+      internal_link_suffix: "",
+    }),
+  };
+});
 
 const { configureNavigation, findPageUrl, toNavigation } = await import(
   "#collections/navigation.js"

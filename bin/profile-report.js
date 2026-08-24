@@ -1,4 +1,5 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
+import { readFileSync, writeFileSync } from "node:fs";
 /**
  * Parse a Chrome CPU profile and generate a text report
  * Usage: bun profile-report.js <profile.cpuprofile> <output.txt> <project-dir>
@@ -8,12 +9,12 @@ const [profilePath, outputPath, projectDir] = process.argv.slice(2);
 
 if (!profilePath || !outputPath || !projectDir) {
   console.error(
-    "Usage: bun profile-report.js <profile.cpuprofile> <output.txt> <project-dir>",
+    "Usage: node profile-report.js <profile.cpuprofile> <output.txt> <project-dir>",
   );
   process.exit(1);
 }
 
-const profile = await Bun.file(profilePath).json();
+const profile = JSON.parse(readFileSync(profilePath, "utf8"));
 
 // Build node lookup map
 const nodes = new Map(
@@ -105,9 +106,9 @@ lines.push(
   '  2. Click "Load profile..." button',
   "  3. Select: .profile/build.cpuprofile",
   "",
-  "Or use: bunx speedscope .profile/build.cpuprofile",
+  "Or use: npx speedscope .profile/build.cpuprofile",
 );
 
 const report = lines.join("\n");
-await Bun.write(outputPath, report);
+writeFileSync(outputPath, report);
 console.log(report);

@@ -3,7 +3,9 @@
 	"version": "1.0.0",
 	"license": "MIT",
 	"type": "module",
-	"packageManager": "bun@1.3.6",
+	"engines": {
+		"node": ">=22"
+	},
 	"imports": {
 		"#data/*": "./src/_data/*",
 		"#lib/*": "./src/_lib/*",
@@ -23,39 +25,40 @@
 		"#toolkit/*": "./packages/js-toolkit/*"
 	},
 	"scripts": {
-		"build": "rm -rf _site && bun scripts/eleventy-build.js && bun run check:links",
-		"serve": "rm -rf _site && bun scripts/eleventy-build.js --serve --incremental",
-		"test": "bun ./test/run-tests.js",
-		"test:unit": "bun test test/unit",
-		"test:integration": "bun test test/integration",
+		"build": "rm -rf _site && node scripts/eleventy-build.js && npm run check:links",
+		"serve": "rm -rf _site && node scripts/eleventy-build.js --serve --incremental",
+		"test": "node ./test/run-tests.js",
+		"test:unit": "vitest run test/unit",
+		"test:integration": "vitest run test/integration",
 		"typecheck": "tsc --noEmit --incremental --tsBuildInfoFile tsconfig.tsbuildinfo",
-		"typecheck:strict": "bun scripts/strict-typecheck-ratchet.js",
+		"typecheck:strict": "node scripts/strict-typecheck-ratchet.js",
 		"cpd:fp": "jscpd packages/js-toolkit/fp --min-tokens 12",
 		"cpd:design-system": "jscpd src/css/design-system --min-tokens 17",
-		"cpd": "bun scripts/cpd.js && bun scripts/cpd.js src/_lib src/_data scripts packages --min-tokens 18 --ignore '**/index.js,**/page-layouts/**,**/customise-cms/**,**/mutation/**' --ignore-pattern 'import.*from'",
-		"cpd:ratchet": "bun scripts/cpd-ratchet.js",
+		"cpd": "node scripts/cpd.js && node scripts/cpd.js src/_lib src/_data scripts packages --min-tokens 18 --ignore '**/index.js,**/page-layouts/**,**/customise-cms/**,**/mutation/**' --ignore-pattern 'import.*from'",
+		"cpd:ratchet": "node scripts/cpd-ratchet.js",
 		"knip": "knip",
 		"knip:fix": "knip --fix",
-		"mutation": "bun scripts/mutation.js",
+		"mutation": "node scripts/mutation.js",
 		"lint": "node scripts/biome.js check --error-on-warnings .",
 		"lint:fix": "node scripts/biome.js check --write .",
-		"lint:scss": "bunx stylelint \"src/css/**/*.scss\"",
-		"lint:scss:fix": "bunx stylelint --fix \"src/css/**/*.scss\"",
-		"precommit": "bun test/precommit.js",
-		"customise-cms": "bun scripts/customise-cms/index.js",
-		"generate-pages-yml": "bun scripts/customise-cms/generate-full.js",
-		"generate-cms-types": "bun scripts/generate-pages-cms-types.js",
-		"generate-blocks-reference": "bun scripts/generate-blocks-reference.js",
-		"screenshot": "bun scripts/screenshot.js",
-		"lighthouse": "bun scripts/lighthouse.js",
-		"check:links": "bun scripts/check-internal-links.js _site"
+		"lint:scss": "npx stylelint \"src/css/**/*.scss\"",
+		"lint:scss:fix": "npx stylelint --fix \"src/css/**/*.scss\"",
+		"precommit": "node test/precommit.js",
+		"customise-cms": "node scripts/customise-cms/index.js",
+		"generate-pages-yml": "node scripts/customise-cms/generate-full.js",
+		"generate-cms-types": "node scripts/generate-pages-cms-types.js",
+		"generate-blocks-reference": "node scripts/generate-blocks-reference.js",
+		"screenshot": "node scripts/screenshot.js",
+		"lighthouse": "node scripts/lighthouse.js",
+		"check:links": "node scripts/check-internal-links.js _site"
 	},
 	"devDependencies": {
+		"@11ty/eleventy-dev-server": "3.0.0-alpha.11",
+		"@types/node": "^22.10.0",
+		"@vitest/coverage-istanbul": "^3.2.7",
 		"11ty.ts": "^0.0.7",
-		"@happy-dom/global-registrator": "^20.9.0",
-		"@types/bun": "^1.3.13",
 		"happy-dom": "^20.9.0",
-		"jscpd": "^4.0.9",
+		"jscpd": "4.0.9",
 		"knip": "^5.88.1",
 		"oxc-parser": "^0.137.0",
 		"postcss-scss": "^4.0.9",
@@ -64,6 +67,7 @@
 		"stylelint-config-standard-scss": "^17.0.0",
 		"stylelint-order": "^8.1.1",
 		"typescript": "^5.9.3",
+		"vitest": "^3.2.4",
 		"zod": "^3.25.76"
 	},
 	"dependencies": {
@@ -75,6 +79,7 @@
 		"@quasibit/eleventy-plugin-schema": "^1.13.0",
 		"@sindresorhus/slugify": "^3.0.0",
 		"chrome-launcher": "^1.2.1",
+		"esbuild": "^0.25.0",
 		"gray-matter": "^4.0.3",
 		"instant.page": "^5.2.0",
 		"lighthouse": "^12.8.2",
@@ -86,10 +91,8 @@
 		"playwright": "^1.59.1",
 		"sass": "^1.99.0",
 		"sharp": "^0.34.5",
+		"tinyglobby": "^0.2.14",
 		"uwrap": "^0.1.2",
 		"yaml": "^2.8.3"
-	},
-	"trustedDependencies": [
-		"@parcel/watcher"
-	]
+	}
 }

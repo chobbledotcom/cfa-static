@@ -13,10 +13,10 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          bunScripts = pkgs.symlinkJoin {
-            name = "bun-scripts";
+          npmScripts = pkgs.symlinkJoin {
+            name = "npm-scripts";
             paths =
-              (map (cmd: pkgs.writeShellScriptBin cmd "bun run ${cmd}") [
+              (map (cmd: pkgs.writeShellScriptBin cmd "npm run ${cmd}") [
                 "serve"
                 "build"
                 "test"
@@ -26,18 +26,18 @@
                 "precommit"
               ])
               ++ [
-                (pkgs.writeShellScriptBin "pc" ''exec bun run precommit "$@"'')
+                (pkgs.writeShellScriptBin "pc" ''exec npm run precommit "$@"'')
               ];
           };
         in
         {
           default = pkgs.mkShell {
             packages = with pkgs; [
-              bun
+              nodejs_22
               biome
               vips
               stdenv.cc.cc.lib
-              bunScripts
+              npmScripts
             ];
 
             shellHook = ''
@@ -45,7 +45,7 @@
               export PATH="$PWD/bin:$PATH"
 
               # Run setup tasks in background
-              (bun install && git pull && echo "Environment ready <3") &
+              (npm install && git pull && echo "Environment ready <3") &
 
               install_precommit_hook() {
                 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -53,7 +53,7 @@
                 fi
 
                 hook_path="$(git rev-parse --git-path hooks/pre-commit)"
-                hook_marker="# Installed by chobble-template flake.nix"
+                hook_marker="# Installed by cfa-static flake.nix"
 
                 if [ -e "$hook_path" ] && ! grep -Fqx "$hook_marker" "$hook_path"; then
                   echo "  pre-commit hook already exists; leaving it unchanged"
@@ -61,9 +61,9 @@
                 fi
 
                 mkdir -p "$(dirname "$hook_path")"
-                printf '%s\n' '#!/usr/bin/env sh' "$hook_marker" 'exec bun run precommit "$@"' > "$hook_path"
+                printf '%s\n' '#!/usr/bin/env sh' "$hook_marker" 'exec npm run precommit "$@"' > "$hook_path"
                 chmod +x "$hook_path"
-                echo "  installed pre-commit hook - bun run precommit"
+                echo "  installed pre-commit hook - npm run precommit"
               }
               install_precommit_hook
 

@@ -19,16 +19,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Cache bun install cache
-        uses: actions/cache@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: |
-            bun-${{ runner.os }}-
+          node-version: 22
+          cache: npm
 
       # .image-cache: processed images for the site build (keyed on sources)
       # *.tsbuildinfo: incremental tsc state for typecheck + typecheck:strict
@@ -42,12 +37,12 @@ jobs:
             tsconfig.tsbuildinfo
             tsconfig.strict.tsbuildinfo
             /tmp/pages-cms-validation-cache
-          key: test-state-${{ runner.os }}-${{ hashFiles('bun.lock', 'tsconfig.json', 'src/images/**') }}
+          key: test-state-${{ runner.os }}-${{ hashFiles('package-lock.json', 'tsconfig.json', 'src/images/**') }}
           restore-keys: |
             test-state-${{ runner.os }}-
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: npm ci
 
       - name: Run tests
-        run: bun run test --verbose
+        run: npm test -- --verbose

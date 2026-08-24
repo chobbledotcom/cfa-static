@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   ALLOWED_LET,
   ALLOWED_MUTABLE_CONST,

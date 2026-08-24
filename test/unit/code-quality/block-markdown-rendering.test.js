@@ -13,9 +13,10 @@
  *   C. Every `{{ <var>.<field> | renderContent: "md" }}` targets a field that
  *      is typed `markdown` in the block's cmsFields (never `string`, etc.).
  */
-import { describe, expect, test } from "bun:test";
+
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, test } from "vitest";
 import { rootDir } from "#test/test-utils.js";
 import { frozenSet } from "#toolkit/fp/set.js";
 import { BLOCK_CMS_FIELDS, BLOCK_DOCS } from "#utils/block-schema.js";

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { fs, path, rootDir, SRC_JS_FILES } from "#test/test-utils.js";
 import { frozenSet } from "#toolkit/fp/set.js";
 

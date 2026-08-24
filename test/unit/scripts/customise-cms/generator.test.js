@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import YAML from "yaml";
 import { createDefaultConfig } from "#scripts/customise-cms/config.js";
 import { generatePagesYaml } from "#scripts/customise-cms/generator.js";

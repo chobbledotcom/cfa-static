@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
  * Fail-fast Eleventy build wrapper.
  *
@@ -42,7 +42,7 @@ args.push(...positionals);
 const cpuStart = getCpuSnapshot();
 
 const eleventy = spawn(
-  "bun",
+  process.execPath,
   ["./node_modules/@11ty/eleventy/cmd.cjs", ...args],
   {
     stdio: ["inherit", "pipe", "pipe"],
@@ -89,11 +89,10 @@ const writeNormalOutput = (data, isStderr) => {
 
 const runPagefind = () => {
   console.log("\nRunning Pagefind indexer...");
-  const result = spawnSync(
-    "bun",
-    ["./node_modules/.bin/pagefind", "--site", "_site"],
-    { stdio: "inherit", env: process.env },
-  );
+  const result = spawnSync("npx", ["pagefind", "--site", "_site"], {
+    stdio: "inherit",
+    env: process.env,
+  });
   if (result.status !== 0) {
     console.error("Pagefind indexing failed");
     return false;

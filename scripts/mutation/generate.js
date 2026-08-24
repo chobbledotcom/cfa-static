@@ -211,7 +211,7 @@ export const generateMutants = (content, filePath, exhaustive) => {
   )([...walk(program)]);
   // Drop stillborn mutants whose mutated source no longer parses (e.g.
   // `[a] += arr` from a destructuring `=`, or dropping `!` from a leading-`!`
-  // IIFE). They can never run, so `bun test` would fail to compile and miscount
+  // IIFE). They can never run, so `vitest` would fail to compile and miscount
   // them as killed — inflating the score rather than measuring test quality.
   return candidates.filter((mutant) =>
     parses(fileName, applyMutant(content, mutant)),

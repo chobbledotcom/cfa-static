@@ -15,7 +15,7 @@
  *   const buildIndex = memoize((items) => ...);  // Cache persists
  *   const getData = (items, key) => buildIndex(items).get(key);
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   assertNoViolations,
   createBraceDepthScanner,

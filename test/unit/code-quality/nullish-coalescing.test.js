@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { ALLOWED_NULLISH_COALESCING } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,

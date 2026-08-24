@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
+import { describe, expect, test } from "vitest";
 import { configureFileInfo, fileInfo } from "#eleventy/file-info.js";
 import { createMockEleventyConfig, withTempDir } from "#test/test-utils.js";
 

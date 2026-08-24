@@ -6,7 +6,7 @@
  * sets a translated site would declare.
  */
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import languages from "#data/languages.json" with { type: "json" };
 import translations from "#data/translations.json" with { type: "json" };
 import { DE, DE_AT, EN } from "#test/fixtures/languages.js";

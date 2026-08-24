@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { initGallery, resolveStartIndex } from "#public/ui/gallery.js";
 import { imagePopupDialogHtml, popupSlideAlts } from "#test/test-utils.js";
 
@@ -141,7 +141,7 @@ describe("thumbnail hero swapping", () => {
 
   test("scrolls the page to the hero image when it is off-screen", () => {
     setUpGallery();
-    const scrollIntoView = mock();
+    const scrollIntoView = vi.fn();
     heroLink().getBoundingClientRect = () => ({ top: 200 });
     heroLink().scrollIntoView = scrollIntoView;
 
@@ -176,7 +176,7 @@ describe("slider thumbnail centering", () => {
     for (const li of items) {
       Object.defineProperty(li, "offsetWidth", { value: 100 });
     }
-    const scrollBy = mock();
+    const scrollBy = vi.fn();
     slider.scrollBy = scrollBy;
     return { items, scrollBy };
   };

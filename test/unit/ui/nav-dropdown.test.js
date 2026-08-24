@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "vitest";
 import { initNavDropdown } from "#public/ui/nav-dropdown.js";
 
 const NAV_HTML = `

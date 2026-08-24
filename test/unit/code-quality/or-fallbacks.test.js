@@ -15,7 +15,7 @@
  *   const { title } = data;    // Trust the type system
  *   const config = loadConfig();  // Fail fast if missing
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
 

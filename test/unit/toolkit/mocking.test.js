@@ -1,7 +1,7 @@
 /**
  * Tests for js-toolkit mocking utilities
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { mockFetch } from "#toolkit/test-utils/mocking.js";
 
 describe("mockFetch", () => {

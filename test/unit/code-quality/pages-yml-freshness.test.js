@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, test } from "vitest";
 import { rootDir, withTempDir } from "#test/test-utils.js";
 import { regenerateToTemp } from "#test/unit/code-quality/code-quality-utils.js";
 

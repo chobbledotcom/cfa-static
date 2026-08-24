@@ -7,7 +7,7 @@
  * checked here against a built site.
  */
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { ABOUT_GROUP, DE, EN } from "#test/fixtures/languages.js";
 import { useSharedSite } from "#test/test-site-factory.js";
 
@@ -138,7 +138,7 @@ describe("a site publishing two languages", () => {
     const languages = schema["@graph"]
       .map((item) => item.inLanguage)
       .filter(Boolean);
-    expect(languages).not.toBeEmpty();
+    expect(languages.length).toBeGreaterThan(0);
     expect([...new Set(languages)]).toEqual(["de"]);
   });
 

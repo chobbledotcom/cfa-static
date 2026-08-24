@@ -2,8 +2,8 @@
  * Tests for js-toolkit resource utilities
  */
 
-import { describe, expect, test } from "bun:test";
 import fs from "node:fs";
+import { describe, expect, test } from "vitest";
 import { withTempFile } from "#toolkit/test-utils/resource.js";
 
 describe("withTempFile", () => {

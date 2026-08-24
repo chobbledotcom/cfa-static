@@ -2,7 +2,7 @@
 // Detects HTML classes that are never referenced in SCSS or JS files
 // This helps identify dead code and potential cleanup opportunities
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   fs,
   getFiles,

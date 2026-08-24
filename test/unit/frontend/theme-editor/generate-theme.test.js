@@ -2,7 +2,7 @@
 // parsing. These functions drive the SCSS output persisted by the theme
 // editor; they are pure and do not touch the DOM.
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
   generateThemeCss,
   parseThemeContent,

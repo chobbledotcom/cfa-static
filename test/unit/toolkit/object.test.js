@@ -1,13 +1,17 @@
 /**
  * Tests for js-toolkit frozen object utilities
  */
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import {
+  filterObject,
   fromPairs,
   frozenObject,
+  mapBoth,
   mapEntries,
   mapObject,
+  omit,
   pickNonNull,
+  pickTruthy,
   toObject,
 } from "#toolkit/fp/object.js";
 
@@ -85,6 +89,33 @@ describe("frozenObject", () => {
       c: false,
       d: "",
       e: 0,
+    });
+  });
+});
+
+describe("object filtering helpers", () => {
+  test("filterObject keeps entries matching the key/value predicate", () => {
+    const positiveExceptDropped = filterObject((k, v) => k !== "drop" && v > 0);
+
+    expect(positiveExceptDropped({ keep: 1, drop: 2, zero: 0 })).toEqual({
+      keep: 1,
+    });
+  });
+
+  test("pickTruthy drops falsy values", () => {
+    expect(pickTruthy({ a: 1, b: null, c: "", d: "x", e: 0 })).toEqual({
+      a: 1,
+      d: "x",
+    });
+  });
+
+  test("omit removes the named keys", () => {
+    expect(omit(["b", "c"])({ a: 1, b: 2, c: 3 })).toEqual({ a: 1 });
+  });
+
+  test("mapBoth applies the same transform to keys and values", () => {
+    expect(mapBoth((s) => s.toUpperCase())({ foo: "bar" })).toEqual({
+      FOO: "BAR",
     });
   });
 });

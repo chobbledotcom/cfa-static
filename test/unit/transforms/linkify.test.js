@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { wrapHtml } from "#test/test-utils.js";
 import {
   buildConfigLinksPattern,

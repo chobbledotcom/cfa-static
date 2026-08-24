@@ -191,33 +191,33 @@ export const waitForServer = async (baseUrl, maxAttempts = 30, delay = 250) => {
 };
 
 /**
- * @typedef {{ process: import("bun").Subprocess, port: number, baseUrl: string, stop: () => void }} DevServerHandle
+ * @typedef {{ port: number, baseUrl: string, stop: () => Promise<void> }} DevServerHandle
  */
 
 /**
+ * Serve a built site directory for browser automation (screenshots,
+ * lighthouse). Uses Eleventy Dev Server - the same server behind
+ * `npm run serve` - with live reload off so pages are served exactly
+ * as built, with no injected scripts.
  * @param {string} siteDir
  * @param {number} [port]
  * @returns {Promise<DevServerHandle>}
  */
 export const startServer = async (siteDir, port = 8080) => {
-  const serverProcess = Bun.spawn(
-    [
-      "bun",
-      "-e",
-      `Bun.serve({port:${port},async fetch(req){const url=new URL(req.url);let p=url.pathname;if(p.endsWith('/'))p+='index.html';const file=Bun.file('${siteDir}'+p);const exists=await file.exists();return exists?new Response(file):new Response('Not found',{status:404})}})`,
-    ],
-    { stdio: ["ignore", "pipe", "pipe"] },
+  const { default: EleventyDevServer } = await import(
+    "@11ty/eleventy-dev-server"
   );
+  const server = EleventyDevServer.getServer("cfa-static-tools", siteDir, {
+    liveReload: false,
+    portReassignmentRetryCount: 0,
+    logger: { info: log, log, error: logError },
+  });
+  server.serve(port);
 
   const baseUrl = `http://localhost:${port}`;
   await waitForServer(baseUrl, 30, 250);
 
-  return {
-    process: serverProcess,
-    port,
-    baseUrl,
-    stop: () => serverProcess.kill(),
-  };
+  return { port, baseUrl, stop: () => server.close() };
 };
 
 export const getDefaultOutputDir = (subdir) => join(ROOT_DIR, subdir);
@@ -238,8 +238,8 @@ export const launchChromeHeadless = async (chromePath) => {
 
 const BROWSER_NOT_INSTALLED_MSG =
   "Playwright browsers not installed.\n" +
-  "Run: bunx playwright install chromium\n" +
-  "(Use bunx to ensure the correct version is installed)";
+  "Run: npx playwright install chromium\n" +
+  "(Use npx to ensure the correct version is installed)";
 
 export const ensurePlaywrightBrowsers = async () => {
   const { chromium } = await import("playwright");

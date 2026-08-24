@@ -1,7 +1,7 @@
-import { describe, expect, test } from "bun:test";
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, test } from "vitest";
 import YAML from "yaml";
 import { rootDir } from "#test/test-utils.js";
 import { collectBlockReferences } from "#test/unit/utils/pages-yml-helpers.js";
@@ -33,7 +33,10 @@ describe("BLOCK_DOCS quality", () => {
 describe("BLOCKS_LAYOUT.md freshness", () => {
   test("BLOCKS_LAYOUT.md matches generated output", () => {
     const committed = readFileSync(BLOCKS_LAYOUT_PATH, "utf-8");
-    execSync(`bun ${GENERATOR_SCRIPT}`, { cwd: rootDir, stdio: "pipe" });
+    execSync(`"${process.execPath}" ${GENERATOR_SCRIPT}`, {
+      cwd: rootDir,
+      stdio: "pipe",
+    });
     const regenerated = readFileSync(BLOCKS_LAYOUT_PATH, "utf-8");
     expect(regenerated).toBe(committed);
   });

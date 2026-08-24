@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs";
 import {
   buildUrl,
   createBatchRunner,
@@ -79,7 +80,7 @@ export const runLighthouse = async (url, outputPath, options) => {
 
   try {
     const { report, lhr } = await runLighthouseAudit(chrome);
-    await Bun.write(outputPath, report);
+    writeFileSync(outputPath, Array.isArray(report) ? report.join("") : report);
     const scores = extractScores(lhr);
     return {
       success: true,

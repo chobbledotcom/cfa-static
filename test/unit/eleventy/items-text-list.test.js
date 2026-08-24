@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { configureItemsTextList } from "#eleventy/items-text-list.js";
 import { createMockEleventyConfig, expectProp } from "#test/test-utils.js";
 

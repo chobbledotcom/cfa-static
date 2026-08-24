@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { configureFileUtils, ensureDir } from "#eleventy/file-utils.js";
 import {
   cleanupTempDir,
@@ -520,7 +520,7 @@ blocks:
         content,
         {},
         async (run) => {
-          expect(run).toThrow(
+          await expect(run()).rejects.toThrow(
             'Block type "hero" is not supported inside the right-content sidebar.',
           );
         },

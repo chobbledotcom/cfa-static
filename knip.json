@@ -15,13 +15,13 @@
 		"packages/js-toolkit/test-utils/index.js",
 		"packages/js-toolkit/code-quality/index.js"
 	],
-	"project": ["**/*.{js,mjs}"],
+	"project": [
+		"**/*.{js,mjs}"
+	],
 	"ignore": [
-		"src/assets/**",
-		"src/_lib/public/ui/search.js"
+		"src/assets/**"
 	],
 	"ignoreDependencies": [
-		"bun-types",
 		"pagefind",
 		"postcss-scss",
 		"zod"

@@ -1,7 +1,7 @@
-import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import matter from "gray-matter";
+import { describe, expect, test } from "vitest";
 import YAML from "yaml";
 import { rootDir } from "#test/test-utils.js";
 import {

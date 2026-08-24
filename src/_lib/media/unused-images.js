@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { globSync } from "tinyglobby";
 import {
   filter,
   map,
@@ -71,7 +72,7 @@ export const configureUnusedImages = (eleventyConfig) => {
       return;
     }
 
-    const markdownFiles = [...new Bun.Glob("**/*.md").scanSync(dir.input)];
+    const markdownFiles = globSync("**/*.md", { cwd: dir.input });
     const usedImages = markdownFiles.flatMap((file) =>
       extractUsedImages(dir.input, imageFiles, file),
     );

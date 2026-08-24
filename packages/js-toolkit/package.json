@@ -28,20 +28,12 @@
     "configs",
     "CLAUDE.md"
   ],
-  "peerDependencies": {
-    "bun": ">=1.0.0"
-  },
-  "peerDependenciesMeta": {
-    "bun": {
-      "optional": true
-    }
-  },
   "keywords": [
     "functional",
     "testing",
     "code-quality",
     "biome",
-    "bun"
+    "vitest"
   ],
   "license": "MIT"
 }

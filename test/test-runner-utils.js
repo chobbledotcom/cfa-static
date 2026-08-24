@@ -5,7 +5,9 @@
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { globSync } from "tinyglobby";
 import { ROOT_DIR } from "#lib/paths.js";
+import { COVERAGE_IGNORE } from "#test/coverage-ignore.js";
 
 const rootDir = ROOT_DIR;
 
@@ -157,28 +159,6 @@ export const checkRecord = (record, file, lineFailures, branchFailures) => {
 };
 
 /**
- * Read coveragePathIgnorePatterns from bunfig.toml.
- * Returns [] when the file does not exist.
- * Throws when the file exists but the expected array block is missing.
- * @param {string} bunfigPath - Absolute path to bunfig.toml
- * @returns {string[]}
- */
-export const readCoverageIgnorePatterns = (bunfigPath) => {
-  if (!existsSync(bunfigPath)) return [];
-  const text = readFileSync(bunfigPath, "utf8");
-  const block = text.match(/coveragePathIgnorePatterns\s*=\s*\[([\s\S]*?)\]/);
-  if (!block) {
-    throw new Error(
-      `coveragePathIgnorePatterns not found in ${bunfigPath}. ` +
-        "If the key was renamed, update readCoverageIgnorePatterns.",
-    );
-  }
-  const entries = [];
-  for (const m of block[1].matchAll(/"([^"]+)"/g)) entries.push(m[1]);
-  return entries;
-};
-
-/**
  * Parse an lcov.info text into per-file failure strings.
  * @param {string} lcovText - Contents of lcov.info
  * @param {string[]} excludes - Paths to skip (from coveragePathIgnorePatterns)
@@ -202,14 +182,12 @@ export const parseLcov = (lcovText, excludes) => {
 /**
  * When a coverage failure occurs, read lcov.info and print per-file gaps.
  * @param {string} lcovPath - Absolute path to coverage/lcov.info
- * @param {string} bunfigPath - Absolute path to bunfig.toml
  * @returns {boolean} True when a report was printed, false otherwise
  */
-export const reportCoverageFailures = (lcovPath, bunfigPath) => {
+export const reportCoverageFailures = (lcovPath) => {
   if (!existsSync(lcovPath)) return false;
   const lcovText = readFileSync(lcovPath, "utf8");
-  const excludes = readCoverageIgnorePatterns(bunfigPath);
-  const { lineFailures, branchFailures } = parseLcov(lcovText, excludes);
+  const { lineFailures, branchFailures } = parseLcov(lcovText, COVERAGE_IGNORE);
   const all = [...lineFailures, ...branchFailures];
   if (all.length === 0) return false;
   console.log("\n  Per-file coverage gaps:");
@@ -222,40 +200,40 @@ export const reportCoverageFailures = (lcovPath, bunfigPath) => {
  * @type {Object.<string, Object>}
  */
 export const COMMON_STEPS = {
-  install: { name: "install", cmd: "bun", args: ["install"] },
+  install: { name: "install", cmd: "npm", args: ["install"] },
   generateTypes: {
     name: "generate-types",
-    cmd: "bun",
+    cmd: "node",
     args: ["scripts/generate-pages-cms-types.js"],
   },
-  lint: { name: "lint", cmd: "bun", args: ["run", "lint"] },
-  lintFix: { name: "lint:fix", cmd: "bun", args: ["run", "lint:fix"] },
-  lintScss: { name: "lint:scss", cmd: "bun", args: ["run", "lint:scss"] },
+  lint: { name: "lint", cmd: "npm", args: ["run", "lint"] },
+  lintFix: { name: "lint:fix", cmd: "npm", args: ["run", "lint:fix"] },
+  lintScss: { name: "lint:scss", cmd: "npm", args: ["run", "lint:scss"] },
   lintScssFix: {
     name: "lint:scss:fix",
-    cmd: "bun",
+    cmd: "npm",
     args: ["run", "lint:scss:fix"],
   },
-  knipFix: { name: "knip:fix", cmd: "bun", args: ["run", "knip:fix"] },
-  typecheck: { name: "typecheck", cmd: "bun", args: ["run", "typecheck"] },
+  knipFix: { name: "knip:fix", cmd: "npm", args: ["run", "knip:fix"] },
+  typecheck: { name: "typecheck", cmd: "npm", args: ["run", "typecheck"] },
   typecheckStrict: {
     name: "typecheck:strict",
-    cmd: "bun",
+    cmd: "npm",
     args: ["run", "typecheck:strict"],
   },
-  cpdFp: { name: "cpd:fp", cmd: "bun", args: ["run", "cpd:fp"] },
+  cpdFp: { name: "cpd:fp", cmd: "npm", args: ["run", "cpd:fp"] },
   cpdDesignSystem: {
     name: "cpd:design-system",
-    cmd: "bun",
+    cmd: "npm",
     args: ["run", "cpd:design-system"],
   },
-  cpd: { name: "cpd", cmd: "bun", args: ["run", "cpd"] },
-  cpdRatchet: { name: "cpd:ratchet", cmd: "bun", args: ["run", "cpd:ratchet"] },
-  knip: { name: "knip", cmd: "bun", args: ["run", "knip"] },
-  test: { name: "test", cmd: "bun", args: ["test", "--timeout", "1500"] },
+  cpd: { name: "cpd", cmd: "npm", args: ["run", "cpd"] },
+  cpdRatchet: { name: "cpd:ratchet", cmd: "npm", args: ["run", "cpd:ratchet"] },
+  knip: { name: "knip", cmd: "npm", args: ["run", "knip"] },
+  test: { name: "test", cmd: "npx", args: ["vitest", "run"] },
   build: {
     name: "build",
-    cmd: "bun",
+    cmd: "npm",
     args: ["run", "build"],
   },
 };
@@ -270,29 +248,25 @@ export const COMMON_STEPS = {
  */
 export const unitTestsStep = (verbose) => ({
   name: "tests:unit",
-  cmd: "bun",
+  cmd: "npx",
   args: [
-    "test",
+    "vitest",
+    "run",
     "test/unit",
     "--coverage",
-    "--coverage-reporter=lcov",
-    "--coverage-reporter=text",
-    "--concurrent",
-    "--timeout",
-    "1500",
-    ...(verbose ? ["--verbose"] : []),
+    ...(verbose ? ["--reporter=verbose"] : []),
   ],
 });
 
 export const getNonCodeQualityTestFiles = (pattern) =>
-  [...new Bun.Glob(pattern).scanSync(rootDir)].filter(
+  globSync(pattern, { cwd: rootDir }).filter(
     (file) => !file.startsWith("test/unit/code-quality/"),
   );
 
 export const codeQualityTestsStep = {
   name: "tests:code-quality",
-  cmd: "bun",
-  args: ["test", "test/unit/code-quality", "--concurrent", "--timeout", "1500"],
+  cmd: "npx",
+  args: ["vitest", "run", "test/unit/code-quality"],
 };
 
 /**
@@ -301,8 +275,8 @@ export const codeQualityTestsStep = {
  */
 export const integrationTestsStep = {
   name: "tests:integration",
-  cmd: "bun",
-  args: ["test", "test/integration", "--concurrent", "--timeout", "1500"],
+  cmd: "npx",
+  args: ["vitest", "run", "test/integration"],
 };
 
 /**
@@ -539,12 +513,11 @@ export function extractErrorsFromOutput(output) {
  */
 const printCoverageFailureBlock = () => {
   const lcovPath = join(rootDir, "coverage/lcov.info");
-  const bunfigPath = join(rootDir, "bunfig.toml");
-  const reported = reportCoverageFailures(lcovPath, bunfigPath);
+  const reported = reportCoverageFailures(lcovPath);
   if (!reported) {
     console.log("  Coverage threshold not met. Check coverage output above.");
   }
-  console.log("  Thresholds are defined in bunfig.toml (coverageThreshold).");
+  console.log("  Excluded files are listed in test/coverage-ignore.js.");
 };
 
 /**

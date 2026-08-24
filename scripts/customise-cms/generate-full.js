@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 /**
  * Generate Full .pages.yml Script
@@ -7,7 +7,7 @@
  * with all collections and all features enabled.
  * Respects use_visual_editor setting from config.json.
  *
- * Usage: bun run generate-pages-yml
+ * Usage: npm run generate-pages-yml
  */
 
 import { writeFile } from "node:fs/promises";

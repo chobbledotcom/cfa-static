@@ -1,9 +1,12 @@
+import { build } from "esbuild";
+
 const buildBundle = (name, isDevelopment, options = {}) =>
-  Bun.build({
-    entrypoints: [`src/_lib/public/${name}.js`],
-    outdir: "_site/assets/js",
-    naming: `${name}.js`,
-    target: "browser",
+  build({
+    entryPoints: [`src/_lib/public/${name}.js`],
+    outfile: `_site/assets/js/${name}.js`,
+    bundle: true,
+    format: "esm",
+    platform: "browser",
     sourcemap: "linked",
     minify: !isDevelopment,
     ...options,

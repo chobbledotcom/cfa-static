@@ -4,9 +4,6 @@ logs
 *.log
 .pnpm-debug.log*
 
-# npm (we use pnpm)
-package-lock.json
-
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -158,3 +155,6 @@ src/assets/icons/iconify/test/
 
 .claude
 .codex
+
+# cpd.test.js writes its report fixture here
+test/unit/scripts/.cpd-report-fixture/

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { configureLinkList, linkList } from "#eleventy/link-list.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 

@@ -30,7 +30,7 @@ const paths = ["src/_lib", "src/_data", "scripts", "packages"];
 const ignorePatterns = ["**/index.js", "**/customise-cms/**", "**/mutation/**"];
 
 const result = spawnSync(
-  "bunx",
+  "npx",
   [
     "jscpd",
     ...paths,

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { collectItemErrors, validateItem } from "#utils/validate-item.js";
 
 /** Run collectItemErrors on a tagged page with a single block and return errors */

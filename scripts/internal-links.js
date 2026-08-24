@@ -1,13 +1,13 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { tokenize } from "@nfrasser/simple-html-tokenizer";
+import { globSync } from "tinyglobby";
 
 const INTERNAL_ORIGIN = "https://internal.invalid";
 const URI_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 
-const listFiles = (rootDir) => [
-  ...new Bun.Glob("**/*").scanSync({ cwd: rootDir, onlyFiles: true }),
-];
+const listFiles = (rootDir) =>
+  globSync("**/*", { cwd: rootDir, onlyFiles: true });
 
 const getAttribute = (token, name) =>
   token.attributes.find(([attribute]) => attribute.toLowerCase() === name)?.[1];
@@ -31,9 +31,23 @@ const getInternalHrefs = (tokens) => {
   });
 };
 
+/**
+ * When the site is built with a path prefix (e.g. a GitHub Pages project
+ * site at /cfa-static/), absolute internal links carry the prefix but the
+ * output files on disk do not - strip it before resolving.
+ */
+const PATH_PREFIX = process.env.PATH_PREFIX || "/";
+
+const stripPathPrefix = (pathname) => {
+  if (PATH_PREFIX === "/" || !pathname.startsWith(PATH_PREFIX)) {
+    return pathname;
+  }
+  return `/${pathname.slice(PATH_PREFIX.length)}`;
+};
+
 const resolveTarget = (source, href) => {
   const url = new URL(href, `${INTERNAL_ORIGIN}/${source}`);
-  return url.pathname.replace(/^\/+/, "");
+  return stripPathPrefix(url.pathname).replace(/^\/+/, "");
 };
 
 const targetExists = (files, target) =>

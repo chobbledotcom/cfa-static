@@ -2,7 +2,7 @@
 // Ensures all design-system SCSS files have styles scoped to .design-system
 // This prevents design-system styles from leaking to other pages
 
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { fs, getFiles, path, rootDir } from "#test/test-utils.js";
 import { filter, flatMap, notMemberOf, pipe } from "#toolkit/fp/array.js";
 

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { linkableContent } from "#utils/linkable-content.js";
 
 describe("linkableContent", () => {

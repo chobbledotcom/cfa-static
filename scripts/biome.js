@@ -22,6 +22,6 @@ const useLocal = hasCommand("biome");
 
 const result = useLocal
   ? spawnSync("biome", args, { stdio: "inherit" })
-  : spawnSync("bunx", ["@biomejs/biome@2.4.11", ...args], { stdio: "inherit" });
+  : spawnSync("npx", ["@biomejs/biome@2.4.11", ...args], { stdio: "inherit" });
 
 process.exit(result.status ?? 1);
