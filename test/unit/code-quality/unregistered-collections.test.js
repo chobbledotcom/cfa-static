@@ -6,8 +6,8 @@
  * buildRegisteredNames and findViolations internally). Both catch the
  * same issue: accessing `collections.foo` where "foo" is not registered.
  *
- * The build-time check runs during `bun run build`.
- * This test runs during `bun test` for faster feedback.
+ * The build-time check runs during `npm run build`.
+ * This test runs during `npm test` for faster feedback.
  */
 import { describe, expect, test } from "vitest";
 import {
