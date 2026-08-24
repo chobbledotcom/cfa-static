@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { expectValidScriptTag } from "#test/test-utils.js";
+import { expectProp, expectValidScriptTag } from "#test/test-utils.js";
 
 describe("test-utils", () => {
   // ============================================
@@ -55,5 +55,12 @@ describe("test-utils", () => {
 
       expect(() => expectValidScriptTag(validTag)).not.toThrow();
     });
+  });
+});
+
+describe("expectProp", () => {
+  test("matches defined values and undefined holes alike", () => {
+    const rows = [{ maybe: "x" }, {}];
+    expectProp("maybe")(rows, ["x", undefined]);
   });
 });

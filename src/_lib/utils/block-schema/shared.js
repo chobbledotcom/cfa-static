@@ -140,11 +140,6 @@ export const ITEMS_COMMON_FIELDS = {
  * collection and filter (e.g. `category-products`, `child-categories`) and
  * only need to expose how items render.
  */
-export const ITEMS_SUGAR_FIELDS = {
-  ...ITEMS_PRESENTATION_FIELDS,
-  image_aspect_ratio: IMAGE_ASPECT_RATIO_FIELD,
-};
-
 export const REVEAL_BOOLEAN_FIELD = {
   type: "boolean",
   default: "true",
@@ -202,13 +197,4 @@ export const OVERLAY_CONTENT_FIELDS = {
     description:
       "Markdown overlay content rendered in `.prose` inside the `<figcaption>`.",
   },
-};
-
-export const VIDEO_BG_SHARED_FIELDS = {
-  video_title: {
-    ...str("Video Title"),
-    default: '"Background video"',
-    description: "Accessible `title` on the iframe.",
-  },
-  ...OVERLAY_CONTENT_FIELDS,
 };

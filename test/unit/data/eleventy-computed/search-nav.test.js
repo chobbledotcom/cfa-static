@@ -57,4 +57,3 @@ describe("eleventyComputed.eleventyNavigation", () => {
     expect(eleventyComputed.eleventyNavigation({})).toBeUndefined();
   });
 });
-

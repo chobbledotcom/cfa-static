@@ -1,9 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { expectObjectProps } from "#test/test-utils.js";
 import {
-  createMockReview,
   createPostSchemaData,
-  createProductSchemaData,
   createSchemaData,
 } from "#test/unit/utils/schema-helper-utils.js";
 import {
@@ -29,21 +27,6 @@ const orgMeta = (overrides = {}) =>
   buildOrganizationMeta(
     createSchemaData({ pageUrl: "/", name: "Home", ...overrides }),
   );
-
-/** Curried: (price input) => numeric price from offers */
-const strippedPrice = (price) => productMeta({ price }).offers.price;
-
-/** Build productMeta with mock reviews from specs */
-const testProductMeta = (reviewSpecs) => {
-  const mockReviews = reviewSpecs.map((spec) =>
-    createMockReview({
-      name: spec.name,
-      rating: spec.rating,
-      ...(spec.date && { date: new Date(spec.date) }),
-    }),
-  );
-  return productMeta({ reviews: mockReviews, tags: ["products"] });
-};
 
 describe("buildBaseMeta", () => {
   test("returns basic meta with url, title, and description", () => {

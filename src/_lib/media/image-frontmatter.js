@@ -38,7 +38,6 @@ export const isValidImage = (imagePath, baseDir = SRC_DIR) => {
   throw new Error(`Image file not found: ${fullPath}`);
 };
 
-
 /**
  * Returns the first valid image from an array of candidates.
  *

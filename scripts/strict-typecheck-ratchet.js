@@ -14,7 +14,7 @@ import { spawnSync } from "node:child_process";
 import { ROOT_DIR } from "#lib/paths.js";
 
 // Current baseline - lower this as you fix errors
-const CURRENT_ERROR_COUNT = 354;
+const CURRENT_ERROR_COUNT = 211;
 
 // Files that currently pass strict mode (must not regress)
 const STRICT_CLEAN_FILES = [
@@ -82,9 +82,17 @@ const STRICT_CLEAN_FILES = [
 ];
 
 const result = spawnSync(
+  "bun",
   [
-            "tsconfig.strict.json",
-        ],
+    "run",
+    "tsc",
+    "--noEmit",
+    "-p",
+    "tsconfig.strict.json",
+    "--incremental",
+    "--tsBuildInfoFile",
+    "tsconfig.strict.tsbuildinfo",
+  ],
   {
     cwd: ROOT_DIR,
     stdio: ["inherit", "pipe", "pipe"],
@@ -129,13 +137,15 @@ if (errorCount > CURRENT_ERROR_COUNT) {
   console.error("");
   console.error("   📝 What to do:");
   console.error(
-    );
+    "   1. Review the errors below and add proper TypeScript types",
+  );
   console.error("   2. Consider using 'unknown' instead of implicit 'any'");
   console.error("   3. Add JSDoc type annotations if needed");
   console.error("   4. Update CURRENT_ERROR_COUNT when done fixing errors");
   console.error("");
   console.error(
-    );
+    "   🔍 All errors in non-strict files (review to find what changed):",
+  );
   for (const [file, errors] of errorsByFile) {
     if (!STRICT_CLEAN_FILES.includes(file)) {
       console.error(`\n      ${file}`);
@@ -166,7 +176,8 @@ if (regressions.length > 0) {
   }
   console.error("");
   console.error(
-    );
+    "   ⚠️  Fix these regressions immediately - they were previously strict-clean.",
+  );
   failed = true;
 }
 

@@ -9,7 +9,6 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
-import { map } from "#toolkit/fp/array.js";
 import { omit } from "#toolkit/fp/object.js";
 
 // Test fixture helpers for creating Eleventy-style collection items
@@ -88,7 +87,6 @@ import {
 
 const rootDir = ROOT_DIR;
 const srcDir = SRC_DIR;
-const CART_STORAGE_KEY = "shopping_cart";
 
 // Wrap toolkit's createTempDir to use test directory (not cwd)
 const createTempDir = (testName, suffix = "") => {
@@ -268,26 +266,9 @@ const item = (name, options = {}) => ({
 /**
  * Create items from an array of [name, options] tuples.
  */
-const items = map(([name, options]) => item(name, options));
 
 const createFrontmatter = (frontmatterData, content = "") =>
   matter.stringify(content, frontmatterData);
-
-const createProduct = ({
-  slug = null,
-  name = "Test Product",
-  categories = [],
-  order = DEFAULT_ORDER,
-  ...extraData
-} = {}) => ({
-  ...(slug && { fileSlug: slug }),
-  data: {
-    name,
-    categories,
-    order,
-    ...extraData,
-  },
-});
 
 // ============================================
 // Eleventy-specific assertion helpers
@@ -296,12 +277,6 @@ const createProduct = ({
 /**
  * Assert that an HTML string contains a valid unordered list structure.
  */
-const expectHtmlList = (html) => {
-  expect(html.includes("<ul>")).toBe(true);
-  expect(html.includes("</ul>")).toBe(true);
-  expect(html.includes("<li>")).toBe(true);
-};
-
 /**
  * Assert that a result is a valid script tag with correct id and type.
  */
@@ -312,7 +287,6 @@ const expectValidScriptTag = (result) => {
 };
 
 // Pre-built data array checkers
-const expectGalleries = expectDataArray("gallery");
 const expectResultTitles = expectDataArray("name");
 
 // ============================================
@@ -321,10 +295,6 @@ const expectResultTitles = expectDataArray("name");
 
 const collectionApi = (items) => ({
   getFilteredByTag: () => items,
-});
-
-const taggedCollectionApi = (tagMap) => ({
-  getFilteredByTag: (tag) => tagMap[tag] ?? [],
 });
 
 // ============================================
@@ -343,13 +313,6 @@ const withConfiguredMock = (configureFn) => () => {
     shortcodes: mockConfig.shortcodes || {},
     asyncShortcodes: mockConfig.asyncShortcodes || {},
   };
-};
-
-/** Get a collection by name: getCollectionFrom("events")(configureEvents)(tagMap) */
-const getCollectionFrom = (collectionName) => (configureFn) => (tagMap) => {
-  const mockConfig = createMockEleventyConfig();
-  configureFn(mockConfig);
-  return mockConfig.collections[collectionName](taggedCollectionApi(tagMap));
 };
 
 // ============================================
@@ -395,7 +358,6 @@ export {
   // Resource management (from toolkit)
   bracket,
   bracketAsync,
-  CART_STORAGE_KEY,
   // Mocking (from toolkit)
   captureConsole,
   captureConsoleLogAsync,
@@ -408,7 +370,6 @@ export {
   createFrontmatter,
   // Temp file management
   createMockEleventyConfig,
-  createProduct,
   createTempDir,
   createTempFile,
   createTempSnippetsDir,
@@ -421,23 +382,19 @@ export {
   expectAsyncThrows,
   expectDataArray,
   expectErrorsInclude,
-  expectGalleries,
   // Assertions
-  expectHtmlList,
   expectObjectProps,
   expectProp,
   expectResultTitles,
   expectValidScriptTag,
   extractFunctions,
   fs,
-  getCollectionFrom,
   // File discovery
   getFiles,
   // Image popup fixtures
   imagePopupDialogHtml,
   // Fixture factories
   item,
-  items,
   mockFetch,
   mockModule,
   omit,
@@ -450,7 +407,6 @@ export {
   SRC_SCSS_FILES,
   srcDir,
   TEST_FILES,
-  taggedCollectionApi,
   toData,
   // Curried config mock factories
   withConfiguredMock,

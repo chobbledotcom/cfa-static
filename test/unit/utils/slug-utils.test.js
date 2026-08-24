@@ -123,4 +123,3 @@ describe("buildPermalink", () => {
     expect(buildPermalink(data, "posts")).toBe("/posts/draft/");
   });
 });
-

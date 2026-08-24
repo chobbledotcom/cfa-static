@@ -70,7 +70,7 @@ const ALLOWED_PROCESS_CWD = frozenSet([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = frozenSet([
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:158", // createExtractor accumulates results in a Set
+  "test/test-utils.js:156", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",

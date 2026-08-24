@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { useSharedSite } from "#test/test-site-factory.js";
 
-const SITE_URL = "https://example.chobble.com";
+const SITE_URL = "https://cfa-static.example.com";
 
 const getSchema = async (site, outputPath) => {
   const doc = await site.getDoc(outputPath);
@@ -12,6 +12,11 @@ const getSchema = async (site, outputPath) => {
 
 const getGraphItem = (schema, type) =>
   schema["@graph"].find((item) => item["@type"] === type);
+
+const getBreadcrumbNames = (schema) =>
+  getGraphItem(schema, "BreadcrumbList").itemListElement.map(
+    (item) => item.item.name,
+  );
 
 describe("generated SEO metadata", () => {
   const getSite = useSharedSite({
@@ -35,14 +40,12 @@ describe("generated SEO metadata", () => {
         },
       },
       {
-        path: "products/schema-widget.md",
+        path: "pages/faq-page.md",
         frontmatter: {
-          name: "Schema Widget",
-          subtitle: "A structured widget",
-          price: "From £495",
-          thumbnail: "src/images/placeholders/blue.svg",
+          name: "FAQ Page",
+          permalink: "/faq-page/",
           blocks: [
-            { type: "markdown", content: "# Schema Widget" },
+            { type: "markdown", content: "# FAQ Page" },
             {
               type: "faqs",
               items: [
@@ -56,33 +59,17 @@ describe("generated SEO metadata", () => {
         },
       },
       {
-        path: "products/poa-widget.md",
-        frontmatter: {
-          name: "POA Widget",
-          subtitle: "Ask for a price",
-          price: "POA",
-          thumbnail: "src/images/placeholders/orange.svg",
-          blocks: [{ type: "markdown", content: "# POA Widget" }],
-        },
-      },
-      {
         path: "news/2024-02-03-schema-news.md",
         frontmatter: {
           name: "Schema News",
           meta_description: "Structured news description",
-          author: "src/team/jane-seo.md",
+          author: "Jane SEO",
           thumbnail: "src/images/placeholders/green.svg",
+          navigationParent: "News",
           blocks: [
             { type: "markdown", content: "# Schema News" },
             { type: "news-meta" },
           ],
-        },
-      },
-      {
-        path: "team/jane-seo.md",
-        frontmatter: {
-          name: "Jane SEO",
-          blocks: [{ type: "markdown", content: "Jane's biography." }],
         },
       },
       {
@@ -97,31 +84,18 @@ describe("generated SEO metadata", () => {
     ],
   });
 
-  test("renders complete product, breadcrumb, FAQ, and global JSON-LD", async () => {
+  test("renders FAQ, breadcrumb, and global JSON-LD", async () => {
     const site = getSite();
-    const outputPath = "/products/schema-widget/index.html";
+    const outputPath = "/faq-page/index.html";
     const schema = await getSchema(site, outputPath);
-    const product = getGraphItem(schema, "Product");
 
-    expect(product).toMatchObject({
-      name: "Schema Widget",
-      url: `${SITE_URL}/products/schema-widget/`,
-      description: "A structured widget",
-      image: `${SITE_URL}/images/placeholders/blue.svg`,
-      brand: { "@type": "Brand", name: "The Chobble Template" },
-      offers: { "@type": "Offer", price: 495, priceCurrency: "GBP" },
-    });
     expect(getGraphItem(schema, "Organization")).toBeDefined();
     expect(getGraphItem(schema, "WebSite")).toBeDefined();
 
+    expect(getBreadcrumbNames(schema)).toEqual(["Home", "FAQ Page"]);
     const breadcrumbs = getGraphItem(schema, "BreadcrumbList");
-    expect(breadcrumbs.itemListElement.map((item) => item.item.name)).toEqual([
-      "Home",
-      "Products",
-      "Schema Widget",
-    ]);
     expect(breadcrumbs.itemListElement.at(-1).item["@id"]).toBe(
-      `${SITE_URL}/products/schema-widget/`,
+      `${SITE_URL}/faq-page/`,
     );
 
     const faq = getGraphItem(schema, "FAQPage");
@@ -129,17 +103,6 @@ describe("generated SEO metadata", () => {
       name: "Does it have schema?",
       acceptedAnswer: { text: "Yes, automatically." },
     });
-    expect(site.getOutput(outputPath)).toContain(
-      '<meta property="og:type" content="product">',
-    );
-  });
-
-  test("omits product offers for unparseable prices", async () => {
-    const schema = await getSchema(
-      getSite(),
-      "/products/poa-widget/index.html",
-    );
-    expect(getGraphItem(schema, "Product").offers).toBeUndefined();
   });
 
   test("renders complete news JSON-LD from authored content", async () => {
@@ -150,9 +113,14 @@ describe("generated SEO metadata", () => {
       description: "Structured news description",
       image: `${SITE_URL}/images/placeholders/green.svg`,
       author: { "@type": "Person", name: "Jane SEO" },
-      publisher: { "@type": "Organization", name: "The Chobble Template" },
+      publisher: { "@type": "Organization", name: "CfA Static" },
       datePublished: "2024-02-03",
     });
+  });
+
+  test("renders news breadcrumb schema through the collection index", async () => {
+    const schema = await getSchema(getSite(), "/news/schema-news/index.html");
+    expect(getBreadcrumbNames(schema)).toEqual(["Home", "News", "Schema News"]);
   });
 
   test("renders normal page JSON-LD and escaped social cards", async () => {

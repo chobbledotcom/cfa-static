@@ -91,13 +91,7 @@ export const saveCmsConfig = async (config) => {
  * @returns {CmsConfig} Default configuration with all options enabled
  */
 export const createDefaultConfig = () => ({
-  collections: [
-    "pages",
-    "news",
-    "guide-categories",
-    "guide-pages",
-    "snippets",
-  ],
+  collections: ["pages", "news", "guide-categories", "guide-pages", "snippets"],
   features: {
     permalinks: true,
     redirects: true,

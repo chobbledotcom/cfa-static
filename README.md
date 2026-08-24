@@ -1,77 +1,58 @@
-# The Chobble Template
+# CfA Static
 
-**⚠️ Don't forget to change the Formspark and Botpoison info in `_data/config.json` or in your repository's action secrets ⚠️**
+A static-site template for small informational and marketing sites, built on
+[Eleventy](https://www.11ty.dev/) and [Bun](https://bun.sh/). Pages are
+assembled from composable, schema-validated content blocks written in YAML
+frontmatter, so engineering-adjacent authors (and AI assistants) can build and
+edit pages without touching templates.
 
-**See this template in action at:**
+Derived from the [Chobble Template](https://github.com/chobbledotcom/chobble-template)
+(MIT), cut down to an informational core: no e-commerce, no forms, no user
+data handling — just fast, accessible, static pages.
 
-- [example.chobble.com](https://example.chobble.com)
-- [tradesperson-example.chobble.com](https://tradesperson-example.chobble.com)
-- [southportorganics.co.uk](https://www.southportorganics.co.uk)
-- [house-of-desserts.co.uk](https://www.house-of-desserts.co.uk)
-- [ukegroupnorth.com](https://www.ukegroupnorth.com)
-- [myalarmsecurity.co.uk](https://www.myalarmsecurity.co.uk)
-- [c-results.uk](https://www.c-results.uk)
-- [playsafeplayinspection.co.uk](https://www.playsafeplayinspection.co.uk)
-- [garsdalecottages.co.uk](https://www.garsdalecottages.co.uk)
-- [medwaymascots.co.uk](https://www.medwaymascots.co.uk)
-- [funprouk.co.uk](https://www.funprouk.co.uk)
+## What's included
 
-**Want me to make you a website based on this template?** Hit me up at [chobble.com](https://chobble.com).
+- **Content blocks** — ~35 block types (hero, FAQs, callouts, image cards,
+  split layouts, galleries, stats…) declared in frontmatter and validated at
+  build time with loud, file-specific errors. See [BLOCKS_LAYOUT.md](BLOCKS_LAYOUT.md)
+  for the full reference (generated from the block schemas, so it can't drift).
+- **Content types** — Pages, News (with Atom feed), Guides (categorised
+  documentation pages), and reusable Snippets.
+- **Multi-language** — publish the same page in more than one language with
+  `hreflang` tags, an `x-default`, and a footer language switcher. See the
+  Languages section below.
+- **Theming** — CSS custom properties throughout, ten prebuilt themes, a
+  visual theme editor at `/theme-editor/` with export.
+- **Images** — responsive `srcset` via eleventy-img, base64 LQIP placeholders,
+  aspect-ratio cropping, unused-image detection.
+- **Search** — static full-text search via Pagefind.
+- **SEO** — schema.org JSON-LD (WebSite, Organization, BreadcrumbList,
+  BlogPosting, FAQPage), canonical URLs, sitemap, social cards.
+- **Editing layer** — a generated [PagesCMS](https://pagescms.org/) config
+  (`.pages.yml`) wired to the block schemas, plus `bun run customise-cms`, an
+  interactive/non-interactive wizard that tailors the editor to the
+  collections a site actually uses.
 
-**💖 Want to support the development of this template? 💖** Donate at [liberapay.com/chobble](https://liberapay.com/chobble/)
+## Quick start
 
-An Eleventy starter for business websites. The GitHub action deploys to both Neocities and Bunny.net - you'll need to edit that for your setup.
+```bash
+bun install          # install dependencies (Bun, not npm)
+bun run serve        # dev server with hot reload
+bun run build        # build to _site/ (includes internal link check)
+bun test             # full suite: lint, typecheck, build, tests, coverage
+```
 
-## Content Types
+The build needs no secrets and no network services. The deployable artifact is
+the `_site/` directory — publish it with any static host or pipeline.
 
-- **Products** - galleries, options with SKUs, FAQs, specifications, features lists, linked reviews with ratings
-- **Categories** - product groupings with inherited thumbnails
-- **Events** - one-off and recurring schedules, iCal feed generation
-- **News** - blog posts with Atom feed
-- **Menus** - categories, items, pricing, dietary indicators (vegan, gluten-free, etc.)
-- **Locations** - multi-site support with sub-locations
-- **Properties** - for holiday lets, linked to locations
-- **Reviews** - linked to products, aggregate ratings
-- **Team** - member profiles
-- **Snippets** - reusable content blocks
+## Configuration
 
-## Shopping Cart & Payments
-
-- LocalStorage-based cart with quantity limits
-- Stripe/Square checkout via external [ecommerce backend](https://github.com/chobbledotcom/ecommerce)
-- Quote/enquiry mode (submit cart as request instead of payment)
-- Auto-generated SKUs via GitHub Action
-
-## Theming
-
-- 10 pre-built themes: Default, Neon, 90s Computer, Floral, Hacker, Monochrome, Ocean, Old Mac, Rainbow, Sunset
-- Per-page theme overrides
-- Visual theme editor at `/theme-editor/` with export
-- CSS custom properties for colours, fonts, borders, layout
-- SCSS support
-- Bunny Fonts integration
-
-## Images
-
-- Responsive images with `srcset` via `eleventy-img`
-- [Base64 LQIP placeholders](https://blog.chobble.com/blog/25-04-16-adding-base64-image-backgrounds-to-eleventy-img/)
-- Gallery component with thumbnail navigation and full-size overlay
-- Custom aspect ratio cropping
-
-## Forms
-
-- [Formspark](https://formspark.io/) for delivery
-- [Botpoison](https://botpoison.com/) spam protection
-- JSON-configured fields
-
-## SEO & Structured Data
-
-- Schema.org markup for products (with reviews/ratings), events, FAQs, organisation
-- Canonical URLs
-- Sitemap
-- Atom feed with XSL stylesheet
-- Meta descriptions, noindex support
-- hreflang tags and `og:locale` for sites published in more than one language
+- `src/_data/site.json` — site name, URL, social links
+- `src/_data/config.json` — feature toggles (breadcrumbs, theme switcher,
+  navigation style, search collections)
+- `src/_data/strings.json` — label and permalink overrides
+- `src/_data/languages.json` / `translations.json` — languages the site
+  publishes and which pages say the same thing in each
 
 ## Languages
 
@@ -80,69 +61,23 @@ template names a language.
 
 - `_data/languages.json` lists every language the site publishes, each with a
   `code`, `hreflang`, `og_locale`, `label`, `home_url` prefix, `home_label` and
-  `breadcrumb_label`. Exactly one entry has `is_default: true`, which is the
-  base language: the one every URL outside another language's prefix is written
-  in, and the one `hreflang="x-default"` points at.
+  `breadcrumb_label`. Exactly one entry has `is_default: true`.
 - `_data/translations.json` pairs the pages that say the same thing, keyed by
   language code, e.g. `[{ "en": "/about/", "de": "/de/ueber-uns/" }]`.
 
-A page's language comes from its URL prefix, and the layout, the head tags, the
-footer switcher and the breadcrumbs read it as `pageLanguage`. Exactly one
-language must be marked `is_default`, and a site that marks none fails the
-build. To add a language, add its entry,
-put its pages under its `home_url`, list them in `translations.json`, and
-translate `_includes/footer.html` and the navigation for it. A page with no
-counterpart in a language links that language's home page from the footer.
-
-The template ships one language and no translations, which renders exactly as
-it did before this existed: no hreflang tags and no switcher.
-
-What is translated is pages. Collection items (products, events, categories,
-properties, guide categories) have no language of their own: they are looked up
-by slug across the whole collection, and their labels come from
-`_data/strings.json`, which has no language dimension. A translated page that
-sits under a collection gets its index URL from the translation groups where a
-site has paired one, but the crumb's label, and any category or property crumb
-below it, still come from the base language. Translating a collection needs a
-language on its items and per-language strings, which is its own change.
-
-## Navigation & Layout
-
-- Horizontal or left sidebar navigation
-- Sticky mobile nav option
-- Two-column layout with sidebar
-- Slider component for horizontal scrolling
-- Scroll-fade animations (respects `prefers-reduced-motion`)
+A page's language comes from its URL prefix. The template ships one language
+and no translations, which renders with no hreflang tags and no switcher.
 
 ## Development
 
-- [Nix flakes](https://nixos.wiki/wiki/Flakes) with [direnv](https://direnv.net/) support
-- `bin/lint` - format with Biome
-- `bin/screenshot` - automated screenshots
-- [Biome](https://biomejs.dev/) linting
-- [jscpd](https://github.com/kucherenko/jscpd) duplicate detection
-- [Knip](https://knip.dev/) unused code detection
-- 17+ test files with custom runner
-- [instant.page](https://instant.page/) for link prefetching on hover
-
-## Deployment
-
-- GitHub Actions workflow for Neocities and Bunny.net
-- Forgejo Actions support
-- PagesCMS integration for no-code editing
-- External [ecommerce backend](https://github.com/chobbledotcom/ecommerce) for payment processing
-
-## Configuration
-
-- `_data/config.json` - Formspark, Botpoison, ecommerce checkout, map embed, nav options
-- `_data/site.json` - name, URL, description, social links (14 platforms), opening hours
-- `_data/meta.json` - language, organisation details for schema.org
-- `_data/languages.json` - languages the site publishes, and which is the base
-- `_data/translations.json` - pages that say the same thing in each language
-- `_data/strings.json` - customisable labels and permalink directories
-
-**Want a website based on this template? Clone this repo, or hit me up at [Chobble.com](https://chobble.com).**
+- [Biome](https://biomejs.dev/) linting, [Knip](https://knip.dev/) dead-code
+  detection, [jscpd](https://github.com/kucherenko/jscpd) duplicate detection
+- TypeScript checking via JSDoc, with a strictness ratchet
+- 140+ test files (unit, integration, code-quality) with mutation testing
+  (`bun run mutation`)
+- [Nix flakes](https://nixos.wiki/wiki/Flakes) with [direnv](https://direnv.net/)
+  support
 
 ## License
 
-[MIT](LICENSE). Releases before August 2026 were published under AGPLv3.
+[MIT](LICENSE).

@@ -28,9 +28,9 @@ describe("eleventyComputed.blocks", () => {
   });
 
   test("throws when a block contains unknown keys", async () => {
-    expect(
-      runSingle({ type: "markdown", video_url: "bad" }),
-    ).rejects.toThrow('unknown keys: "video_url"');
+    expect(runSingle({ type: "markdown", video_url: "bad" })).rejects.toThrow(
+      'unknown keys: "video_url"',
+    );
   });
 
   test("includes inputPath in thrown validation errors", async () => {
@@ -155,6 +155,4 @@ describe("eleventyComputed.blocks", () => {
     expect(result[0].reveal).toBe(true);
     expect(result[1].reveal).toBe(true);
   });
-
-
 });
