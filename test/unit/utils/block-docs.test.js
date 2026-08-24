@@ -33,7 +33,10 @@ describe("BLOCK_DOCS quality", () => {
 describe("BLOCKS_LAYOUT.md freshness", () => {
   test("BLOCKS_LAYOUT.md matches generated output", () => {
     const committed = readFileSync(BLOCKS_LAYOUT_PATH, "utf-8");
-    execSync(`bun ${GENERATOR_SCRIPT}`, { cwd: rootDir, stdio: "pipe" });
+    execSync(`"${process.execPath}" ${GENERATOR_SCRIPT}`, {
+      cwd: rootDir,
+      stdio: "pipe",
+    });
     const regenerated = readFileSync(BLOCKS_LAYOUT_PATH, "utf-8");
     expect(regenerated).toBe(committed);
   });

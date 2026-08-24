@@ -29,8 +29,8 @@ import { mapObject } from "#toolkit/fp/object.js";
  * Creates a standard set of test steps (lint and test)
  */
 const createBasicSteps = () => [
-  { name: "lint", cmd: "bun", args: ["run", "lint"] },
-  { name: "test", cmd: "bun", args: ["test"] },
+  { name: "lint", cmd: "npm", args: ["run", "lint"] },
+  { name: "test", cmd: "npm", args: ["test"] },
 ];
 
 /**
@@ -60,15 +60,15 @@ const captureSummaryOutput = (steps, results, title) =>
  */
 const createThreeSteps = () => [
   ...createBasicSteps(),
-  { name: "build", cmd: "bun", args: ["run", "build"] },
+  { name: "build", cmd: "npm", args: ["run", "build"] },
 ];
 
 /**
- * Creates a step that runs a bun script
+ * Creates a step that runs an inline node script
  */
-const createBunScriptStep = (name, script) => ({
+const createNodeScriptStep = (name, script) => ({
   name,
-  cmd: "bun",
+  cmd: process.execPath,
   args: ["-e", script],
 });
 
@@ -76,7 +76,7 @@ const createBunScriptStep = (name, script) => ({
  * Helper to create a single build step, results, and capture output
  */
 const createBuildTestOutput = (buildConfig) => {
-  const steps = [{ name: "build", cmd: "bun", args: ["run", "build"] }];
+  const steps = [{ name: "build", cmd: "npm", args: ["run", "build"] }];
   const results = createResults({ build: buildConfig });
   return captureSummaryOutput(steps, results);
 };
@@ -101,7 +101,7 @@ describe("test-runner-utils", () => {
     });
 
     test("Captures stdout and stderr in non-verbose mode", () => {
-      const step = createBunScriptStep(
+      const step = createNodeScriptStep(
         "error-step",
         "console.error('error message'); console.log('output')",
       );
@@ -114,7 +114,7 @@ describe("test-runner-utils", () => {
     });
 
     test("Returns non-zero status for failed command", () => {
-      const step = createBunScriptStep("failing-step", "process.exit(1)");
+      const step = createNodeScriptStep("failing-step", "process.exit(1)");
 
       const result = runStep(step, false);
 
@@ -395,7 +395,7 @@ Failed to compile
     });
 
     test("Uses custom title when provided", () => {
-      const steps = [{ name: "lint", cmd: "bun", args: ["run", "lint"] }];
+      const steps = [{ name: "lint", cmd: "npm", args: ["run", "lint"] }];
       const results = createResults({
         lint: {},
       });
