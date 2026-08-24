@@ -17,11 +17,8 @@ import {
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
-import { wrapImageHtml } from "#media/image-wrapper.js";
 import { dedupeAsync, jsonKey } from "#toolkit/fp/memoize.js";
-import { createHtml } from "#utils/dom-builder.js";
 import { slugify } from "#utils/slug-utils.js";
-import { isRickAstleyThumbnail } from "#utils/video.js";
 
 const shortHash = (str) =>
   crypto.createHash("md5").update(str).digest("hex").slice(0, 8);
@@ -106,28 +103,9 @@ const computeExternalImageHtml = dedupeAsync(
 );
 
 /**
- * @param {string | null} classes - CSS classes
- * @param {string | null} aspectRatio - Aspect ratio like "16/9"
- * @returns {Promise<string>} Placeholder image HTML
- */
-const generateRickAstleyPlaceholder = async (classes, aspectRatio) => {
-  const imgHtml = await createHtml("img", {
-    src: "/images/placeholders/pink.svg",
-    alt: "Video thumbnail",
-    loading: "lazy",
-  });
-  return wrapImageHtml(imgHtml, {
-    classes,
-    style: buildImageWrapperStyles({ bgImage: null, aspectRatio }),
-  });
-};
-
-/**
  * Process an external image URL into HTML or an Element.
  * Downloads and caches the image locally via eleventy-img.
- * Throws an error if the remote image cannot be fetched, unless the URL is
- * a Rick Astley placeholder video thumbnail — in that case, returns a
- * placeholder SVG to allow the build to continue.
+ * Throws an error if the remote image cannot be fetched.
  *
  * @param {Object} options - Processing options
  * @param {string} options.src - External image URL
@@ -147,18 +125,7 @@ const processExternalImage = async ({
   document: doc,
   ...imageProps
 }) => {
-  const html = await computeExternalImageHtml(imageProps).catch(
-    async (error) => {
-      if (!isRickAstleyThumbnail(imageProps.src)) {
-        throw error;
-      }
-      return generateRickAstleyPlaceholder(
-        imageProps.classes,
-        imageProps.aspectRatio,
-      );
-    },
-  );
-
+  const html = await computeExternalImageHtml(imageProps);
   return pipeline.resolveOutput(html, returnElement, doc);
 };
 

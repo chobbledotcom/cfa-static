@@ -24,7 +24,7 @@ blocks:
         description: Safe and secure storage for your valuable equipment.
   - type: code-block
     filename: install.sh
-    code: "bun install chobble-template\nbun run build\nbun run serve"
+    code: "bun install\nbun run build\nbun run serve"
   - type: stats
     items:
       - value: "100%"

@@ -30,71 +30,8 @@ export interface PagesCMSFaq {
 }
 
 /**
- * @typedef {Object} PagesCMSOption
- * @property {string} name - Option Name
- * @property {number} ?max_quantity - Max Quantity
- * @property {number} unit_price - Unit Price (£)
- * @property {number} ?days - Days (for hire products)
- */
-export interface PagesCMSOption {
-  name: string;
-  max_quantity?: number;
-  unit_price: number;
-  days?: number;
-}
-
-/**
- * @typedef {Object} PagesCMSFilterAttribute
- * @property {string} name - Name
- * @property {string} value - Value
- */
-export interface PagesCMSFilterAttribute {
-  name: string;
-  value: string;
-}
-
-/**
- * @typedef {Object} PagesCMSAddOnOption
- * @property {string} name - Name
- * @property {number} price - Price
- */
-export interface PagesCMSAddOnOption {
-  name: string;
-  price: number;
-}
-
-/**
- * @typedef {Object} PagesCMSAddOn
- * @property {string} ?intro - Intro
- * @property {PagesCMSAddOnOption[]} ?options - Add-on Options
- */
-export interface PagesCMSAddOn {
-  intro?: string;
-  options?: PagesCMSAddOnOption[];
-}
-
-/**
- * @typedef {Object} PagesCMSProduct
- * @property {string} ?product - Product
- */
-export interface PagesCMSProduct {
-  product?: string;
-}
-
-/**
- * @typedef {Object} PagesCMSOpeningTime
- * @property {string} day - Day
- * @property {string} hours - Hours
- */
-export interface PagesCMSOpeningTime {
-  day: string;
-  hours: string;
-}
-
-/**
  * @typedef {Object} PagesCMSSocial
  * @property {string} ?Github - Github
- * @property {string} ?Forgejo - Forgejo
  * @property {string} ?Facebook - Facebook
  * @property {string} ?Instagram - Instagram
  * @property {string} ?TikTok - TikTok
@@ -104,7 +41,6 @@ export interface PagesCMSOpeningTime {
  */
 export interface PagesCMSSocial {
   Github?: string;
-  Forgejo?: string;
   Facebook?: string;
   Instagram?: string;
   TikTok?: string;

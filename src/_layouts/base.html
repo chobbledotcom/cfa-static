@@ -8,8 +8,6 @@
     href="{{ '/css/design-system-bundle.css' | cacheBust }}"
   >
 
-  {%- include "js-config-script.html" -%}
-
   {%- include "bundle-script.html" -%}
 
   {%- include "head-schema.html" -%}
@@ -41,10 +39,7 @@
   </div>
   {%- include "design-system/footer.html" -%}
   {%- include "image-popup.html" -%}
-  {%- include "client-templates.html" -%}
   {% slot "templates" %}
   {%- include "theme-switcher.html" -%}
-  {%- include "cart-icon.html" -%}
-  {%- include "cart-overlay.html" -%}
 </body>
 </html>

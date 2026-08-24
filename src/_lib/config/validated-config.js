@@ -7,60 +7,9 @@
  *
  * Exports validated values for use by other modules.
  */
-import fs from "node:fs";
-import path from "node:path";
-import matter from "gray-matter";
-import configData from "#data/config.json" with { type: "json" };
 import languages from "#data/languages.json" with { type: "json" };
 import site from "#data/site.json" with { type: "json" };
-import { PAGES_DIR } from "#lib/paths.js";
 import { baseLanguageErrors } from "#utils/i18n.js";
-
-const VALID_CART_MODES = ["stripe", "quote"];
-const VALID_PRODUCT_MODES = ["buy", "hire"];
-const VALID_QUOTE_TYPES = ["hire"];
-
-/**
- * @param {string | null | undefined} value
- * @param {readonly string[]} validValues
- * @param {string} field
- * @param {string} defaultNote
- * @returns {string[]}
- */
-const validateEnum = (value, validValues, field, defaultNote) => {
-  if (!value || validValues.includes(value)) return [];
-  return [
-    `Invalid ${field}: "${value}". Must be one of: ${validValues.join(", ")}, or ${defaultNote}.`,
-  ];
-};
-
-const cartModeError = (cartMode, filename, issue) =>
-  `cart_mode is "${cartMode}" but src/pages/${filename} ${issue}`;
-
-const validatePageFrontmatter = (filename, permalink, cartMode) => {
-  const pagePath = path.isAbsolute(filename)
-    ? filename
-    : path.join(PAGES_DIR, filename);
-
-  if (!fs.existsSync(pagePath)) {
-    return [cartModeError(cartMode, filename, "does not exist")];
-  }
-
-  const { data } = matter.read(pagePath);
-  if (Object.keys(data).length === 0) {
-    return [cartModeError(cartMode, filename, "has no frontmatter")];
-  }
-
-  return data.permalink === permalink
-    ? []
-    : [
-        cartModeError(
-          cartMode,
-          filename,
-          `does not have permalink: ${permalink}`,
-        ),
-      ];
-};
 
 const siteUrlProtocolErrors = !site.url
   ? []
@@ -79,77 +28,7 @@ const siteUrlErrors = !site.url
       ...siteUrlProtocolErrors,
     ];
 
-const currencyErrors =
-  !configData.currency ||
-  Intl.supportedValuesOf("currency").includes(configData.currency)
-    ? []
-    : [
-        `Invalid currency: "${configData.currency}". Must be a valid ISO 4217 currency code (e.g. "GBP", "USD", "EUR").`,
-      ];
-
-const stripeCartErrors =
-  configData.cart_mode !== "stripe"
-    ? []
-    : [
-        ...(configData.ecommerce_api_host
-          ? []
-          : [
-              'cart_mode is "stripe" but ecommerce_api_host is not set in config.json',
-            ]),
-        ...validatePageFrontmatter(
-          "stripe-checkout.md",
-          "/stripe-checkout/",
-          "stripe",
-        ),
-        ...validatePageFrontmatter(
-          "order-complete.md",
-          "/order-complete/",
-          "stripe",
-        ),
-      ];
-
-const quoteFormTarget =
-  configData.contact_form_target ||
-  (configData.formspark_id &&
-    `https://submit-form.com/${configData.formspark_id}`);
-
-const quoteCartErrors =
-  configData.cart_mode !== "quote"
-    ? []
-    : [
-        ...(quoteFormTarget
-          ? []
-          : [
-              'cart_mode is "quote" but neither formspark_id nor contact_form_target is set in config.json',
-            ]),
-        ...validatePageFrontmatter("checkout.md", "/checkout/", "quote"),
-      ];
-
-const errors = [
-  ...baseLanguageErrors(languages),
-  ...siteUrlErrors,
-  ...currencyErrors,
-  ...validateEnum(
-    configData.product_mode,
-    VALID_PRODUCT_MODES,
-    "product_mode",
-    "null/omitted for default (buy)",
-  ),
-  ...validateEnum(
-    configData.cart_mode,
-    VALID_CART_MODES,
-    "cart_mode",
-    "null/omitted for no cart",
-  ),
-  ...validateEnum(
-    configData.quote_type,
-    VALID_QUOTE_TYPES,
-    "quote_type",
-    "null/omitted for default (no hire days)",
-  ),
-  ...stripeCartErrors,
-  ...quoteCartErrors,
-];
+const errors = [...baseLanguageErrors(languages), ...siteUrlErrors];
 
 if (errors.length > 0) {
   const heading =

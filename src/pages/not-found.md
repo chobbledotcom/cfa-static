@@ -2,7 +2,7 @@
 name: Not Found
 meta_title: Not Found
 no_index: true
-permalink: /bunnycdn_errors/404.html
+permalink: /404.html
 blocks:
   - type: markdown
     content: |

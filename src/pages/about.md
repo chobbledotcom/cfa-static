@@ -19,8 +19,6 @@ blocks:
       - icon: "hugeicons:customer-support"
         name: Expert Support
         description: Our team of specialists is here to help you 24/7.
-  - type: snippet
-    reference: specs
   - type: markdown
     content: |
       ## Our Story

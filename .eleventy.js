@@ -8,21 +8,12 @@ import { configureScss } from "#build/scss.js";
 
 // Collections
 import { configureCollectionUtils } from "#utils/collection-utils.js";
-import { configureCategories } from "#collections/categories.js";
-import { configureEvents } from "#collections/events.js";
 import { configureGuides } from "#collections/guides.js";
 import { configureNews } from "#collections/news.js";
-import { configureMenus } from "#collections/menus.js";
 import { configureNavigation } from "#collections/navigation.js";
-import { configureProducts } from "#collections/products.js";
-import { configureProperties } from "#collections/properties.js";
-import { configureReviews } from "#collections/reviews.js";
-import { configureSocials } from "#collections/socials.js";
 import { configureTags } from "#collections/tags.js";
-import { configureTeam } from "#collections/team.js";
 import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 import { configureCollectionLookup } from "#eleventy/collection-lookup.js";
-import { configureItemFilterData } from "#eleventy/item-filter-data.js";
 // Validation
 import { configureCollectionValidation } from "#eleventy/validate-collections.js";
 // Eleventy plugins
@@ -34,27 +25,16 @@ import { configureCapture } from "#eleventy/capture.js";
 import { configureFeed } from "#eleventy/feed.js";
 import { configureFileInfo } from "#eleventy/file-info.js";
 import { amendMarkdown, configureFileUtils } from "#eleventy/file-utils.js";
-import { configureFormatPrice } from "#eleventy/format-price.js";
-import { configureFormHelpers } from "#eleventy/form-helpers.js";
 import { configureGitDates } from "#eleventy/git-dates.js";
 import { configureHtmlTransform } from "#eleventy/html-transform.js";
-import { configureICal } from "#eleventy/ical.js";
-import { configureJsConfig } from "#eleventy/js-config.js";
 import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
 import { configureItemsTextList } from "#eleventy/items-text-list.js";
 import { configureLinkList } from "#eleventy/link-list.js";
 
-import { configureOpeningTimes } from "#eleventy/opening-times.js";
-import { configurePdf } from "#eleventy/pdf.js";
-import { configureRecurringEvents } from "#eleventy/recurring-events.js";
 import { configureRemovePattern } from "#eleventy/remove-pattern.js";
 import { configureScreenshots } from "#eleventy/screenshots.js";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
-import { configureVideo } from "#eleventy/video.js";
 import { configureWrapHashtags } from "#eleventy/wrap-hashtags.js";
-
-// Filters
-import { configureFilters } from "#filters/configure-filters.js";
 
 // Media
 import { configureIconify } from "#media/iconify.js";
@@ -82,8 +62,6 @@ export default async function (eleventyConfig) {
 
   eleventyConfig.amendLibrary("md", amendMarkdown);
 
-  // configureLayoutAliases(eleventyConfig);
-
   configureBlocks(eleventyConfig);
   configureBreadcrumbs(eleventyConfig);
   configureCacheBuster(eleventyConfig);
@@ -92,45 +70,27 @@ export default async function (eleventyConfig) {
   configureCanonicalUrl(eleventyConfig);
   configureCollectionFilter(eleventyConfig);
   configureCapture(eleventyConfig);
-  configureCategories(eleventyConfig);
-  configureEvents(eleventyConfig);
   configureLayoutAliases(eleventyConfig);
   await configureFeed(eleventyConfig);
   configureFileInfo(eleventyConfig);
   configureFileUtils(eleventyConfig);
-  configureFormatPrice(eleventyConfig);
-  configureFormHelpers(eleventyConfig);
   configureGitDates(eleventyConfig);
   configureGuides(eleventyConfig);
   configureHtmlTransform(eleventyConfig, processAndWrapImage);
-  configureICal(eleventyConfig);
   configureLinkList(eleventyConfig);
   await configureImages(eleventyConfig);
-  configurePdf(eleventyConfig);
-  configureJsConfig(eleventyConfig);
   configureIconify(eleventyConfig);
   configureInlineAsset(eleventyConfig);
-  configureItemFilterData(eleventyConfig);
   configureItemsTextList(eleventyConfig);
-  configureMenus(eleventyConfig);
   await configureNavigation(eleventyConfig);
   configureNews(eleventyConfig);
-  configureOpeningTimes(eleventyConfig);
-  configureRecurringEvents(eleventyConfig);
   configureRemovePattern(eleventyConfig);
   configureScreenshots(eleventyConfig);
-  configureFilters(eleventyConfig);
-  configureProducts(eleventyConfig);
-  configureProperties(eleventyConfig);
-  configureReviews(eleventyConfig);
-  configureSocials(eleventyConfig);
   configureScss(eleventyConfig);
   configureStyleBundle(eleventyConfig);
   configureTags(eleventyConfig);
-  configureTeam(eleventyConfig);
   configureThumbnailPlaceholder(eleventyConfig);
   configureUnusedImages(eleventyConfig);
-  configureVideo(eleventyConfig);
   configureWrapHashtags(eleventyConfig);
   configureJsBundler(eleventyConfig);
 
