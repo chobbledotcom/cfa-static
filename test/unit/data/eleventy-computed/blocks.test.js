@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import eleventyComputed from "#data/eleventyComputed.js";
-import { getVideoThumbnailUrl } from "#utils/video.js";
 
 const page = { inputPath: "test.html" };
 const name = "Test Item";
@@ -29,9 +28,9 @@ describe("eleventyComputed.blocks", () => {
   });
 
   test("throws when a block contains unknown keys", async () => {
-    expect(
-      runSingle({ type: "video-background", video_url: "bad" }),
-    ).rejects.toThrow('unknown keys: "video_url"');
+    expect(runSingle({ type: "markdown", video_url: "bad" })).rejects.toThrow(
+      'unknown keys: "video_url"',
+    );
   });
 
   test("includes inputPath in thrown validation errors", async () => {
@@ -39,9 +38,9 @@ describe("eleventyComputed.blocks", () => {
       eleventyComputed.blocks({
         blocks: [{ type: "unknown-type" }],
         name,
-        page: { inputPath: "src/products/example.md" },
+        page: { inputPath: "src/pages/example.md" },
       }),
-    ).rejects.toThrow("src/products/example.md");
+    ).rejects.toThrow("src/pages/example.md");
   });
 
   test("applies the features defaults (reveal, center)", async () => {
@@ -155,20 +154,5 @@ describe("eleventyComputed.blocks", () => {
     });
     expect(result[0].reveal).toBe(true);
     expect(result[1].reveal).toBe(true);
-  });
-
-  test("enriches video-cards block videos with thumbnail_url", async () => {
-    const id = "dQw4w9WgXcQ";
-    const block = await runSingle({
-      type: "video-cards",
-      videos: [{ id, name: "Section Heading" }],
-    });
-    expect(block.videos[0].thumbnail_url).toBe(await getVideoThumbnailUrl(id));
-    expect(block.videos[0].name).toBe("Section Heading");
-  });
-
-  test("leaves a video-cards block alone when its videos field is missing", async () => {
-    const block = await runSingle({ type: "video-cards", videos: undefined });
-    expect(block.videos).toBeUndefined();
   });
 });

@@ -79,9 +79,9 @@ describe("a site publishing two languages", () => {
 
   test("gives both pages the same reciprocal hreflang set", async () => {
     const expected = [
-      ["en-GB", "https://example.chobble.com/about/"],
-      ["x-default", "https://example.chobble.com/about/"],
-      ["de", "https://example.chobble.com/de/ueber-uns/"],
+      ["en-GB", "https://cfa-static.example.com/about/"],
+      ["x-default", "https://cfa-static.example.com/about/"],
+      ["de", "https://cfa-static.example.com/de/ueber-uns/"],
     ];
     expect(alternatesOf(await getSite().getDoc("/about/index.html"))).toEqual(
       expected,
@@ -152,8 +152,8 @@ describe("a site publishing two languages", () => {
     expect(
       list.itemListElement.map((entry) => [entry.item.name, entry.item["@id"]]),
     ).toEqual([
-      ["Startseite", "https://example.chobble.com/de/"],
-      ["Über uns", "https://example.chobble.com/de/ueber-uns/"],
+      ["Startseite", "https://cfa-static.example.com/de/"],
+      ["Über uns", "https://cfa-static.example.com/de/ueber-uns/"],
     ]);
   });
 });

@@ -2,8 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import markdownIt from "markdown-it";
-import { getOpeningTimesHtml } from "#eleventy/opening-times.js";
-import { getRecurringEventsHtml } from "#eleventy/recurring-events.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 import { processLiquidStrings } from "#utils/liquid-render.js";
 import { validateSidebarBlocks } from "#utils/sidebar-blocks.js";
@@ -96,11 +94,6 @@ const createMarkdownRenderer = () => {
  * @typedef {{ blocks?: Record<string, unknown>[] } & Record<string, unknown>} SnippetData
  */
 
-/** @type {AsyncHtmlProvider} */
-const getOpeningHtml = /** @type {any} */ (getOpeningTimesHtml);
-/** @type {AsyncHtmlProvider} */
-const getRecurringHtml = /** @type {any} */ (getRecurringEventsHtml);
-
 /** @param {unknown[]} args */
 const cacheKeyFromArgs = (args) => args.join(",");
 
@@ -164,16 +157,6 @@ const readSnippetData = memoize(
   { cacheKey: cacheKeyFromArgs },
 );
 
-/**
- * @param {string} content
- * @param {string} pattern
- * @param {AsyncHtmlProvider} getHtml
- */
-const replaceIfPresent = async (content, pattern, getHtml) =>
-  content.includes(pattern)
-    ? content.replace(pattern, await getHtml())
-    : content;
-
 const renderSnippet = memoize(
   /**
    * @param {string} name
@@ -190,18 +173,7 @@ const renderSnippet = memoize(
     const parsed = loadSnippet(name, baseDir);
     if (!parsed) return defaultString;
 
-    const withOpening = await replaceIfPresent(
-      parsed.content,
-      "{% opening_times %}",
-      getOpeningHtml,
-    );
-    const processed = await replaceIfPresent(
-      withOpening,
-      "{% recurring_events %}",
-      getRecurringHtml,
-    );
-
-    return mdRenderer.render(processed);
+    return mdRenderer.render(parsed.content);
   },
   { cacheKey: cacheKeyFromArgs },
 );

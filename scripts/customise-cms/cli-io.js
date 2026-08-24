@@ -19,8 +19,6 @@ const CLI_OPTIONS = {
   disable: { type: "string", short: "d" },
   "src-folder": { type: "boolean" },
   "no-src-folder": { type: "boolean" },
-  "custom-home": { type: "boolean" },
-  "no-custom-home": { type: "boolean" },
   "save-config": { type: "boolean" },
   "no-save-config": { type: "boolean" },
   "dry-run": { type: "boolean" },

@@ -15,17 +15,10 @@ import { map, unique } from "#toolkit/fp/array.js";
  * @property {boolean} permalinks - Enable custom permalinks on items
  * @property {boolean} redirects - Enable redirect_from support
  * @property {boolean} faqs - Enable FAQs on items
- * @property {boolean} specs - Enable specifications on products/properties
- * @property {boolean} features - Enable feature lists on products/properties
  * @property {boolean} galleries - Enable image galleries on items
- * @property {boolean} add_ons - Enable add-ons on products
  * @property {boolean} external_navigation_urls - Enable external URLs in navigation
- * @property {boolean} external_purchases - Enable external purchase URLs for products
- * @property {boolean} event_locations_and_dates - Enable locations and dates for events
  * @property {boolean} use_visual_editor - Use rich-text visual editor instead of markdown code editor
  * @property {boolean} no_index - Enable hiding pages/news from listings
- * @property {boolean} parent_categories - Enable parent/child category hierarchy
- * @property {boolean} keywords - Enable search keywords on products and categories
  */
 
 /**
@@ -33,7 +26,6 @@ import { map, unique } from "#toolkit/fp/array.js";
  * @property {string[]} collections - List of enabled collection names
  * @property {CmsFeatures} features - Feature flags
  * @property {boolean} hasSrcFolder - Whether the template has a src/ folder
- * @property {boolean} customHomePage - Whether template has a custom home.html layout
  * @property {string[]} [customBlocksCollections] - Custom blocks-only collections (e.g., ["clients", "services"])
  */
 
@@ -99,36 +91,15 @@ export const saveCmsConfig = async (config) => {
  * @returns {CmsConfig} Default configuration with all options enabled
  */
 export const createDefaultConfig = () => ({
-  collections: [
-    "pages",
-    "products",
-    "categories",
-    "news",
-    "events",
-    "team",
-    "reviews",
-    "properties",
-    "guide-categories",
-    "guide-pages",
-    "menus",
-    "menu-categories",
-    "menu-items",
-    "snippets",
-  ],
+  collections: ["pages", "news", "guide-categories", "guide-pages", "snippets"],
   features: {
     permalinks: true,
     redirects: true,
     faqs: true,
-    features: true,
     galleries: true,
-    add_ons: true,
-    event_locations_and_dates: true,
     use_visual_editor: false,
     no_index: true,
-    keywords: true,
-    parent_categories: true,
   },
   hasSrcFolder: true,
-  customHomePage: false,
   customBlocksCollections: [],
 });

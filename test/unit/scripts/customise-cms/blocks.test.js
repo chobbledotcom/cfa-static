@@ -29,13 +29,13 @@ describe("generateBlocksField envelope", () => {
 describe("generateBlocksField block component", () => {
   test("derives a _componentName by replacing hyphens with underscores", () => {
     const field = generateBlocksField(
-      ["section-header", "video-background"],
+      ["section-header", "image-background"],
       false,
     );
 
     expect(field.blocks.map((b) => b._componentName)).toEqual([
+      "block_image_background",
       "block_section_header",
-      "block_video_background",
     ]);
   });
 

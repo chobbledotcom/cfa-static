@@ -15,19 +15,12 @@ import { getCollection } from "#scripts/customise-cms/collections.js";
 import { getCollectionFieldBuilders } from "#scripts/customise-cms/field-builders.js";
 import {
   COMMON_FIELDS,
-  createAddOnsField,
   FAQS_FIELD,
   GALLERY_FIELD,
 } from "#scripts/customise-cms/fields.js";
 import {
-  buildEventsFields,
   buildGuidePagesFields,
-  buildMenuCategoriesFields,
-  buildMenuItemsFields,
   buildNewsFields,
-  buildProductsFields,
-  buildPropertiesFields,
-  buildReviewsFields,
 } from "#scripts/customise-cms/item-builders.js";
 import { compact, filter, memberOf } from "#toolkit/fp/array.js";
 import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
@@ -57,13 +50,7 @@ const getCoreFields = (collectionName, config, fields) => {
 
   const dynamicBuilders = {
     news: buildNewsFields,
-    products: buildProductsFields,
-    reviews: buildReviewsFields,
-    events: buildEventsFields,
-    properties: buildPropertiesFields,
     "guide-pages": buildGuidePagesFields,
-    "menu-categories": buildMenuCategoriesFields,
-    "menu-items": buildMenuItemsFields,
   };
 
   const builder = dynamicBuilders[collectionName];
@@ -74,14 +61,10 @@ const getCoreFields = (collectionName, config, fields) => {
  * Get collection-specific optional fields based on what the collection supports
  * @param {CollectionDefinition} collection - Collection definition
  * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {(false | CmsField)[]} Collection-specific optional fields
  */
 const getCollectionSpecificFields = (collection, config) => [
   config.features.galleries && collection.supportsGallery && GALLERY_FIELD,
-  config.features.add_ons &&
-    collection.supportsAddOns &&
-    createAddOnsField(config.features.use_visual_editor),
 ];
 
 /**
@@ -95,8 +78,7 @@ const addOptionalFields = (coreFields, collectionName, config) => {
   if (collectionName === "snippets") return coreFields;
 
   const collection = getCollection(collectionName);
-  const alreadyHasBlocks =
-    collectionName === "pages" || collectionName === "categories";
+  const alreadyHasBlocks = collectionName === "pages";
   const allowedBlockTypes = Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
     isBlockAllowedIn(type, collectionName),
   );
@@ -168,22 +150,6 @@ const RAW_VIEW_CONFIGS = {
     fields: ["thumbnail", "name", "date"],
     primary: "name",
     sort: ["date"],
-  },
-  events: {
-    fields: [
-      "thumbnail",
-      "name",
-      "event_date",
-      "recurring_date",
-      "event_location",
-    ],
-    primary: "name",
-    sort: ["name"],
-  },
-  properties: {
-    fields: ["thumbnail", "name", "subtitle", "bedrooms", "sleeps"],
-    primary: "name",
-    sort: ["name"],
   },
 };
 

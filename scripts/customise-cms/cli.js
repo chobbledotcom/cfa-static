@@ -25,15 +25,10 @@ const ALL_FEATURES = [
   "permalinks",
   "redirects",
   "faqs",
-  "features",
   "galleries",
-  "add_ons",
   "external_navigation_urls",
-  "external_purchases",
-  "event_locations_and_dates",
   "use_visual_editor",
   "no_index",
-  "parent_categories",
 ];
 
 /**
@@ -64,8 +59,6 @@ OPTIONS:
 TEMPLATE STRUCTURE:
   --src-folder            Template has a 'src' folder (default)
   --no-src-folder         Template does not have a 'src' folder
-  --custom-home           Template has a custom home.html layout
-  --no-custom-home        Template uses default homepage (default)
 
 BLOCKS LAYOUT:
   --custom-blocks-collections LIST  Comma-separated custom blocks collections (e.g., clients,services)
@@ -90,17 +83,17 @@ EXAMPLES:
   # Regenerate .pages.yml using saved config (after updating generator)
   bun run customise-cms --regenerate
 
-  # Enable products, categories, and news with FAQs and galleries
-  bun run customise-cms --collections products,categories,news --enable faqs,galleries
+  # Enable news and guides with FAQs and galleries
+  bun run customise-cms --collections news,guide-categories,guide-pages --enable faqs,galleries
 
   # Enable all collections but disable visual editor
   bun run customise-cms --all --disable use_visual_editor
 
   # Preview configuration without saving
-  bun run customise-cms --collections pages,products,categories --dry-run
+  bun run customise-cms --collections pages,news --dry-run
 
   # Use all defaults for a simple site
-  bun run customise-cms --collections products,categories
+  bun run customise-cms --collections news
 `;
 
 /**
@@ -160,8 +153,6 @@ export const hasCliFlags = (values) => {
     "disable",
     "src-folder",
     "no-src-folder",
-    "custom-home",
-    "no-custom-home",
     "custom-blocks-collections",
     "save-config",
     "no-save-config",
@@ -320,12 +311,6 @@ export const buildConfigFromCli = (values) => {
       "src-folder",
       "no-src-folder",
       true,
-    ),
-    customHomePage: resolveBooleanFlag(
-      values,
-      "custom-home",
-      "no-custom-home",
-      false,
     ),
     customBlocksCollections,
   };

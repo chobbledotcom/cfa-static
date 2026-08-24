@@ -84,9 +84,8 @@ const hasNestedLookupInParens = (cleaned) => {
  * predates the scanner improvement. Each should be fixed and removed.
  */
 const KNOWN_VIOLATIONS = frozenSet([
-  "src/_lib/eleventy/pdf.js:61",
   "src/_lib/utils/block-columns.js:181",
-  "src/_lib/utils/block-schema.js:358",
+  "src/_lib/utils/block-schema.js:282",
 ]);
 
 /**

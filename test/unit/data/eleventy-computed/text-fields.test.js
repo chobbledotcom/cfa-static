@@ -39,20 +39,6 @@ describe("eleventyComputed.description", () => {
   });
 });
 
-describe("eleventyComputed.rating", () => {
-  test("returns the explicit rating when set", () => {
-    expect(eleventyComputed.rating({ rating: 3 })).toBe(3);
-  });
-
-  test("preserves a rating of zero instead of applying the default", () => {
-    expect(eleventyComputed.rating({ rating: 0 })).toBe(0);
-  });
-
-  test("defaults to 5 when rating is not set", () => {
-    expect(eleventyComputed.rating({})).toBe(5);
-  });
-});
-
 describe("eleventyComputed.order", () => {
   test("returns the explicit order when set", () => {
     expect(eleventyComputed.order({ order: 5 })).toBe(5);

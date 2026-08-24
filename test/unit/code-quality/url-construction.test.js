@@ -10,11 +10,11 @@ const buildHardcodedUrlPatterns = memoize(() =>
   Object.entries(stringsBase)
     .filter(([key]) => key.endsWith("_dir"))
     .flatMap(([, dir]) => [
-      // Template literal: `${foo}/events/${...}` or `/events/${...}`
+      // Template literal: `${foo}/news/${...}` or `/news/${...}`
       new RegExp(`\`[^\`]*\\/${dir}\\/\\$\\{`),
-      // String concatenation: "/events/" + or '/events/' +
+      // String concatenation: "/news/" + or '/news/' +
       new RegExp(`["']\\/${dir}\\/["']\\s*\\+`),
-      // Assignment: = "/events/..." or = `/events/...`
+      // Assignment: = "/news/..." or = `/news/...`
       new RegExp(`=\\s*["'\`]\\/${dir}\\/[^"'\`]+["'\`]`),
     ]),
 );
@@ -51,26 +51,26 @@ const { find: findHardcodedUrls, analyze: analyzeHardcodedUrls } =
   });
 
 describe("url-construction", () => {
-  test("Detects hardcoded /events/ URL pattern", () => {
-    const source = "const url = `/events/${slug}/`;";
+  test("Detects hardcoded /news/ URL pattern", () => {
+    const source = "const url = `/news/${slug}/`;";
     const results = findHardcodedUrls(source);
     expect(results.length).toBe(1);
   });
 
-  test("Detects hardcoded /products/ URL pattern", () => {
-    const source = 'const url = "/products/" + productSlug;';
+  test("Detects hardcoded /guide/ URL pattern", () => {
+    const source = 'const url = "/guide/" + productSlug;';
     const results = findHardcodedUrls(source);
     expect(results.length).toBe(1);
   });
 
   test("Allows hardcoded URLs in comments", () => {
-    const source = "// Example: `/events/${slug}/`";
+    const source = "// Example: `/news/${slug}/`";
     const results = findHardcodedUrls(source);
     expect(results.length).toBe(0);
   });
 
   test("Allows URL splitting/parsing operations", () => {
-    const source = 'const parts = url.split("/events/");';
+    const source = 'const parts = url.split("/news/");';
     const results = findHardcodedUrls(source);
     expect(results.length).toBe(0);
   });

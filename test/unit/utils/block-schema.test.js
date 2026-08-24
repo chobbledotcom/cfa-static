@@ -80,7 +80,7 @@ describe("validateBlocks error handling", () => {
   });
 
   test("throws when a block has an unknown key and lists allowed keys", () => {
-    const blocks = [{ type: "video-background", video_url: "bad" }];
+    const blocks = [{ type: "markdown", video_url: "bad" }];
     expect(() => validateBlocks(blocks)).toThrow('unknown keys: "video_url"');
     expect(() => validateBlocks(blocks)).toThrow("Allowed keys:");
   });
@@ -94,13 +94,13 @@ describe("validateBlocks error handling", () => {
   test("reports the offending block index (1-based) in error messages", () => {
     const blocks = [
       { type: "section-header", intro: "## Hello" },
-      { type: "video-background", video_url: "bad" },
+      { type: "markdown", video_url: "bad" },
     ];
     expect(() => validateBlocks(blocks)).toThrow("block 2");
   });
 
   test("appends caller-supplied context to the error message", () => {
-    const blocks = [{ type: "video-background", video_url: "bad" }];
+    const blocks = [{ type: "markdown", video_url: "bad" }];
     expect(() => validateBlocks(blocks, " in test-file.html")).toThrow(
       "in test-file.html",
     );
@@ -141,7 +141,7 @@ describe("validateBlocks error handling", () => {
 
   test("collects errors from all blocks rather than stopping at the first", () => {
     const blocks = [
-      { type: "video-background", video_url: "bad" },
+      { type: "markdown", video_url: "bad" },
       { type: "stats", bogus_key: "x" },
     ];
     expect(() => validateBlocks(blocks)).toThrow("block 1");
@@ -159,16 +159,16 @@ describe("validateBlocks field-type validation", () => {
   // the offending block, field, and file.
 
   test("rejects a markdown field authored as an array", () => {
-    const blocks = [{ type: "contact-form", content: ["a", "b"] }];
+    const blocks = [{ type: "markdown", content: ["a", "b"] }];
     expect(() => validateBlocks(blocks)).toThrow(
-      'Block "contact-form" field "content" must be a string but got array',
+      'Block "markdown" field "content" must be a string but got array',
     );
   });
 
   test("rejects a markdown field authored as an object", () => {
-    const blocks = [{ type: "contact-form", content: { text: "hi" } }];
+    const blocks = [{ type: "markdown", content: { text: "hi" } }];
     expect(() => validateBlocks(blocks)).toThrow(
-      'Block "contact-form" field "content" must be a string but got object',
+      'Block "markdown" field "content" must be a string but got object',
     );
   });
 
@@ -194,9 +194,9 @@ describe("validateBlocks field-type validation", () => {
   });
 
   test("rejects a boolean field authored as a string", () => {
-    const blocks = [{ type: "reviews", current_item: "yes" }];
+    const blocks = [{ type: "features", items: [], center: "yes" }];
     expect(() => validateBlocks(blocks)).toThrow(
-      'Block "reviews" field "current_item" must be a boolean but got string',
+      'Block "features" field "center" must be a boolean but got string',
     );
   });
 
@@ -224,21 +224,21 @@ describe("validateBlocks field-type validation", () => {
   });
 
   test("allows null to mean 'omitted'", () => {
-    const blocks = [{ type: "contact-form", content: null }];
+    const blocks = [{ type: "markdown", content: null }];
     expect(() => validateBlocks(blocks)).not.toThrow();
   });
 
   test("field-type error includes the file context", () => {
-    const blocks = [{ type: "contact-form", content: ["a"] }];
-    expect(() => validateBlocks(blocks, " in src/products/widget.md")).toThrow(
-      "in src/products/widget.md",
+    const blocks = [{ type: "markdown", content: ["a"] }];
+    expect(() => validateBlocks(blocks, " in src/pages/widget.md")).toThrow(
+      "in src/pages/widget.md",
     );
   });
 
   test("field-type error reports the block index", () => {
     const blocks = [
       { type: "section-header", intro: "x" },
-      { type: "contact-form", content: { bad: true } },
+      { type: "markdown", content: { bad: true } },
     ];
     expect(() => validateBlocks(blocks)).toThrow("block 2");
   });
@@ -251,10 +251,8 @@ describe("getBlockContainerWidth", () => {
     expect(getBlockContainerWidth("section-header")).toBe("wide");
   });
 
-  test("returns full for image and video background blocks", () => {
+  test("returns full for full-bleed blocks", () => {
     for (const type of [
-      "video-background",
-      "bunny-video-background",
       "image-background",
       "marquee-images",
       "hero",
@@ -284,11 +282,9 @@ describe("getBlockTemplate", () => {
   test("honors the per-module template override (split-* variants)", () => {
     for (const type of [
       "split-image",
-      "split-video",
       "split-code",
       "split-icon-links",
       "split-html",
-      "split-buy-options",
     ]) {
       expect(getBlockTemplate(type)).toBe("design-system/split.html");
     }

@@ -14,12 +14,9 @@ const DISABLED_FEATURES = {
   permalinks: false,
   redirects: false,
   faqs: false,
-  specs: false,
-  features: false,
   galleries: false,
-  add_ons: false,
-  event_locations_and_dates: false,
   use_visual_editor: false,
+  no_index: false,
 };
 
 /**
@@ -30,7 +27,6 @@ const createTestConfig = (overrides = {}) => ({
   collections: overrides.collections ?? ["pages"],
   features: { ...DISABLED_FEATURES, ...(overrides.features ?? {}) },
   hasSrcFolder: overrides.hasSrcFolder ?? true,
-  customHomePage: overrides.customHomePage ?? false,
   customBlocksCollections: overrides.customBlocksCollections ?? [],
 });
 
@@ -72,8 +68,9 @@ describe("generatePagesYaml output validity", () => {
       .map((c) => c.name);
 
     expect(collectionNames).toContain("pages");
-    expect(collectionNames).toContain("products");
-    expect(collectionNames).toContain("homepage");
+    expect(collectionNames).toContain("news");
+    expect(collectionNames).toContain("guide-categories");
+    expect(collectionNames).toContain("guide-pages");
     expect(collectionNames).toContain("site");
   });
 
@@ -137,18 +134,12 @@ describe("generatePagesYaml collections", () => {
     expect(yaml).not.toContain("name: snippets");
   });
 
-  test("always includes file-based configs (homepage, site, meta)", () => {
+  test("always includes file-based configs (site, meta, alt-tags)", () => {
     const yaml = generatePagesYaml(createTestConfig());
 
-    expect(yaml).toContain("name: homepage");
     expect(yaml).toContain("name: site");
     expect(yaml).toContain("name: meta");
-  });
-
-  test("excludes homepage when customHomePage is true", () => {
-    const yaml = generatePagesYaml(createTestConfig({ customHomePage: true }));
-
-    expect(yaml).not.toContain("name: homepage");
+    expect(yaml).toContain("name: alt-tags");
   });
 });
 
@@ -171,16 +162,15 @@ describe("generatePagesYaml paths", () => {
 });
 
 describe("generatePagesYaml feature flags", () => {
-  test("includes faqs/features/gallery fields when enabled", () => {
+  test("includes faqs/gallery fields when enabled", () => {
     const yaml = generatePagesYaml(
       createTestConfig({
-        collections: ["pages", "products", "categories"],
-        features: { faqs: true, features: true, galleries: true },
+        collections: ["pages", "news"],
+        features: { faqs: true, galleries: true },
       }),
     );
 
     expect(yaml).toContain("name: faqs");
-    expect(yaml).toContain("name: features");
     expect(yaml).toContain("name: gallery");
   });
 
@@ -197,7 +187,7 @@ describe("generatePagesYaml feature flags", () => {
   test("includes permalink and redirect_from when enabled", () => {
     const yaml = generatePagesYaml(
       createTestConfig({
-        collections: ["pages", "products", "categories"],
+        collections: ["pages", "news"],
         features: { permalinks: true, redirects: true },
       }),
     );
@@ -208,61 +198,36 @@ describe("generatePagesYaml feature flags", () => {
 });
 
 describe("generatePagesYaml reference fields", () => {
-  test("includes product reference on reviews when products is selected", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "reviews", "products", "categories"],
-      }),
-    );
-
-    expect(yaml).toContain("name: reviews");
-    expect(yaml).toContain("collection: products");
-  });
-
-  test("excludes product reference on reviews when products is not selected", () => {
-    const config = createTestConfig({ collections: ["pages", "reviews"] });
-    const yaml = generatePagesYaml(config);
-    const reviewsSection = getSection("reviews")(yaml);
-
-    expect(reviewsSection).not.toContain("collection: products");
-  });
-
-  test("includes property reference on guide-categories when properties selected", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "guide-categories", "guide-pages", "properties"],
-      }),
-    );
-    const section = getSection("guide-categories")(yaml);
-
-    expect(section).toContain("collection: properties");
-  });
-
-  test("excludes property reference on guide-categories when properties not selected", () => {
+  test("includes guide-category reference on guide-pages when selected", () => {
     const yaml = generatePagesYaml(
       createTestConfig({
         collections: ["pages", "guide-categories", "guide-pages"],
       }),
     );
-    const section = getSection("guide-categories")(yaml);
+    const section = getSection("guide-pages")(yaml);
 
-    expect(section).not.toContain("collection: properties");
+    expect(section).toContain("collection: guide-categories");
   });
 
-  test("keeps property location slugs editable without a dangling reference", () => {
-    const parsed = YAML.parse(
-      generatePagesYaml(
-        createTestConfig({ collections: ["pages", "properties"] }),
-      ),
+  test("excludes guide-category reference when guide-categories not selected", () => {
+    const yaml = generatePagesYaml(
+      createTestConfig({
+        collections: ["pages", "guide-pages"],
+      }),
     );
-    const properties = parsed.content.find(
-      (entry) => entry.name === "properties",
-    );
-    const locations = properties.fields.find(
-      (field) => field.name === "locations",
-    );
+    const section = getSection("guide-pages")(yaml);
 
-    expect(locations).toMatchObject({ type: "string", list: true });
+    expect(section).not.toContain("collection: guide-categories");
+  });
+
+  test("news author is a plain string, not a reference", () => {
+    const parsed = YAML.parse(
+      generatePagesYaml(createTestConfig({ collections: ["pages", "news"] })),
+    );
+    const news = parsed.content.find((entry) => entry.name === "news");
+    const author = news.fields.find((field) => field.name === "author");
+
+    expect(author).toMatchObject({ type: "string" });
   });
 });
 
@@ -282,114 +247,6 @@ describe("generatePagesYaml visual editor", () => {
     );
 
     expect(yaml).toContain("type: rich-text");
-  });
-
-  test("team Biography field respects visual editor", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "team"],
-        features: { use_visual_editor: true },
-      }),
-    );
-    const teamSection = getSection("team")(yaml);
-
-    expect(teamSection).toContain("label: Biography");
-    expect(teamSection).toContain("type: rich-text");
-  });
-});
-
-describe("generatePagesYaml events", () => {
-  const getEventsSection = getSection("events");
-
-  test("includes location/date fields when event_locations_and_dates enabled", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "events"],
-        features: { event_locations_and_dates: true },
-      }),
-    );
-    const section = getEventsSection(yaml);
-
-    expect(section).toContain("name: event_date");
-    expect(section).toContain("name: event_time");
-    expect(section).toContain("name: event_location");
-    expect(section).toContain("name: map_embed_src");
-  });
-
-  test("excludes location/date fields when disabled", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({ collections: ["pages", "events"] }),
-    );
-    const section = getEventsSection(yaml);
-
-    expect(section).not.toContain("name: event_date");
-    expect(section).not.toContain("name: event_time");
-    expect(section).not.toContain("name: event_location");
-  });
-
-  test("view config includes date fields only when enabled", () => {
-    const enabled = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "events"],
-        features: { event_locations_and_dates: true },
-      }),
-    );
-    const disabled = generatePagesYaml(
-      createTestConfig({ collections: ["pages", "events"] }),
-    );
-
-    expect(getEventsSection(enabled)).toContain("event_date");
-    expect(getEventsSection(disabled)).not.toContain("- event_date");
-  });
-});
-
-describe("generatePagesYaml add_ons", () => {
-  test("products include add_ons when enabled", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "products", "categories"],
-        features: { add_ons: true },
-      }),
-    );
-    const section = getSection("products")(yaml);
-
-    expect(section).toContain("name: add_ons");
-  });
-
-  test("products exclude add_ons when disabled", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "products", "categories"],
-      }),
-    );
-    const section = getSection("products")(yaml);
-
-    expect(section).not.toContain("name: add_ons");
-  });
-
-  test("add_ons never appears on non-product collections", () => {
-    const yaml = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "products", "categories", "news"],
-        features: { add_ons: true },
-      }),
-    );
-
-    expect(getSection("news")(yaml)).not.toContain("name: add_ons");
-    expect(getSection("pages")(yaml)).not.toContain("name: add_ons");
-  });
-
-  test("add_ons intro respects visual editor setting", () => {
-    const withEditor = generatePagesYaml(
-      createTestConfig({
-        collections: ["pages", "products", "categories"],
-        features: { add_ons: true, use_visual_editor: true },
-      }),
-    );
-    const addOnsStart = withEditor.indexOf("name: add_ons");
-    const addOnsSection = withEditor.substring(addOnsStart, addOnsStart + 500);
-
-    expect(addOnsSection).toContain("type: rich-text");
   });
 });
 
@@ -422,14 +279,14 @@ describe("generatePagesYaml view config", () => {
 });
 
 describe("generatePagesYaml blocks", () => {
-  test("adds blocks field to products", () => {
+  test("adds blocks field to news", () => {
     const yaml = generatePagesYaml(
       createTestConfig({
-        collections: ["pages", "products", "categories"],
+        collections: ["pages", "news"],
       }),
     );
 
-    expect(getSection("products")(yaml)).toContain("name: blocks");
+    expect(getSection("news")(yaml)).toContain("name: blocks");
   });
 
   test("does not duplicate blocks on pages", () => {

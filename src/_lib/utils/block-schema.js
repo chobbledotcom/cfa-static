@@ -15,33 +15,18 @@
  *   - `BLOCK_DOCS`       — documentation (for BLOCKS_LAYOUT.md generation)
  */
 
-import * as addToCart from "#utils/block-schema/add-to-cart.js";
-import * as bunnyVideoBackground from "#utils/block-schema/bunny-video-background.js";
-import * as buyOptions from "#utils/block-schema/buy-options.js";
 import * as callout from "#utils/block-schema/callout.js";
-import * as categoryProducts from "#utils/block-schema/category-products.js";
-import * as childCategories from "#utils/block-schema/child-categories.js";
 import * as codeBlock from "#utils/block-schema/code-block.js";
-import * as contactForm from "#utils/block-schema/contact-form.js";
 import * as cta from "#utils/block-schema/cta.js";
-import * as customContactForm from "#utils/block-schema/custom-contact-form.js";
 import * as downloads from "#utils/block-schema/downloads.js";
-import * as eventContactSection from "#utils/block-schema/event-contact-section.js";
-import * as eventGallery from "#utils/block-schema/event-gallery.js";
-import * as eventHeader from "#utils/block-schema/event-header.js";
-import * as eventMap from "#utils/block-schema/event-map.js";
-import * as eventMeta from "#utils/block-schema/event-meta.js";
-import * as eventProducts from "#utils/block-schema/event-products.js";
 import * as faqs from "#utils/block-schema/faqs.js";
 import * as features from "#utils/block-schema/features.js";
-import * as freetobook from "#utils/block-schema/freetobook.js";
 import * as gallery from "#utils/block-schema/gallery.js";
 import * as guideCategories from "#utils/block-schema/guide-categories.js";
 import * as guideHeader from "#utils/block-schema/guide-header.js";
 import * as guideNavigation from "#utils/block-schema/guide-navigation.js";
 import * as guidePagesList from "#utils/block-schema/guide-pages-list.js";
 import * as hero from "#utils/block-schema/hero.js";
-import * as hirePricing from "#utils/block-schema/hire-pricing.js";
 import * as html from "#utils/block-schema/html.js";
 import * as iconLinks from "#utils/block-schema/icon-links.js";
 import * as iframeEmbed from "#utils/block-schema/iframe-embed.js";
@@ -55,40 +40,17 @@ import * as linkButton from "#utils/block-schema/link-button.js";
 import * as linkColumns from "#utils/block-schema/link-columns.js";
 import * as markdown from "#utils/block-schema/markdown.js";
 import * as marqueeImages from "#utils/block-schema/marquee-images.js";
-import * as menu from "#utils/block-schema/menu.js";
-import * as menuPdfDownload from "#utils/block-schema/menu-pdf-download.js";
 import * as newsMeta from "#utils/block-schema/news-meta.js";
-import * as productAddOns from "#utils/block-schema/product-add-ons.js";
-import * as productContactSection from "#utils/block-schema/product-contact-section.js";
-import * as productFeatures from "#utils/block-schema/product-features.js";
-import * as productGallery from "#utils/block-schema/product-gallery.js";
-import * as productMeta from "#utils/block-schema/product-meta.js";
-import * as propertyContact from "#utils/block-schema/property-contact.js";
-import * as propertyContactSection from "#utils/block-schema/property-contact-section.js";
-import * as propertyContent from "#utils/block-schema/property-content.js";
-import * as propertyFeatures from "#utils/block-schema/property-features.js";
-import * as propertyGallery from "#utils/block-schema/property-gallery.js";
-import * as propertyGuides from "#utils/block-schema/property-guides.js";
-import * as propertyMap from "#utils/block-schema/property-map.js";
-import * as purchaseLink from "#utils/block-schema/purchase-link.js";
-import * as quoteCart from "#utils/block-schema/quote-cart.js";
-import * as quoteCheckout from "#utils/block-schema/quote-checkout.js";
-import * as reviews from "#utils/block-schema/reviews.js";
 import * as sectionHeader from "#utils/block-schema/section-header.js";
 import { CONTAINER_FIELDS } from "#utils/block-schema/shared.js";
 import * as snippet from "#utils/block-schema/snippet.js";
-import * as socials from "#utils/block-schema/socials.js";
-import * as splitBuyOptions from "#utils/block-schema/split-buy-options.js";
 import * as splitCallout from "#utils/block-schema/split-callout.js";
 import * as splitCode from "#utils/block-schema/split-code.js";
 import * as splitFull from "#utils/block-schema/split-full.js";
 import * as splitHtml from "#utils/block-schema/split-html.js";
 import * as splitIconLinks from "#utils/block-schema/split-icon-links.js";
 import * as splitImage from "#utils/block-schema/split-image.js";
-import * as splitVideo from "#utils/block-schema/split-video.js";
 import * as stats from "#utils/block-schema/stats.js";
-import * as videoBackground from "#utils/block-schema/video-background.js";
-import * as videoCards from "#utils/block-schema/video-cards.js";
 
 /**
  * Iteration order determines the order that `scripts/generate-blocks-reference.js`
@@ -99,71 +61,33 @@ const BLOCK_MODULES = [
   sectionHeader,
   features,
   imageCards,
-  buyOptions,
-  addToCart,
   stats,
   codeBlock,
   hero,
   splitImage,
-  splitVideo,
   splitCode,
   splitIconLinks,
   splitHtml,
   splitCallout,
-  splitBuyOptions,
   splitFull,
   cta,
   callout,
-  videoBackground,
-  bunnyVideoBackground,
   imageBackground,
-  videoCards,
   items,
   itemsArray,
   itemsTextList,
-  categoryProducts,
-  childCategories,
-  menu,
-  menuPdfDownload,
-  socials,
   linkColumns,
-  contactForm,
-  customContactForm,
   markdown,
   html,
   iframeEmbed,
   include,
   newsMeta,
-  productGallery,
-  productMeta,
-  hirePricing,
-  purchaseLink,
-  productAddOns,
-  productFeatures,
-  productContactSection,
-  eventHeader,
-  eventGallery,
-  eventMeta,
-  eventProducts,
-  eventMap,
-  eventContactSection,
-  freetobook,
-  propertyGallery,
-  propertyContent,
-  propertyFeatures,
-  propertyGuides,
-  propertyMap,
-  propertyContactSection,
-  propertyContact,
   faqs,
   guideCategories,
   guideHeader,
   guideNavigation,
   guidePagesList,
-  quoteCart,
-  quoteCheckout,
   linkButton,
-  reviews,
   gallery,
   marqueeImages,
   iconLinks,

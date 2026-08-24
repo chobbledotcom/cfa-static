@@ -37,7 +37,6 @@ import {
 } from "#scripts/customise-cms/generator-helpers.js";
 import {
   getAltTagsConfig,
-  getHomepageConfig,
   getMetaConfig,
   getSiteConfig,
 } from "#scripts/customise-cms/static-configs.js";
@@ -119,15 +118,12 @@ export const generatePagesYaml = (config) => {
   );
 
   const hasSrcFolder = config.hasSrcFolder ?? true;
-  const customHomePage = config.customHomePage ?? false;
   const dataPath = getDataPath(hasSrcFolder);
   const imagesPath = hasSrcFolder ? "src/images" : "images";
 
-  // Build content array, conditionally including homepage
   const contentArray = [
     ...collectionConfigs,
     ...customBlocksConfigs,
-    ...(customHomePage ? [] : [getHomepageConfig(dataPath)]),
     getSiteConfig(dataPath),
     getMetaConfig(dataPath),
     getAltTagsConfig(dataPath),

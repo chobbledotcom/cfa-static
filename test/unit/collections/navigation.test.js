@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DEFAULT_PRODUCT_DATA, DEFAULTS } from "#config/helpers.js";
+import { DEFAULTS } from "#config/helpers.js";
 import {
   createMockEleventyConfig,
   expectResultTitles,
@@ -12,10 +12,8 @@ import { map } from "#toolkit/fp/array.js";
 await mockModule("#data/config.js", () => ({
   default: () => ({
     ...DEFAULTS,
-    products: DEFAULT_PRODUCT_DATA,
     nav_thumbnails: true,
     internal_link_suffix: "",
-    form_target: null,
   }),
 }));
 

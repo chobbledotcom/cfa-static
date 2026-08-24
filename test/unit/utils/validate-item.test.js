@@ -86,13 +86,13 @@ describe("collectItemErrors", () => {
     expect(errors[0]).toContain('"name"');
   });
 
-  test("returns error for video-cards block video missing name", () => {
-    const errors = errorsForBlock("video-cards", {
-      videos: [{ id: "abc123", name: "Good Video" }, { id: "xyz789" }],
+  test("returns error for image-cards block item missing name", () => {
+    const errors = errorsForBlock("image-cards", {
+      items: [{ image: "/a.jpg", name: "Good Card" }, { image: "/b.jpg" }],
     });
     expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('"video-cards"');
-    expect(errors[0]).toContain('"videos[1]"');
+    expect(errors[0]).toContain('"image-cards"');
+    expect(errors[0]).toContain('"items[1]"');
   });
 
   test("aggregates multiple missing name errors across blocks", () => {
@@ -148,9 +148,9 @@ describe("validateItem", () => {
         tags: ["pages"],
         blocks: [
           { type: "features", items: [{ description: "no name" }] },
-          { type: "video-cards", videos: [{ id: "abc" }] },
+          { type: "image-cards", items: [{ image: "/a.jpg" }] },
         ],
       }),
-    ).toThrow(/Item is missing required[\s\S]*"features"[\s\S]*"video-cards"/);
+    ).toThrow(/Item is missing required[\s\S]*"features"[\s\S]*"image-cards"/);
   });
 });

@@ -14,44 +14,6 @@ import { createObjectListField } from "#scripts/customise-cms/fields.js";
  */
 
 /**
- * Generate homepage settings configuration
- * @param {string} dataPath - Path to data directory
- * @returns {CollectionConfig} Homepage settings configuration
- */
-export const getHomepageConfig = (dataPath) => ({
-  name: "homepage",
-  label: "Homepage Settings",
-  type: "file",
-  path: `${dataPath}/homepage.json`,
-  fields: [
-    {
-      name: "show_products",
-      type: "boolean",
-      label: "Show Products Section",
-      default: true,
-    },
-    {
-      name: "show_menus",
-      type: "boolean",
-      label: "Show Menus Section",
-      default: true,
-    },
-    {
-      name: "show_news",
-      type: "boolean",
-      label: "Show News Section",
-      default: true,
-    },
-    {
-      name: "show_recurring_events",
-      type: "boolean",
-      label: "Show Recurring Events",
-      default: true,
-    },
-  ],
-});
-
-/**
  * Generate site configuration
  * @param {string} dataPath - Path to data directory
  * @returns {CollectionConfig} Site configuration
@@ -65,22 +27,11 @@ export const getSiteConfig = (dataPath) => ({
     { name: "name", type: "string", label: "Site Name" },
     { name: "url", type: "string", label: "Site URL" },
     {
-      name: "opening_times",
-      label: "Opening Times",
-      type: "object",
-      list: true,
-      fields: [
-        { name: "day", type: "string", label: "Day", required: true },
-        { name: "hours", type: "string", label: "Hours", required: true },
-      ],
-    },
-    {
       name: "socials",
       label: "Social Media Links",
       type: "object",
       fields: [
         { name: "Github", type: "string", label: "Github" },
-        { name: "Forgejo", type: "string", label: "Forgejo" },
         { name: "Facebook", type: "string", label: "Facebook" },
         { name: "Instagram", type: "string", label: "Instagram" },
         { name: "TikTok", type: "string", label: "TikTok" },
@@ -89,7 +40,6 @@ export const getSiteConfig = (dataPath) => ({
         { name: "RSS", type: "string", label: "RSS" },
       ],
     },
-    { name: "map_embed_src", type: "string", label: "Map Embed URL" },
   ],
 });
 

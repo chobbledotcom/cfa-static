@@ -1,15 +1,23 @@
-# CLAUDE.md - AI Assistant Guide for Chobble Template
+# CLAUDE.md - AI Assistant Guide for CfA Static
 
 ## Project Overview
 
-**Chobble Template** is an Eleventy (11ty) v3.0.0 static site generator for small business websites with e-commerce capabilities. It uses **Bun** as the package manager and runtime.
+**CfA Static** is an Eleventy (11ty) static-site template for small
+informational and marketing sites. It uses **Bun** as the package manager and
+runtime. Pages are assembled from composable, schema-validated content blocks
+declared in YAML frontmatter.
 
 ### Key Features
-- Content types: Products, Categories, Events, News, Menus, Locations, Properties, Reviews, Team profiles
-- E-commerce: Shopping cart (LocalStorage), Stripe Checkout, PayPal, Quote/enquiry mode
+- Content types: Pages, News, Guides (categorised documentation), Snippets
+- ~35 content blocks (hero, FAQs, callouts, image cards, split layouts,
+  galleries, stats…) rendered by a shared block pipeline
+- Multi-language publishing with hreflang tags and a language switcher
 - 10 pre-built themes with live theme editor
 - Responsive images with LQIP (Low Quality Image Placeholders)
-- SEO/Schema.org structured data, RSS feeds, iCal events
+- SEO/Schema.org structured data, Atom feed, Pagefind search
+- PagesCMS editing layer generated from the block schemas
+- No forms, no e-commerce, no user data handling — static informational
+  pages only
 
 ---
 
@@ -35,7 +43,7 @@ the source file(s), runs the mapped test file(s), and reports which mutants
 
 ```bash
 bun run mutation src/_lib/utils/slug-utils.js test/unit/utils/slug-utils.test.js
-bun run mutation 'src/_lib/filters/*.js' 'test/unit/filters/*.test.js' --exhaustive
+bun run mutation 'src/_lib/eleventy/*.js' 'test/unit/eleventy/*.test.js' --exhaustive
 ```
 
 Confirmed-equivalent survivors (no input can distinguish them) go in
@@ -45,30 +53,51 @@ Confirmed-equivalent survivors (no input can distinguish them) go in
 ```
 src/
 ├── _data/           # Site configuration (config.json, site.json, strings.json)
-├── _includes/       # Reusable HTML components (~85 files)
-├── _layouts/        # Page layout templates (~34 layouts)
+├── _includes/       # Reusable HTML components
+│   └── design-system/blocks/  # One template per content block
+├── _layouts/        # base.html — every page renders through it
 ├── _lib/            # Core JavaScript library
 │   ├── build/       # JS bundling, SCSS, theme compilation
-│   ├── collections/ # Eleventy collections (12 types)
+│   ├── collections/ # Eleventy collections (news, guides, navigation, tags)
 │   ├── config/      # Configuration helpers
-│   ├── eleventy/    # Eleventy plugins (~13 configs)
-│   ├── filters/     # URL-based filtering for products/properties
+│   ├── eleventy/    # Eleventy plugins (blocks, breadcrumbs, feed, …)
 │   ├── media/       # Image processing (sharp, eleventy-img)
 │   ├── public/      # Frontend JavaScript (bundled by Bun)
-│   └── utils/       # Pure utility functions
-├── css/             # SCSS stylesheets
-├── products/        # Product markdown files
-├── categories/      # Category data
-├── events/          # Event data
-└── [content dirs]/  # news, menus, locations, properties, etc.
+│   └── utils/       # Pure utility functions (block-schema, i18n, …)
+├── css/             # SCSS stylesheets (design-system/ per-block partials)
+├── pages/           # Page markdown files (blocks in frontmatter)
+├── news/            # News posts
+├── guide-categories/, guide-pages/  # Guide content
+└── snippets/        # Reusable content snippets
+
+scripts/
+├── customise-cms/   # PagesCMS config generator (interactive + CLI)
+├── generate-blocks-reference.js  # Regenerates BLOCKS_LAYOUT.md
+└── mutation/        # Mutation testing tooling
 
 test/
 ├── unit/            # Unit tests by feature
-├── integration/     # Integration tests
-├── code-quality/    # Code quality checks
+├── integration/     # Integration tests (build real sites)
+├── code-quality/    # Central allowlists for quality gates
 ├── test-utils.js    # Shared test utilities & factories
 └── TEST-QUALITY-CRITERIA.md  # Testing standards
 ```
+
+### The Block System
+
+Pages declare a `blocks:` array in frontmatter. Each block has a schema module
+in `src/_lib/utils/block-schema/<type>.js` (fields, docs, container width), a
+template in `src/_includes/design-system/blocks/<type>.html`, and usually an
+SCSS partial in `src/css/design-system/`. The registry in
+`src/_lib/utils/block-schema.js` aggregates them; blocks are validated at
+build time and unknown types or keys fail the build loudly.
+
+Three artifacts are **generated from the schemas** and enforced fresh by CI:
+- `BLOCKS_LAYOUT.md` — `bun run generate-blocks-reference`
+- `.pages.yml` — `bun run generate-pages-yml`
+- `src/_lib/types/pages-cms-generated.d.ts` — `bun run generate-cms-types`
+
+Regenerate all three after any block schema change.
 
 ---
 
@@ -78,7 +107,7 @@ Use Node.js subpath imports (defined in `package.json`):
 
 ```javascript
 import { memoize } from "#utils/memoize.js";
-import { configureProducts } from "#collections/products.js";
+import { configureNews } from "#collections/news.js";
 import { configureImages } from "#media/image.js";
 import config from "#data/config.json" with { type: "json" };
 import { ROOT_DIR } from "#lib/paths.js";
@@ -93,11 +122,14 @@ import { ROOT_DIR } from "#lib/paths.js";
 | `#collections/*` | `./src/_lib/collections/*` |
 | `#config/*` | `./src/_lib/config/*` |
 | `#eleventy/*` | `./src/_lib/eleventy/*` |
-| `#filters/*` | `./src/_lib/filters/*` |
 | `#media/*` | `./src/_lib/media/*` |
+| `#transforms/*` | `./src/_lib/transforms/*` |
 | `#utils/*` | `./src/_lib/utils/*` |
 | `#public/*` | `./src/_lib/public/*` |
+| `#guide-categories/*` | `./src/guide-categories/*` |
 | `#test/*` | `./test/*` |
+| `#scripts/*` | `./scripts/*` |
+| `#toolkit/*` | `./packages/js-toolkit/*` |
 
 ---
 
@@ -107,9 +139,9 @@ import { ROOT_DIR } from "#lib/paths.js";
 Files registering with Eleventy export a `configureX` function:
 
 ```javascript
-export function configureProducts(eleventyConfig) {
-  eleventyConfig.addCollection("products", ...);
-  eleventyConfig.addFilter("getProductsByCategory", ...);
+export function configureNews(eleventyConfig) {
+  eleventyConfig.addCollection("news", ...);
+  eleventyConfig.addFilter("someNewsFilter", ...);
 }
 ```
 
@@ -160,14 +192,14 @@ const expensiveComputation = memoize(
 
 ```javascript
 // BAD - masks the problem, makes debugging harder
-const getProduct = (id) => products.find(p => p.id === id) ?? { title: "Unknown" };
+const getPage = (slug) => pages.find(p => p.slug === slug) ?? { title: "Unknown" };
 const parseConfig = (json) => { try { return JSON.parse(json); } catch { return {}; } };
 
 // GOOD - fails immediately, stack trace points to the problem
-const getProduct = (id) => {
-  const product = products.find(p => p.id === id);
-  if (!product) throw new Error(`Product not found: ${id}`);
-  return product;
+const getPage = (slug) => {
+  const page = pages.find(p => p.slug === slug);
+  if (!page) throw new Error(`Page not found: ${slug}`);
+  return page;
 };
 ```
 
@@ -184,8 +216,7 @@ const getProduct = (id) => {
 
 **Rare exceptions** (all require explicit allowlisting):
 - Browser localStorage (users can corrupt it)
-- External HTTP APIs (network failures happen)
-- User-provided input at system boundaries
+- User-provided input at system boundaries (frontmatter from markdown files)
 
 ---
 
@@ -203,7 +234,7 @@ The project enforces strict code quality via Biome. Key rules:
 - **No forEach** - `noForEach: error` (use `for...of` or curried `map`/`filter`)
 - **No accumulating spread** - `noAccumulatingSpread: error` (use `accumulate()` helper)
 - **Max cognitive complexity: 10** - `noExcessiveCognitiveComplexity: 10` (30 in tests)
-- **No console.log** - except in `build/`, `ecommerce-backend/`, and `test/`
+- **No console.log** - except in `build/` and `test/`
 - **No skipped/focused tests** - `noSkippedTests: error`, `noFocusedTests: error`
 
 ### Formatting
@@ -267,12 +298,9 @@ Only run the full `bun test` once at the end to confirm everything passes before
 ```javascript
 import {
   createMockEleventyConfig,  // Mock Eleventy config
-  item, items,               // Collection item factories
-  createEvent, createEvents, // Event fixtures
-  createProduct,             // Product fixtures
+  item,                      // Collection item factory
   withTempDir, withTempFile, // Temp file management
   expectProp, expectDataArray, // Assertion helpers
-  collectionApi,             // Mock collection API
 } from "#test/test-utils.js";
 ```
 
@@ -283,27 +311,22 @@ import {
 ### Collection Creation
 ```javascript
 // In src/_lib/collections/[name].js
-export const configureProducts = (eleventyConfig) => {
-  eleventyConfig.addCollection("products", (collectionApi) => {
-    return collectionApi.getFilteredByTag("product")
-      .filter(item => !item.data.hidden)
-      .sort(sortByOrder);
+export const configureNews = (eleventyConfig) => {
+  eleventyConfig.addCollection("news", (collectionApi) => {
+    return collectionApi.getFilteredByTag("news")
+      .filter(item => !item.data.no_index)
+      .sort(sortByDateDescending);
   });
 };
 ```
 
-### Eleventy Shortcode/Filter
-```javascript
-export const configureOpeningTimes = (eleventyConfig) => {
-  eleventyConfig.addShortcode("openingTimes", (times) => {
-    return renderOpeningTimesHtml(times);
-  });
-
-  eleventyConfig.addFilter("isOpen", (times, date) => {
-    return checkIfOpen(times, date);
-  });
-};
-```
+### Adding a Content Block
+1. Create the schema module `src/_lib/utils/block-schema/<type>.js`
+   (`type`, `fields`, `docs`, optional `containerWidth`/`template`/`collections`)
+2. Register it in `BLOCK_MODULES` in `src/_lib/utils/block-schema.js`
+3. Create the template `src/_includes/design-system/blocks/<type>.html`
+4. Add SCSS in `src/css/design-system/` and forward it from `_index.scss`
+5. Regenerate: `bun run generate-blocks-reference && bun run generate-pages-yml && bun run generate-cms-types`
 
 ### Image Processing
 ```javascript
@@ -319,10 +342,10 @@ import { configureImages } from "#media/image.js";
 
 | Type | Pattern | Example |
 |------|---------|---------|
-| Eleventy plugins | `configure*.js` | `configureProducts.js` |
-| Collections | `[plural-noun].js` | `products.js`, `events.js` |
-| Utilities | `[noun]-utils.js` | `array-utils.js`, `slug-utils.js` |
-| Tests | `[feature].test.js` | `products.test.js` |
+| Eleventy plugins | `configure*.js` | `configureNews.js` |
+| Collections | `[plural-noun].js` | `news.js`, `guides.js` |
+| Utilities | `[noun]-utils.js` | `slug-utils.js`, `collection-utils.js` |
+| Tests | `[feature].test.js` | `news.test.js` |
 | SCSS | `_[component].scss` | `_buttons.scss` |
 
 ---
@@ -332,9 +355,12 @@ import { configureImages } from "#media/image.js";
 | File | Purpose |
 |------|---------|
 | `.eleventy.js` | Main Eleventy configuration - registers all plugins |
-| `src/_data/config.json` | Site features config (cart, forms, payments, themes) |
-| `src/_data/site.json` | Site name, URL, social links, opening hours |
+| `src/_lib/utils/block-schema.js` | Block registry - single source of truth for the block system |
+| `src/_data/config.json` | Site feature toggles |
+| `src/_data/site.json` | Site name, URL, social links |
 | `src/_data/strings.json` | Customizable UI labels and permalinks |
+| `BLOCKS_LAYOUT.md` | Generated block reference (do not edit by hand) |
+| `.pages.yml` | Generated PagesCMS config (do not edit by hand) |
 | `biome.json` | Linting and formatting rules |
 | `bunfig.toml` | Bun test configuration |
 | `test/TEST-QUALITY-CRITERIA.md` | Detailed testing standards |
@@ -353,6 +379,8 @@ import { configureImages } from "#media/image.js";
 8. **Don't hardcode magic values** - Import constants from production code
 9. **Don't create tautological tests** - Verify behavior, not assignments
 10. **Don't return fallbacks for errors** - Throw errors instead of masking problems with default values
+11. **Don't hand-edit generated files** - `BLOCKS_LAYOUT.md`, `.pages.yml`, and
+    `pages-cms-generated.d.ts` are regenerated from the block schemas
 
 ---
 
@@ -366,3 +394,4 @@ import { configureImages } from "#media/image.js";
 6. **Use functional patterns** - Prefer `pipe`, curried functions, immutability
 7. **Write tests** - Follow the 6 mandatory test quality criteria
 8. **Use import aliases** - Keep imports clean with `#` prefixes
+9. **Regenerate derived artifacts** after block schema changes

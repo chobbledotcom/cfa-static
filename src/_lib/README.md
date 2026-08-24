@@ -27,7 +27,7 @@ The project uses Node.js subpath imports (defined in `package.json`) for clean i
 
 ```js
 import { memoize } from "#utils/memoize.js";
-import { configureProducts } from "#collections/products.js";
+import { configureNews } from "#collections/news.js";
 import { configureImages } from "#media/image.js";
 import config from "#data/config.json" with { type: "json" };
 ```
@@ -40,7 +40,6 @@ Available aliases:
 - `#collections/*` - `./src/_lib/collections/*`
 - `#config/*` - `./src/_lib/config/*`
 - `#eleventy/*` - `./src/_lib/eleventy/*`
-- `#filters/*` - `./src/_lib/filters/*`
 - `#media/*` - `./src/_lib/media/*`
 - `#utils/*` - `./src/_lib/utils/*`
 
@@ -51,7 +50,7 @@ Available aliases:
 Files that register with Eleventy should export a `configureX` function:
 
 ```js
-export function configureProducts(eleventyConfig) {
+export function configureNews(eleventyConfig) {
   eleventyConfig.addCollection("products", ...);
   eleventyConfig.addFilter("getProductsByCategory", ...);
 }

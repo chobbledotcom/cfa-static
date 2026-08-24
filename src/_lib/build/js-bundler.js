@@ -19,8 +19,6 @@ export const configureJsBundler = (eleventyConfig) => {
         external: ["/pagefind/pagefind.js"],
       }),
       buildBundle("design-system", isDevelopment),
-      buildBundle("bunny-video", isDevelopment),
-      buildBundle("youtube-video", isDevelopment),
       buildBundle("masonry", isDevelopment),
     ]);
 

@@ -125,11 +125,6 @@ export const GALLERY_FIELD = {
  * Used by specs, filter attributes, and similar list fields
  * @type {CmsField[]}
  */
-const NAME_VALUE_FIELDS = [
-  { name: "name", type: "string", label: "Name", required: true },
-  { name: "value", type: "string", label: "Value", required: true },
-];
-
 /**
  * Create an object list field with custom nested fields
  * @param {string} name - Field name
@@ -146,36 +141,13 @@ export const createObjectListField = (name, label, nestedFields) => ({
 });
 
 /**
- * Create an object list field with name/value pairs
- * @param {string} name - Field name
- * @param {string} label - Display label
- * @returns {CmsField} Object list field configuration
- */
-const createNameValueListField = (name, label) =>
-  createObjectListField(name, label, NAME_VALUE_FIELDS);
-
-/**
  * Features list field configuration
  * @type {CmsField}
  */
-export const FEATURES_FIELD = {
-  name: "features",
-  type: "string",
-  label: "Features",
-  list: true,
-};
-
 /**
  * Keywords field configuration for search terms
  * @type {CmsField}
  */
-export const KEYWORDS_FIELD = {
-  name: "keywords",
-  type: "string",
-  label: "Search Keywords",
-  list: true,
-};
-
 /**
  * Create a reference field
  * @param {string} name - Field name
@@ -229,37 +201,10 @@ export const createEleventyNavigationField = (includeUrl = false) => {
  * Product options field
  * @type {CmsField}
  */
-export const PRODUCT_OPTIONS_FIELD = {
-  name: "options",
-  label: "Product Options",
-  type: "object",
-  list: true,
-  fields: [
-    { name: "name", type: "string", label: "Option Name", required: true },
-    {
-      name: "max_quantity",
-      type: "number",
-      label: "Max Quantity",
-      default: 10,
-    },
-    {
-      name: "unit_price",
-      type: "number",
-      label: "Unit Price (\u00a3)",
-      required: true,
-    },
-    { name: "days", type: "number", label: "Days (for hire products)" },
-  ],
-};
-
 /**
  * Filter attributes field
  * @type {CmsField}
  */
-export const FILTER_ATTRIBUTES_FIELD = createNameValueListField(
-  "filter_attributes",
-  "Filter Attributes",
-);
 
 /**
  * Create add-ons field with appropriate intro type based on config
