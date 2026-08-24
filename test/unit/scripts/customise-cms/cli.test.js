@@ -20,7 +20,7 @@ describe("hasCliFlags", () => {
   });
 
   test.each([
-    ["collections", { collections: "pages,products" }],
+    ["collections", { collections: "pages,news" }],
     ["all", { all: true }],
     ["enable", { enable: "faqs" }],
     ["disable", { disable: "use_visual_editor" }],
@@ -37,23 +37,23 @@ describe("buildConfigFromCli", () => {
   test("--all enables all collections and features", () => {
     const config = buildConfigFromCli({ all: true });
 
-    expect(config.collections.length).toBeGreaterThan(10);
+    expect(config.collections.length).toBeGreaterThanOrEqual(5);
     expect(config.features.permalinks).toBe(true);
     expect(config.features.faqs).toBe(true);
     expect(config.features.galleries).toBe(true);
   });
 
   test("always includes required collections", () => {
-    const config = buildConfigFromCli({ collections: "products" });
+    const config = buildConfigFromCli({ collections: "news" });
 
     expect(config.collections).toContain("pages");
     expect(config.collections).toContain("snippets");
   });
 
   test("resolves dependencies for requested collections", () => {
-    const config = buildConfigFromCli({ collections: "products,news,events" });
+    const config = buildConfigFromCli({ collections: "guide-pages,news" });
 
-    expect(config.collections).toContain("categories");
+    expect(config.collections).toContain("guide-categories");
   });
 
   test("starts with all features disabled without --all", () => {
@@ -113,25 +113,10 @@ describe("buildConfigFromCli", () => {
     expect(withSrc.hasSrcFolder).toBe(true);
   });
 
-  test("--custom-home and --no-custom-home control customHomePage", () => {
-    const custom = buildConfigFromCli({
-      collections: "pages",
-      "custom-home": true,
-    });
-    const noCustom = buildConfigFromCli({
-      collections: "pages",
-      "no-custom-home": true,
-    });
-
-    expect(custom.customHomePage).toBe(true);
-    expect(noCustom.customHomePage).toBe(false);
-  });
-
-  test("defaults hasSrcFolder to true and customHomePage to false", () => {
+  test("defaults hasSrcFolder to true", () => {
     const config = buildConfigFromCli({ collections: "pages" });
 
     expect(config.hasSrcFolder).toBe(true);
-    expect(config.customHomePage).toBe(false);
   });
 
   test("--custom-blocks-collections parses comma-separated list", () => {
@@ -151,11 +136,11 @@ describe("buildConfigFromCli", () => {
 
   test("handles whitespace in comma-separated values", () => {
     const config = buildConfigFromCli({
-      collections: " products , news ",
+      collections: " guide-categories , news ",
       enable: " faqs , galleries ",
     });
 
-    expect(config.collections).toContain("products");
+    expect(config.collections).toContain("guide-categories");
     expect(config.collections).toContain("news");
     expect(config.features.faqs).toBe(true);
   });
@@ -216,12 +201,12 @@ describe("generateHelp", () => {
 describe("formatCollection", () => {
   test("formats name and description", () => {
     const result = formatCollection({
-      name: "products",
-      description: "Products for sale",
+      name: "news",
+      description: "Blog posts and news articles",
     });
 
-    expect(result).toContain("products");
-    expect(result).toContain("Products for sale");
+    expect(result).toContain("news");
+    expect(result).toContain("Blog posts and news articles");
   });
 
   test("includes required flag when present", () => {

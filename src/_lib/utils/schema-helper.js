@@ -67,13 +67,6 @@ import { canonicalUrl } from "#utils/canonical-url.js";
  * @property {Record<string, unknown>} [organization] - Organization info
  */
 
-/**
- * Convert a Date to ISO date string (YYYY-MM-DD)
- * @param {Date} date - Date to convert
- * @returns {string} ISO date string
- */
-const toDateString = (date) => date.toISOString().split("T")[0];
-
 /** @param {BasePageData} data */
 const getPageImageUrl = (data) => {
   const getHeroImage = () => {
@@ -155,7 +148,9 @@ function buildBaseMeta(data) {
 const buildPostMeta = (data) => {
   return {
     ...buildBaseMeta(data),
-    ...(data.page.date && { published: toDateString(data.page.date) }),
+    ...(data.page.date && {
+      published: data.page.date.toISOString().split("T")[0],
+    }),
     author: { name: data.author || data.site.name },
   };
 };

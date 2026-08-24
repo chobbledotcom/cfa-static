@@ -1,72 +1,12 @@
 import { describe, expect, test } from "bun:test";
 
-const expectEmptyArray = (result) => {
-  expect(Array.isArray(result)).toBe(true);
-  expect(result.length === 0).toBe(true);
-};
-
-import { configureCategories } from "#collections/categories.js";
-import { configureMenus } from "#collections/menus.js";
 import { configureNavigation } from "#collections/navigation.js";
-import { configureProducts } from "#collections/products.js";
 import { configureTags } from "#collections/tags.js";
 import { configureFeed } from "#eleventy/feed.js";
-import { configureRecurringEvents } from "#eleventy/recurring-events.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 
 describe("missing-folders-lib", () => {
   // Test that lib modules handle missing folders gracefully
-  test("Categories module handles empty collections", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    // Should not throw when configuring
-    configureCategories(mockConfig);
-
-    // Test with empty collections
-    const mockCollectionApi = {
-      getFilteredByTag: (tag) => {
-        if (tag === "categories") return [];
-        if (tag === "products") return [];
-        return [];
-      },
-    };
-
-    expectEmptyArray(mockConfig.collections.categories(mockCollectionApi));
-  });
-
-  test("Menus module handles missing menu data", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    configureMenus(mockConfig);
-
-    // Test filters with empty data
-    const emptyCategories = [];
-    const emptyItems = [];
-
-    expectEmptyArray(
-      mockConfig.filters.getCategoriesByMenu(emptyCategories, "test-menu"),
-    );
-    expectEmptyArray(
-      mockConfig.filters.getItemsByCategory(emptyItems, "test-category"),
-    );
-  });
-
-  test("Products module handles empty collections", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    configureProducts(mockConfig);
-
-    // Test with empty collections
-    const mockCollectionApi = {
-      getFilteredByTag: (tag) => {
-        if (tag === "products") return [];
-        return [];
-      },
-    };
-
-    expectEmptyArray(mockConfig.collections.products(mockCollectionApi));
-  });
-
   test("Tags module handles empty collections", () => {
     const mockConfig = createMockEleventyConfig();
 
@@ -84,16 +24,6 @@ describe("missing-folders-lib", () => {
       // Tags module doesn't create collections, just filters
       expect(mockConfig.filters !== undefined).toBe(true);
     }
-  });
-
-  test("Recurring events handles missing event files", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    // Should not throw when configuring
-    configureRecurringEvents(mockConfig);
-
-    // Verify shortcode was registered
-    expect("recurring_events" in mockConfig.asyncShortcodes).toBe(true);
   });
 
   test("Navigation module handles missing pages", async () => {

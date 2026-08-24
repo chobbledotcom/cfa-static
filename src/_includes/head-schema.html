@@ -8,6 +8,6 @@
 {%- endif -%}
 
 {%- unless no_index -%}
-  {%- assign schemaMeta = meta | withSchemaLanguage: pageLanguage | withSchemaBreadcrumbs: config.show_breadcrumbs, page, name, navigationParent, parent, categories, collections, property, parentGuideCategory, pageLanguage, translations -%}
+  {%- assign schemaMeta = meta | withSchemaLanguage: pageLanguage | withSchemaBreadcrumbs: config.show_breadcrumbs, page, name, navigationParent, pageLanguage, translations -%}
   {% jsonLdScript schemaMeta, schemaType, tags %}
 {%- endunless -%}

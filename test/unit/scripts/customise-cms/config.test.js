@@ -41,10 +41,11 @@ describe("createDefaultConfig", () => {
 
   test("includes all non-internal collections", () => {
     expect(config.collections).toContain("pages");
-    expect(config.collections).toContain("products");
     expect(config.collections).toContain("news");
+    expect(config.collections).toContain("guide-categories");
+    expect(config.collections).toContain("guide-pages");
     expect(config.collections).toContain("snippets");
-    expect(config.collections.length).toBeGreaterThan(10);
+    expect(config.collections).toHaveLength(5);
   });
 
   test("only includes registered collections", () => {
@@ -58,9 +59,8 @@ describe("createDefaultConfig", () => {
     expect(config.features.use_visual_editor).toBe(false);
   });
 
-  test("defaults to src folder and no custom home page", () => {
+  test("defaults to src folder", () => {
     expect(config.hasSrcFolder).toBe(true);
-    expect(config.customHomePage).toBe(false);
   });
 });
 

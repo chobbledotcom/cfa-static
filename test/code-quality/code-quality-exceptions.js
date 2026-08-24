@@ -32,9 +32,6 @@ import { frozenSet } from "#toolkit/fp/set.js";
 
 // Add file:line for specific locations, or just file path to allow all try/catch in that file
 const ALLOWED_TRY_CATCHES = frozenSet([
-  // src/_lib/public/utils/http.js - centralized HTTP error handling (entire file)
-  "src/_lib/public/utils/http.js",
-
   // test/test-site-factory.test.js - Testing error handling behavior
   // Needed: test intentionally catches errors to verify error handling works correctly
   "test/integration/test-site-factory.test.js:135",
@@ -79,7 +76,6 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/code-scanner.js",
 
   // Test files - imperative accumulation patterns for test setup/assertions
-  "test/unit/build/pdf.test.js",
   "test/unit/code-quality/array-push.test.js",
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/let-usage.test.js",
@@ -92,11 +88,7 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/unit/code-quality/design-system-scoping.test.js",
   "test/unit/code-quality/duplicate-methods.test.js",
   "test/unit/test-runner-utils.test.js",
-  "test/unit/collections/missing-folders-lib.test.js",
-  "test/unit/collections/properties.test.js",
   "test/unit/eleventy/layout-aliases.test.js",
-  "test/unit/frontend/checkout.test.js",
-  "test/unit/frontend/config.test.js",
   "test/unit/utils/object-entries.test.js",
   "test/unit/transforms/images.test.js",
   "test/unit/toolkit/set.test.js",
@@ -117,12 +109,9 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
 // Only 'let moduleName = null;' is allowed for lazy loading without exceptions.
 const ALLOWED_LET = frozenSet([
   // Test files with mutable state tracking
-  "test/integration/build/pdf-integration.test.js",
   "test/integration/eleventy/feed.test.js",
-  "test/unit/frontend/hire-calculator.test.js",
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/commented-code.test.js",
-  "test/unit/code-quality/template-selectors.test.js",
   "test/unit/code-quality/let-usage.test.js", // Test file has let in test cases
   "test/unit/code-quality/unused-classes.test.js",
   "test/unit/code-quality/design-system-scoping.test.js",
@@ -138,46 +127,29 @@ const ALLOWED_LET = frozenSet([
 // Files with single-use functions that are intentionally kept for clarity.
 // Remove files from this list as you refactor them.
 const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
-  "src/_lib/config/helpers.js", // Cart mode validators use dispatch table pattern
-  "src/_lib/collections/categories.js", // Helpers for category property map building
-  "src/_lib/collections/events.js", // Thumbnail resolution from products
   "src/_lib/collections/navigation.js", // Search box builder kept separate for function length
-  "src/_lib/collections/products.js",
-  "src/_lib/collections/reviews.js", // isReviewableTag type guard for TypeScript
   "src/_lib/public/masonry.js", // Card type measurers split to stay under complexity limit
-  "src/_lib/public/youtube-video.js", // State extraction split from message handler for complexity
   "src/_lib/public/ui/nav-dropdown.js", // DOM helpers extracted for complexity management
   "src/_lib/media/image-external.js", // External wrapper styles helper
   "src/_lib/media/image-utils.js", // buildImgAttributes, buildPictureAttributes - helper functions for prepareImageAttributes
   "src/_lib/eleventy/file-utils.js", // Filter callbacks extracted for strict type safety
-  "src/_lib/eleventy/ical.js", // Collection callback extracted for strict type safety
   "src/_lib/eleventy/style-bundle.js", // Options parsing helpers for type safety
   "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
   "src/_lib/transforms/external-links.js", // attrTuple for TypeScript tuple inference
-  "src/_lib/filters/category-product-filters.js", // Helpers split for function length and readability
-  "src/_lib/filters/filter-ui.js", // UI builders split from buildUIWithLookup for function length
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
-  "src/_lib/utils/product-cart-data.js", // Helpers for cart attribute building
   "src/_lib/utils/block-columns.js", // Validation and distribution helpers kept separate for complexity
   "src/_lib/utils/validate-item.js", // collectNestedNameErrors kept separate for clarity
-  "src/_lib/config/quote-fields-helpers.js", // Field filters extracted to avoid nested array lookups
-  "src/_data/eleventyComputed.js", // applyBlockDefaults/enrichVideoCards extracted for function length
-  "src/_lib/public/design-system.js", // initVideoFacades kept separate to manage complexity
-  "src/_lib/public/utils/cart-utils.js",
-  "src/_lib/public/cart/cart.js",
+  "src/_data/eleventyComputed.js", // applyBlockDefaults extracted for function length
   "src/_lib/public/ui/gallery.js",
   "src/_lib/public/ui/image-popup.js", // Popup state updaters split to stay under complexity limit
-  "src/_lib/public/cart/hire-calculator.js",
-  "src/_lib/public/cart/quote-checkout.js",
-  "src/_lib/public/utils/quote-price-utils.js",
-  "src/_lib/public/cart/quote.js",
-  "src/_lib/public/cart/quote-steps.js",
   "src/_lib/public/ui/search.js",
   "src/_lib/public/ui/slider.js",
-  "src/_lib/public/cart/stripe-checkout.js",
   "src/_lib/public/theme/theme-editor-lib.js",
+  "src/_lib/public/design-system.js", // Parallax/marquee init helpers kept separate to manage complexity
+  "src/_lib/media/thumbnail-placeholder.js", // hashString kept named for clarity in the pipe
+  "src/_lib/eleventy/breadcrumbs.js", // withTitleCrumb kept separate for clarity
   "test/unit/code-quality/comment-limits.test.js",
   "test/unit/code-quality/duplicate-methods.test.js",
   "test/unit/code-quality/html-in-js.test.js",
@@ -200,22 +172,21 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "packages/js-toolkit/fp/set.js:frozenSetFrom", // Available for iterable sources
   "packages/js-toolkit/fp/set.js:setHas", // Curried predicate for filter/some/every
   "packages/js-toolkit/fp/set.js:setLacks", // Negated predicate for exclusion
+  "packages/js-toolkit/fp/grouping.js:groupBy", // Used by memoize.js and scripts/ via relative imports
+  "packages/js-toolkit/fp/grouping.js:buildReverseIndex", // Used by memoize.js via relative import
+  "packages/js-toolkit/fp/grouping.js:buildFirstOccurrenceLookup", // Toolkit API surface
+  "packages/js-toolkit/fp/grouping.js:groupValuesBy", // Toolkit API surface
+  "packages/js-toolkit/fp/memoize.js:memoizeByRef", // Toolkit API surface
+  "packages/js-toolkit/fp/object.js:mapBoth", // Toolkit API surface
+  "packages/js-toolkit/fp/object.js:pickTruthy", // Toolkit API surface
+  "packages/js-toolkit/fp/array.js:findDuplicate", // Toolkit API surface
+  "packages/js-toolkit/fp/array.js:pick", // Toolkit API surface
+  "packages/js-toolkit/fp/array.js:uniqueBy", // Toolkit API surface
+  "packages/js-toolkit/fp/sorting.js:compareBy", // Toolkit API surface
+  "packages/js-toolkit/fp/sorting.js:descending", // Toolkit API surface
 
   // Build utilities - tested directly for build pipeline verification
   "src/_lib/build/scss.js:createScssCompiler",
-
-  // Config helpers - tested for form/quote field logic
-  "src/_lib/config/form-helpers.js:getFieldTemplate",
-  "src/_lib/config/quote-fields-helpers.js:buildSections",
-
-  // Eleventy plugin helpers - internal functions tested directly
-  "src/_lib/eleventy/opening-times.js:renderOpeningTimes",
-  "src/_lib/eleventy/pdf.js:buildMenuPdfData",
-  "src/_lib/eleventy/pdf.js:generateMenuPdf",
-  "src/_lib/eleventy/recurring-events.js:renderRecurringEvents",
-
-  // Pure leaf tested directly to avoid coupling to global config()
-  "src/_lib/collections/reviews.js:ratingToStars",
 
   // Media processing - tested for image handling
   "src/_lib/media/image-frontmatter.js:isValidImage", // Used by getFirstValidImage, tested directly for edge cases
@@ -224,8 +195,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 
   // DOM init functions - auto-called via onReady in production, but exported for unit tests
   // (ES modules execute at import time before tests can set up DOM)
-  "src/_lib/public/cart/quote-steps.js:initQuoteSteps",
-  "src/_lib/public/ui/quote-steps-progress.js:initStandaloneProgress",
   "src/_lib/public/ui/search.js:initSearch",
   "src/_lib/public/ui/search.js:renderResult",
   "src/_lib/public/ui/search.js:createSearchController",
@@ -233,7 +202,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "src/_lib/public/ui/search.js:readQueryParam",
   "src/_lib/public/ui/search.js:handleSubmit",
   "src/_lib/public/ui/nav-dropdown.js:initNavDropdown",
-  "src/_lib/public/ui/freetobook.js:initFreetobook",
   "src/_lib/public/ui/gallery.js:initGallery",
   "src/_lib/public/ui/gallery.js:resolveStartIndex", // Throwing guard tested directly (happy-dom swallows listener errors)
   "src/_lib/public/ui/image-popup.js:initImagePopup",
@@ -241,13 +209,6 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   // Utility functions - tested for shared logic
   "src/_lib/utils/dom-builder.js:elementToHtml",
   "src/_lib/utils/dom-builder.js:getSharedDocument",
-
-  // Mock helpers - tested directly for FAST_INACCURATE_BUILDS coverage
-  "src/_lib/utils/mock-filter-attributes.js:generateMockFilterAttributes",
-  "src/_lib/utils/mock-filter-attributes.js:getFilterAttributes",
-
-  // Video utilities - constant and helper exported for test verification
-  "src/_lib/utils/video.js:RICK_ASTLEY_VIDEO_ID",
 
   // Validation helpers - throwing wrappers tested directly
   "src/_lib/utils/block-schema.js:validateBlocks",
@@ -258,10 +219,7 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 // Data fallback exceptions
 // ============================================
 
-const ALLOWED_DATA_FALLBACKS = frozenSet([
-  "src/_lib/collections/events.js:23",
-  "src/_lib/eleventy/ical.js:35",
-]);
+const ALLOWED_DATA_FALLBACKS = frozenSet([]);
 
 // ============================================
 // DOM class constructor exceptions
@@ -292,17 +250,10 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_lib/build/scss.js:22", // Lazy module loading pattern
   "src/_lib/build/theme-compiler.js:59", // Theme variables extraction fallback
 
-  // src/_lib/filters - URL-based filtering
-  "src/_lib/filters/filter-core.js:141", // Lazy init nested lookup (??= avoids object-mutation violation)
-  "src/_lib/filters/filter-core.js:142",
   // src/_lib/public - frontend JavaScript (browser-side, no collections)
-  "src/_lib/public/cart/cart.js:86",
-  "src/_lib/public/cart/cart.js:87",
   "src/_lib/public/ui/autosizes.js:83",
 
   // src/_lib/utils - utility functions
-  "src/_lib/utils/collection-utils.js:71", // indexer may not contain the lookup slug
-  "src/_lib/utils/collection-utils.js:102", // CMS boundary: frontmatter array fields may be null before eleventyComputed
   "src/_lib/utils/sorting.js:64", // eleventyNavigation.order (separate from item order)
 ]);
 

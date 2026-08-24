@@ -38,24 +38,6 @@ export const isValidImage = (imagePath, baseDir = SRC_DIR) => {
   throw new Error(`Image file not found: ${fullPath}`);
 };
 
-/**
- * Normalize a frontmatter image path to an absolute site URL path.
- * Keeps external URLs unchanged.
- *
- * @param {string | undefined | null} imagePath
- * @returns {string | undefined | null}
- */
-export const toAbsoluteImageUrl = (imagePath) => {
-  if (imagePath == null) return imagePath;
-  if (typeof imagePath !== "string") return imagePath;
-  if (imagePath.trim() === "") return imagePath;
-  if (imagePath.indexOf("http") === 0) return imagePath;
-  if (imagePath.startsWith("/")) return imagePath;
-  if (imagePath.startsWith("src/"))
-    return `/${imagePath.replace(/^src\//, "")}`;
-  if (imagePath.startsWith("images/")) return `/${imagePath}`;
-  return `/images/${imagePath}`;
-};
 
 /**
  * Returns the first valid image from an array of candidates.

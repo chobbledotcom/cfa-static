@@ -2,29 +2,12 @@ import { describe, expect, test } from "bun:test";
 import {
   configureThumbnailPlaceholder,
   getPlaceholderForPath,
-  hashString,
   PLACEHOLDER_COLORS,
 } from "#media/thumbnail-placeholder.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
 import { unique } from "#toolkit/fp/array.js";
 
 describe("thumbnail-placeholder", () => {
-  describe("hashString", () => {
-    test("returns positive number", () => {
-      expect(hashString("test")).toBeGreaterThanOrEqual(0);
-      expect(hashString("")).toBeGreaterThanOrEqual(0);
-    });
-
-    test("is deterministic", () => {
-      const path = "/products/my-product/";
-      expect(hashString(path)).toBe(hashString(path));
-    });
-
-    test("varies with input", () => {
-      expect(hashString("/a/")).not.toBe(hashString("/b/"));
-    });
-  });
-
   describe("getPlaceholderForPath", () => {
     test("returns svg path", () => {
       const result = getPlaceholderForPath("/products/widget/");

@@ -1,5 +1,5 @@
 // Design System JavaScript
-// Scroll animations, slider functionality, and video facades
+// Scroll animations, slider functionality, and marquees
 // All functionality is scoped to elements within .design-system containers
 
 import { onReady } from "#public/utils/on-ready.js";
@@ -78,22 +78,6 @@ const initMarquees = () => {
   }
 };
 
-// Video facade - replace thumbnail with iframe from server-rendered <template> on click
-const initVideoFacades = () => {
-  for (const button of document.querySelectorAll(`${SCOPE} .video-facade`)) {
-    button.addEventListener("click", () => {
-      const template = button.querySelector("template");
-      if (!template) return;
-
-      const wrapper = document.createElement("div");
-      wrapper.className = "video-wrapper";
-      wrapper.appendChild(template.content.cloneNode(true));
-
-      button.replaceWith(wrapper);
-    });
-  }
-};
-
 const init = () => {
   // Scroll reveal - animate elements as they enter viewport
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -136,8 +120,6 @@ const init = () => {
     itemSelector: ":scope > *",
     defaultWidth: 340,
   });
-
-  initVideoFacades();
 
   initMarquees();
 };

@@ -267,44 +267,6 @@ Some **bold** text.`;
       );
     });
 
-    test("Preprocesses {% opening_times %} shortcode", async () => {
-      const content = `# Our Hours
-
-{% opening_times %}
-
-Come visit us!`;
-      await testSnippet(
-        "render_snippet-opening",
-        "hours",
-        content,
-        (result) => {
-          expect(result.includes("<h1>")).toBe(true);
-          expect(result.includes("Come visit us")).toBe(true);
-          // The shortcode should be processed (replaced with actual content or empty)
-          expect(result.includes("{% opening_times %}")).toBe(false);
-        },
-      );
-    });
-
-    test("Preprocesses {% recurring_events %} shortcode", async () => {
-      const content = `# Regular Events
-
-{% recurring_events %}
-
-Join us weekly!`;
-      await testSnippet(
-        "render_snippet-recurring",
-        "events",
-        content,
-        (result) => {
-          expect(result.includes("<h1>")).toBe(true);
-          expect(result.includes("Join us weekly")).toBe(true);
-          // The shortcode should be processed
-          expect(result.includes("{% recurring_events %}")).toBe(false);
-        },
-      );
-    });
-
     test("Handles empty snippet content", async () => {
       await testSnippet("render_snippet-empty", "empty", "", (result) => {
         // Empty markdown renders to empty string

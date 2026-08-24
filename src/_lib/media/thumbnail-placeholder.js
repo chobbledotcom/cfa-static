@@ -29,6 +29,5 @@ const configureThumbnailPlaceholder = (eleventyConfig) => {
 export {
   configureThumbnailPlaceholder,
   getPlaceholderForPath,
-  hashString,
   PLACEHOLDER_COLORS,
 };

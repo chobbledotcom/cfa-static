@@ -58,23 +58,3 @@ describe("eleventyComputed.eleventyNavigation", () => {
   });
 });
 
-describe("eleventyComputed.filter_attributes", () => {
-  const page = { inputPath: "/products/test.md" };
-
-  test("returns an empty array when filter_attributes is not set", () => {
-    expect(eleventyComputed.filter_attributes({ page })).toEqual([]);
-  });
-
-  test("passes filter_attributes through unchanged in normal build mode", () => {
-    const filterAttrs = [
-      { name: "Color", value: "Red" },
-      { name: "Size", value: "Large" },
-    ];
-    expect(
-      eleventyComputed.filter_attributes({
-        filter_attributes: filterAttrs,
-        page,
-      }),
-    ).toBe(filterAttrs);
-  });
-});

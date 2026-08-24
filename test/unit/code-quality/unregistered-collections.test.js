@@ -20,12 +20,8 @@ import { frozenSet } from "#toolkit/fp/set.js";
 const DOT_ACCESS_SINGLE = /collections\.([a-zA-Z_][\w-]*)/;
 const BRACKET_ACCESS_SINGLE = /collections\["([^"]+)"\]/;
 const IGNORED_PROPERTIES = frozenSet(["size", "length"]);
-const FILTER_CONFIG_FILE = "src/_lib/filters/configure-filters.js";
 
 describe("unregistered-collections", () => {
-  const filterNames = createExtractor(
-    /(?:pages|redirects|attributes)\s*:\s*"([^"]+)"/g,
-  )(FILTER_CONFIG_FILE);
   const registeredNames = frozenSet([
     "all",
     ...createExtractor(/\.addCollection\(\s*"([^"]+)"/g)(
@@ -34,11 +30,6 @@ describe("unregistered-collections", () => {
     ...createExtractor(/"tags"\s*:\s*\[\s*"([^"]+)"\s*\]/g)(
       getFiles(/^src\/.*\.json$/),
     ),
-    ...filterNames,
-    ...createExtractor(/^\s+(\w+)\s*:/gm, (m) => m[1])(FILTER_CONFIG_FILE),
-    ...[...filterNames]
-      .filter((n) => n.startsWith("filtered"))
-      .map((name) => `${name}ListingFilterUI`),
   ]);
 
   test("all template collection references are registered", () => {
@@ -71,19 +62,7 @@ describe("unregistered-collections", () => {
   });
 
   test("registered names include expected collections", () => {
-    const expected = [
-      "products",
-      "categories",
-      "events",
-      "news",
-      "team",
-      "all",
-      "menus",
-      "reviews",
-      "properties",
-      "navigationLinks",
-      "categoryListingFilterUI",
-    ];
+    const expected = ["news", "pages", "all", "navigationLinks"];
 
     for (const name of expected) {
       expect(registeredNames.has(name)).toBe(true);

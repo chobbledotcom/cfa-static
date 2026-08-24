@@ -35,15 +35,10 @@ const STRICT_CLEAN_FILES = [
   "src/_data/altTagsLookup.js",
   "src/_data/body-classes.js",
   "src/_data/config.js",
-  "src/_data/contact-form.js",
-  "src/_data/dietaryIndicators.js",
   "src/_data/eleventyComputed.js",
   "src/_data/listItemFields.js",
   "src/_data/metaComputed.js",
   "src/_data/production.js",
-  "src/_data/propertyOrder.js",
-  "src/_data/quote-fields.js",
-  "src/_data/selectors.js",
   "src/_data/site.js",
   "src/_data/strings.js",
   "src/_lib/build/build-mode.js",
@@ -53,8 +48,6 @@ const STRICT_CLEAN_FILES = [
   "src/_lib/collections/guides.js",
   "src/_lib/collections/navigation.js",
   "src/_lib/collections/tags.js",
-  "src/_lib/collections/thumbnail-resolvers.js",
-  "src/_lib/config/form-helpers.js",
   "src/_lib/config/helpers.js",
   "src/_lib/config/list-config.js",
   "src/_lib/config/site-config.js",
@@ -62,15 +55,7 @@ const STRICT_CLEAN_FILES = [
   "src/_lib/eleventy/cache-buster.js",
   "src/_lib/eleventy/canonical-url.js",
   "src/_lib/eleventy/file-info.js",
-  "src/_lib/eleventy/format-price.js",
-  "src/_lib/eleventy/ical.js",
-  "src/_lib/eleventy/js-config.js",
   "src/_lib/eleventy/layout-aliases.js",
-  "src/_lib/eleventy/opening-times.js",
-  "src/_lib/eleventy/recurring-events.js",
-  "src/_lib/eleventy/video.js",
-  "src/_lib/filters/filter-core.js",
-  "src/_lib/filters/spec-filters.js",
   "src/_lib/media/image-crop.js",
   "src/_lib/media/image-frontmatter.js",
   "src/_lib/media/image-placeholder.js",
@@ -81,48 +66,25 @@ const STRICT_CLEAN_FILES = [
   "src/_lib/transforms/responsive-tables.js",
   "src/_lib/utils/canonical-url.js",
   "src/_lib/utils/console.js",
-  "src/_lib/utils/dietary-utils.js",
   "src/_lib/utils/dom-builder.js",
-  "src/_lib/utils/format-price.js",
   "src/_lib/utils/lazy-dom.js",
   "src/_lib/utils/linkable-content.js",
   "src/_lib/utils/liquid-render.js",
   "src/_lib/utils/math-utils.js",
-  "src/_lib/utils/mock-filter-attributes.js",
   "src/_lib/utils/navigation-utils.js",
   "src/_lib/utils/block-schema.js",
-  "src/_lib/utils/product-cart-data.js",
   "src/_lib/utils/slug-utils.js",
   "src/_lib/utils/sorting.js",
-  "src/_lib/utils/thumbnail-finder.js",
-  "src/_lib/utils/video.js",
-  "src/categories/categories.11tydata.js",
-  "src/events/events.11tydata.js",
   "src/guide-categories/guide-categories.11tydata.js",
   "src/guide-pages/guide-pages.11tydata.js",
-  "src/locations/locations.11tydata.js",
-  "src/menu-categories/menu-categories.11tydata.js",
-  "src/menu-items/menu-items.11tydata.js",
-  "src/menus/menus.11tydata.js",
   "src/news/news.11tydata.js",
   "src/pages/pages.11tydata.js",
-  "src/products/products.11tydata.js",
-  "src/properties/properties.11tydata.js",
-  "src/reviews/reviews.11tydata.js",
 ];
 
 const result = spawnSync(
-  "bun",
   [
-    "run",
-    "tsc",
-    "--noEmit",
-    "-p",
-    "tsconfig.strict.json",
-    "--incremental",
-    "--tsBuildInfoFile",
-    "tsconfig.strict.tsbuildinfo",
-  ],
+            "tsconfig.strict.json",
+        ],
   {
     cwd: ROOT_DIR,
     stdio: ["inherit", "pipe", "pipe"],
@@ -167,15 +129,13 @@ if (errorCount > CURRENT_ERROR_COUNT) {
   console.error("");
   console.error("   📝 What to do:");
   console.error(
-    "   1. Review the errors below and add proper TypeScript types",
-  );
+    );
   console.error("   2. Consider using 'unknown' instead of implicit 'any'");
   console.error("   3. Add JSDoc type annotations if needed");
   console.error("   4. Update CURRENT_ERROR_COUNT when done fixing errors");
   console.error("");
   console.error(
-    "   🔍 All errors in non-strict files (review to find what changed):",
-  );
+    );
   for (const [file, errors] of errorsByFile) {
     if (!STRICT_CLEAN_FILES.includes(file)) {
       console.error(`\n      ${file}`);
@@ -206,8 +166,7 @@ if (regressions.length > 0) {
   }
   console.error("");
   console.error(
-    "   ⚠️  Fix these regressions immediately - they were previously strict-clean.",
-  );
+    );
   failed = true;
 }
 
