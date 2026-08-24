@@ -1,4 +1,3 @@
-import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { ensureDir } from "#eleventy/file-utils.js";
@@ -192,48 +191,33 @@ export const waitForServer = async (baseUrl, maxAttempts = 30, delay = 250) => {
 };
 
 /**
- * @typedef {{ process: import("node:child_process").ChildProcess, port: number, baseUrl: string, stop: () => void }} DevServerHandle
+ * @typedef {{ port: number, baseUrl: string, stop: () => Promise<void> }} DevServerHandle
  */
 
 /**
+ * Serve a built site directory for browser automation (screenshots,
+ * lighthouse). Uses Eleventy Dev Server - the same server behind
+ * `npm run serve` - with live reload off so pages are served exactly
+ * as built, with no injected scripts.
  * @param {string} siteDir
  * @param {number} [port]
  * @returns {Promise<DevServerHandle>}
  */
 export const startServer = async (siteDir, port = 8080) => {
-  // Static file server run in a child Node process: serves siteDir, maps
-  // trailing slashes to index.html, and sets the content types browsers
-  // are strict about.
-  const serverScript =
-    'const http = require("node:http"), fs = require("node:fs"), path = require("node:path");' +
-    `const dir = ${JSON.stringify(siteDir)};` +
-    'const TYPES = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript", ".json": "application/json", ".svg": "image/svg+xml", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".woff2": "font/woff2", ".woff": "font/woff", ".xml": "application/xml", ".txt": "text/plain" };' +
-    "http.createServer((req, res) => {" +
-    '  const url = new URL(req.url, "http://localhost");' +
-    "  const rawPath = decodeURIComponent(url.pathname);" +
-    '  const p = rawPath.endsWith("/") ? rawPath + "index.html" : rawPath;' +
-    "  const file = path.join(dir, path.normalize(p));" +
-    "  fs.readFile(file, (err, data) => {" +
-    '    if (err) { res.statusCode = 404; res.end("Not found"); return; }' +
-    "    const type = TYPES[path.extname(file).toLowerCase()];" +
-    '    if (type) res.setHeader("Content-Type", type);' +
-    "    res.end(data);" +
-    "  });" +
-    `}).listen(${port});`;
-
-  const serverProcess = spawn(process.execPath, ["-e", serverScript], {
-    stdio: ["ignore", "pipe", "pipe"],
+  const { default: EleventyDevServer } = await import(
+    "@11ty/eleventy-dev-server"
+  );
+  const server = EleventyDevServer.getServer("cfa-static-tools", siteDir, {
+    liveReload: false,
+    portReassignmentRetryCount: 0,
+    logger: { info: log, log, error: logError },
   });
+  server.serve(port);
 
   const baseUrl = `http://localhost:${port}`;
   await waitForServer(baseUrl, 30, 250);
 
-  return {
-    process: serverProcess,
-    port,
-    baseUrl,
-    stop: () => serverProcess.kill(),
-  };
+  return { port, baseUrl, stop: () => server.close() };
 };
 
 export const getDefaultOutputDir = (subdir) => join(ROOT_DIR, subdir);
