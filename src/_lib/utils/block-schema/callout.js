@@ -31,3 +31,12 @@ export const docs = {
   scss: "src/css/design-system/_callout.scss",
   htmlRoot: '<aside class="callout">',
 };
+
+export const example = {
+  type: "callout",
+  variant: "info",
+  icon: "hugeicons:information-circle",
+  name: "Good to know",
+  content:
+    "Callouts hold short advisories, tips, and warnings. Four color variants are available.",
+};

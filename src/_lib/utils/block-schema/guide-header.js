@@ -13,3 +13,7 @@ export const docs = {
   notes:
     "Guide-only block. No parameters. Reads `title` and `subtitle` from the page data.",
 };
+
+export const example = {
+  type: "guide-header",
+};

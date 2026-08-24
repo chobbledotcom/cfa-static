@@ -306,31 +306,29 @@ const findHtmlInJs = (source) =>
 const htmlInJsAnalysis = withAllowlist({
   find: findHtmlInJs,
   allowlist: new Set([
-    // htmlRoot documentation strings in block schema modules describe template markup
+    // htmlRoot documentation strings in block schema modules describe
+    // template markup; html.js and split-html.js additionally carry the
+    // canonical examples for the raw-HTML blocks, which are HTML by nature.
     "src/_lib/utils/block-schema/shared.js",
-    "src/_lib/utils/block-schema/bunny-video-background.js",
-    "src/_lib/utils/block-schema/buy-options.js",
     "src/_lib/utils/block-schema/callout.js",
     "src/_lib/utils/block-schema/code-block.js",
-    "src/_lib/utils/block-schema/contact-form.js",
     "src/_lib/utils/block-schema/cta.js",
-    "src/_lib/utils/block-schema/custom-contact-form.js",
     "src/_lib/utils/block-schema/downloads.js",
     "src/_lib/utils/block-schema/features.js",
     "src/_lib/utils/block-schema/hero.js",
+    "src/_lib/utils/block-schema/html.js",
     "src/_lib/utils/block-schema/icon-links.js",
     "src/_lib/utils/block-schema/iframe-embed.js",
     "src/_lib/utils/block-schema/image-background.js",
     "src/_lib/utils/block-schema/link-button.js",
     "src/_lib/utils/block-schema/markdown.js",
     "src/_lib/utils/block-schema/marquee-images.js",
-    "src/_lib/utils/block-schema/menu-pdf-download.js",
     "src/_lib/utils/block-schema/section-header.js",
     "src/_lib/utils/block-schema/split-callout.js",
+    "src/_lib/utils/block-schema/split-html.js",
     "src/_lib/utils/block-schema/split-shared.js",
     "src/_lib/utils/block-schema/split-full.js",
     "src/_lib/utils/block-schema/stats.js",
-    "src/_lib/utils/block-schema/video-background.js",
   ]),
   files: () => SRC_JS_FILES(),
 });

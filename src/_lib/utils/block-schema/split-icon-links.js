@@ -21,3 +21,14 @@ export const docs = {
   summary: "Two-column layout with text content and an icon-links list.",
   ...SPLIT_BASE_DOCS,
 };
+
+export const example = {
+  type: "split-icon-links",
+  subtitle: "Split layouts",
+  content: "## Text beside a list of links\n\nEach link gets an icon.",
+  figure_items: [
+    { icon: "hugeicons:book-02", text: "Guides", url: "/guide/" },
+    { icon: "hugeicons:news", text: "News", url: "/news/" },
+    { icon: "hugeicons:search-01", text: "Search", url: "/search/" },
+  ],
+};

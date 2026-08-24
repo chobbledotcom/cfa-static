@@ -17,3 +17,8 @@ export const docs = {
   notes:
     "The referenced snippet must exist in `src/snippets/` and have a `blocks` frontmatter array. The snippet block is transparent — it renders no wrapping section element, so each inner block renders its own section directly.",
 };
+
+export const example = {
+  type: "snippet",
+  reference: "demo",
+};

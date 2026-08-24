@@ -22,3 +22,9 @@ export const docs = {
   scss: "src/css/design-system/_base.scss",
   htmlRoot: '<div class="section-header prose">',
 };
+
+export const example = {
+  type: "section-header",
+  intro:
+    "## Section headers introduce a page section\n\nUse one wherever a group of blocks needs a heading and a sentence of context.",
+};

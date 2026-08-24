@@ -38,7 +38,7 @@ const demos = [
   {
     name: "Knip - Unused Exports",
     output: `
-$ bun run knip
+$ npm run knip
 
 Unused files (3)
 src/_lib/deprecated/old-util.js
@@ -73,7 +73,7 @@ Total duplicates: 1250 lines across 15 files
   {
     name: "Test Failures",
     output: `
-$ bun test test/unit
+$ npm run test:unit
 
 ❌ utils.test.js > formatDate handles invalid dates
 AssertionError: expected "Invalid Date" to equal "N/A"
@@ -90,7 +90,7 @@ AssertionError: expected undefined to be defined
   {
     name: "Coverage Failures",
     output: `
-$ bun run test
+$ npm test
 
 ❌ Coverage below threshold for statements: 85.5% < 90%
 ❌ Coverage below threshold for branches: 75.2% < 80%
@@ -109,7 +109,7 @@ src/new-feature.js
   {
     name: "Lint Errors",
     output: `
-$ bunx @biomejs/biome check .
+$ npx @biomejs/biome check .
 
 src/components/Button.js:15:3
   error: 'useState' is not defined

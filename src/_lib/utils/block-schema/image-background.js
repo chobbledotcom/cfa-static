@@ -42,3 +42,13 @@ export const docs = {
   notes:
     "Image processed via `{% image %}` at widths 2560/1920/1280/960/640, cropped to 16/9. Parallax uses `animation-timeline: scroll()` for native CSS scroll-driven translation.",
 };
+
+export const example = {
+  type: "image-background",
+  image: "city-traffic-night.jpg",
+  image_alt: "City traffic at night",
+  tint: true,
+  badge: "Image background",
+  content:
+    "# Content over a full-width image\n\nA tint keeps the text readable.",
+};

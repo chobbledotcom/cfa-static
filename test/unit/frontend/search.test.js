@@ -1,6 +1,8 @@
 // Search UI tests
 // Tests renderResult, createSearchController, and initSearch behavior
 
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   createSearchController,
@@ -10,6 +12,7 @@ import {
   readQueryParam,
   renderResult,
 } from "#public/ui/search.js";
+import { withTempDirAsync } from "#test/test-utils.js";
 
 // ============================================
 // Mock pagefind API
@@ -138,6 +141,38 @@ describe("loadPagefind", () => {
     window.pagefind = mockPf;
     const result = await loadPagefind();
     expect(result).toBe(mockPf);
+  });
+
+  test("imports pagefind from the site's path prefix and initialises it", async () => {
+    await withTempDirAsync("search-pagefind", async (dir) => {
+      // A real module on disk stands in for the built site's
+      // /pagefind/pagefind.js, reached through the data-path-prefix
+      // attribute exactly as a deployed page would reach it.
+      mkdirSync(join(dir, "pagefind"), { recursive: true });
+      writeFileSync(
+        join(dir, "pagefind/pagefind.js"),
+        [
+          "export const init = () => {",
+          "  globalThis.__pagefindInits = (globalThis.__pagefindInits || 0) + 1;",
+          "};",
+          "",
+        ].join("\n"),
+      );
+      const tag = document.createElement("script");
+      tag.dataset.pathPrefix = `${dir}/`;
+      document.body.append(tag);
+      window.pagefind = undefined;
+
+      try {
+        const pagefind = await loadPagefind();
+
+        expect(globalThis.__pagefindInits).toBe(1);
+        expect(typeof pagefind.init).toBe("function");
+      } finally {
+        tag.remove();
+        delete globalThis.__pagefindInits;
+      }
+    });
   });
 });
 

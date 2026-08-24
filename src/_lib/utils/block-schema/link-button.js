@@ -21,3 +21,10 @@ export const docs = {
   scss: "src/css/design-system/_link-button.scss",
   htmlRoot: '<div class="link-button">',
 };
+
+export const example = {
+  type: "link-button",
+  text: "A standalone button",
+  href: "/search/",
+  variant: "primary",
+};

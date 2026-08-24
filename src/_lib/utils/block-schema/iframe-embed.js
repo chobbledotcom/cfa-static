@@ -56,3 +56,11 @@ export const docs = {
   notes:
     "Provide either `height` for a fixed-height embed or `aspect_ratio` (e.g. `16/9`) for a responsive one. Use `max_width` to cap the embed width within the container.",
 };
+
+export const example = {
+  type: "iframe-embed",
+  src: "/news/",
+  name: "The news page, embedded",
+  aspect_ratio: "16/9",
+  max_width: "560px",
+};

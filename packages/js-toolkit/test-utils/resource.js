@@ -137,6 +137,22 @@ const mockCwdTeardown = (original) => {
 const withMockedCwd = bracket(mockCwdSetup, mockCwdTeardown, false);
 const withMockedCwdAsync = bracketAsync(mockCwdSetup, mockCwdTeardown, false);
 
+/**
+ * Run a callback with the process's REAL working directory changed.
+ * Unlike withMockedCwd (which only fakes process.cwd()), this affects
+ * relative fs paths - needed when production code passes relative paths
+ * straight to fs functions.
+ */
+const withChdirAsync = async (dir, fn) => {
+  const previous = process.cwd();
+  process.chdir(dir);
+  try {
+    return await fn();
+  } finally {
+    process.chdir(previous);
+  }
+};
+
 const withMockedProcessExit = bracket(
   () => {
     const original = process.exit;
@@ -199,6 +215,7 @@ export {
   cleanupTempDir,
   createTempDir,
   createTempFile,
+  withChdirAsync,
   withMockedCwd,
   withMockedCwdAsync,
   withMockedProcessExit,

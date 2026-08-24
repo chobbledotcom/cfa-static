@@ -9,3 +9,7 @@ export const docs = {
   notes:
     "News-only block. No parameters. Reads `author` from the page data and renders it as plain text, falling back to a date-only block when there is no author.",
 };
+
+export const example = {
+  type: "news-meta",
+};

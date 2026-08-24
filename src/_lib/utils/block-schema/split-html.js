@@ -20,3 +20,11 @@ export const docs = {
   summary: "Two-column layout with text content and custom HTML.",
   ...SPLIT_BASE_DOCS,
 };
+
+export const example = {
+  type: "split-html",
+  subtitle: "Split layouts",
+  content:
+    "## Text beside custom HTML\n\nThe figure column renders whatever HTML you give it.",
+  figure_html: '<p style="font-size:3rem;text-align:center">&#127881;</p>',
+};

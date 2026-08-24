@@ -1,0 +1,48 @@
+import { describe, expect, test, vi } from "vitest";
+import {
+  BROWSER_ARGS,
+  ensurePlaywrightBrowsers,
+  launchChromeHeadless,
+} from "#media/browser-utils.js";
+
+const launchMock = vi.fn(() => Promise.resolve({ port: 9222 }));
+// Points at a path that really exists (this node binary) or really
+// doesn't, so ensurePlaywrightBrowsers runs against genuine fs state.
+const executablePathMock = vi.fn();
+
+vi.mock("chrome-launcher", () => ({ launch: launchMock }));
+vi.mock("playwright", () => ({
+  chromium: { executablePath: (...args) => executablePathMock(...args) },
+}));
+
+describe("launchChromeHeadless", () => {
+  test("launches chrome headless with the sandboxed flags", async () => {
+    const chrome = await launchChromeHeadless("/fake/chromium");
+
+    expect(chrome).toEqual({ port: 9222 });
+    expect(launchMock).toHaveBeenCalledWith({
+      chromePath: "/fake/chromium",
+      chromeFlags: ["--headless", ...BROWSER_ARGS],
+    });
+  });
+});
+
+describe("ensurePlaywrightBrowsers", () => {
+  test("returns true when the chromium executable exists", async () => {
+    executablePathMock.mockReturnValue(process.execPath);
+
+    await expect(ensurePlaywrightBrowsers()).resolves.toBe(true);
+  });
+
+  test("throws install guidance when browsers are missing", async () => {
+    executablePathMock.mockReturnValue("/definitely/missing/chromium");
+    const errorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+
+    await expect(ensurePlaywrightBrowsers()).rejects.toThrow(
+      "npx playwright install chromium",
+    );
+    errorSpy.mockRestore();
+  });
+});

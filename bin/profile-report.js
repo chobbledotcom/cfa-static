@@ -2,7 +2,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 /**
  * Parse a Chrome CPU profile and generate a text report
- * Usage: bun profile-report.js <profile.cpuprofile> <output.txt> <project-dir>
+ * Usage: node profile-report.js <profile.cpuprofile> <output.txt> <project-dir>
  */
 
 const [profilePath, outputPath, projectDir] = process.argv.slice(2);

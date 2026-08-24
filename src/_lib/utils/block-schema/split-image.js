@@ -31,3 +31,13 @@ export const docs = {
   summary: "Two-column layout with text content and a responsive image.",
   ...SPLIT_BASE_DOCS,
 };
+
+export const example = {
+  type: "split-image",
+  subtitle: "Split layouts",
+  content:
+    "## Text beside an image\n\nThe figure sits on the right by default; set `reverse: true` to flip the columns.",
+  figure_src: "fireworks.jpg",
+  figure_alt: "Fireworks over a city at night",
+  figure_caption: "Captions are optional.",
+};

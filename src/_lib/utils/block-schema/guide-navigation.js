@@ -13,3 +13,7 @@ export const docs = {
   notes:
     "Guide-page-only block. No parameters. Renders nothing when the page has no `guide-category` field.",
 };
+
+export const example = {
+  type: "guide-navigation",
+};

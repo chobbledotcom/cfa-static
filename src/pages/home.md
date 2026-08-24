@@ -13,12 +13,12 @@ blocks:
 
       Build small, fast, accessible marketing and informational sites from composable content blocks - written in YAML, rendered by Eleventy, deployed as a static artifact.
     buttons:
-      - text: Browse the guides
-        href: /guide/
+      - text: See every block live
+        href: /blocks/
         variant: primary
         size: lg
-      - text: Latest news
-        href: /news/
+      - text: How it works
+        href: /how-it-works/
         variant: secondary
         size: lg
   - type: features
@@ -37,4 +37,13 @@ blocks:
       - icon: "hugeicons:rocket"
         name: Static output
         description: One command builds the whole site to a deployable directory - no servers, no database, nothing to patch.
+  - type: cta
+    content: |
+      ## This site is its own documentation
+
+      Every page here is built from the template's blocks. Read the guides for setup, configuration, and deployment - or open any page's source file to see exactly how it's made.
+    button:
+      text: Read the guides
+      href: /guide/
+      size: lg
 ---

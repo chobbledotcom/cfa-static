@@ -126,10 +126,9 @@ const runStep = async (step, showProgress) => {
     printTruncatedList({ moreLabel: "errors" })(errors);
   } else {
     const lcovPath = join(ROOT_DIR, "coverage/lcov.info");
-    const bunfigPath = join(ROOT_DIR, "bunfig.toml");
-    if (reportCoverageFailures(lcovPath, bunfigPath)) {
+    if (reportCoverageFailures(lcovPath)) {
       console.log(
-        "  Thresholds are defined in bunfig.toml (coverageThreshold).",
+        "  Thresholds are defined in vitest.config.js (coverage.thresholds).",
       );
     } else {
       const allOutput = stderr || stdout || "";

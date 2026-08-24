@@ -1,6 +1,6 @@
 ---
-name: Customisation
-subtitle: Tailoring the template to your needs
+name: Configuration
+subtitle: The three data files that shape a site
 guide-category: advanced-topics
 order: 1
 blocks:
@@ -8,29 +8,38 @@ blocks:
   - type: guide-navigation
   - type: markdown
     content: |
-      Learn how to customise the template to match your brand and requirements.
+      Site-wide settings live in `src/_data/` as three JSON files. Change
+      them and the whole site follows - a bad value fails the build with
+      a message naming the field.
 
-      ## Styling
+      ## site.json
 
-      The template uses CSS custom properties (variables) for easy theming. Key variables include:
+      Identity: the site's name, canonical `url`, and social links. The
+      `url` feeds canonical tags, the sitemap, and the feed. Deployments
+      can override it with the `SITE_URL` environment variable, which is
+      how the GitHub Pages workflow serves the same site from any origin
+      without edits.
 
-      - `--color-primary` - Main brand colour
-      - `--color-background` - Page background
-      - `--color-text` - Default text colour
+      ## config.json
 
-      ## Configuration Options
+      Feature toggles: breadcrumbs, the theme switcher, navigation style,
+      and which collections the search indexes.
 
-      Most site-wide settings can be adjusted in the `src/_data/` directory:
+      ## strings.json
 
-      - `site.json` - Basic site information
-      - `config.json` - Feature toggles and settings
-      - `strings-base.json` - Customisable text labels
-  - type: faqs
-faqs:
-  - question: Can I change the colour scheme?
-    answer: Yes, edit the CSS variables in the stylesheet to change colours throughout the site.
-    order: 1
-  - question: How do I add custom fonts?
-    answer: Add your font files to the assets folder and update the font configuration in _data/fonts.json.
-    order: 2
+      Every label and permalink the templates emit, in one place - rename
+      "News" or move it to another path without touching a template.
+
+      ## Theming
+
+      Colors, fonts, and spacing are CSS custom properties. Ten prebuilt
+      themes ship with the template, and the [theme editor](/theme-editor/)
+      lets you tune one visually and export the result.
+
+      ## Languages
+
+      `languages.json` lists the languages the site publishes;
+      `translations.json` pairs pages that say the same thing. A page's
+      language comes from its URL prefix, and paired pages get `hreflang`
+      tags and a footer switcher automatically.
 ---

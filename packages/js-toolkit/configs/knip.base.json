@@ -1,7 +1,9 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "project": ["**/*.{js,mjs}"],
-  "ignoreDependencies": ["bun-types"],
+  "project": [
+    "**/*.{js,mjs}"
+  ],
+  "ignoreDependencies": [],
   "ignoreBinaries": [],
   "ignoreExportsUsedInFile": true,
   "rules": {}

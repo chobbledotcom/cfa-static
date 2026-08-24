@@ -25,3 +25,14 @@ export const docs = {
   scss: "src/css/design-system/_hero.scss",
   htmlRoot: '<header class="hero">',
 };
+
+export const example = {
+  type: "hero",
+  badge: "Hero block",
+  content:
+    "# A full-width opening banner\n\nStart most pages with one of these: a heading, a sentence of context, and the actions that matter.",
+  buttons: [
+    { text: "Primary action", href: "/guide/", variant: "primary", size: "lg" },
+    { text: "Secondary", href: "/news/", variant: "secondary", size: "lg" },
+  ],
+};

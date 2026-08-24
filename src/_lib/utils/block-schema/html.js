@@ -15,3 +15,9 @@ export const docs = {
   notes:
     "No wrapping element. Useful for custom embeds, iframes, or one-off HTML.",
 };
+
+export const example = {
+  type: "html",
+  content:
+    "<p><strong>Raw HTML</strong> passes straight through - the escape hatch for one-off markup.</p>",
+};

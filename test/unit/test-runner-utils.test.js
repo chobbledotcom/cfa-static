@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import {
   checkMetric,
   checkRecord,
@@ -8,14 +8,20 @@ import {
   extractUncoveredBranchLines,
   extractUncoveredLines,
   formatUncovered,
+  getNonCodeQualityTestFiles,
+  isMainModule,
   parseLcov,
   printSummary,
   printTruncatedList,
   reportCoverageFailures,
+  runLanes,
   runStep,
+  runStepAsync,
+  unitTestsStep,
 } from "#test/test-runner-utils.js";
 import {
   captureConsole,
+  captureConsoleLogAsync,
   withMockedProcessExit,
   withTempDir,
 } from "#test/test-utils.js";
@@ -761,5 +767,126 @@ Failed to compile
           expect(returned).toBe(false);
         }));
     });
+  });
+});
+
+describe("isMainModule", () => {
+  test("matches only the entry module's file URL", () => {
+    expect(isMainModule(`file://${process.argv[1]}`)).toBe(true);
+    expect(isMainModule("file:///somewhere/else.js")).toBe(false);
+  });
+});
+
+describe("step definitions", () => {
+  test("unitTestsStep adds the verbose reporter only when asked", () => {
+    expect(unitTestsStep(true).args).toContain("--reporter=verbose");
+    expect(unitTestsStep(false).args).not.toContain("--reporter=verbose");
+  });
+
+  test("getNonCodeQualityTestFiles excludes the code-quality suite", () => {
+    const files = getNonCodeQualityTestFiles("test/unit/**/*.test.js");
+
+    expect(files.length).toBeGreaterThan(0);
+    expect(files.some((f) => f.includes("code-quality"))).toBe(false);
+  });
+});
+
+describe("runStepAsync", () => {
+  test("captures output and exit status", async () => {
+    const step = createNodeScriptStep(
+      "async-step",
+      "console.log('out'); console.error('err')",
+    );
+
+    const result = await runStepAsync(step, false);
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("out");
+    expect(result.stderr).toContain("err");
+  }, 30_000);
+
+  test("passes output through in verbose mode and reports the exit status", async () => {
+    const stdoutSpy = vi
+      .spyOn(process.stdout, "write")
+      .mockImplementation(() => true);
+    const stderrSpy = vi
+      .spyOn(process.stderr, "write")
+      .mockImplementation(() => true);
+    const step = createNodeScriptStep(
+      "fail-step",
+      "console.log('vout'); console.error('verr'); process.exit(3)",
+    );
+
+    const result = await runStepAsync(step, true);
+
+    expect(result.status).toBe(3);
+    expect(stdoutSpy).toHaveBeenCalledWith(expect.stringContaining("vout"));
+    expect(stderrSpy).toHaveBeenCalledWith(expect.stringContaining("verr"));
+    stdoutSpy.mockRestore();
+    stderrSpy.mockRestore();
+  }, 30_000);
+});
+
+describe("runLanes", () => {
+  test("runs lanes in parallel and stops a lane at its first failure", async () => {
+    const ok = createNodeScriptStep("lane-ok", "console.log('fine')");
+    const fail = createNodeScriptStep("lane-fail", "process.exit(1)");
+    const never = createNodeScriptStep(
+      "lane-never",
+      "console.log('unreachable')",
+    );
+    const exitSpy = vi
+      .spyOn(process, "exit")
+      .mockImplementation(() => undefined);
+
+    const output = await captureConsoleLogAsync(async () => {
+      const results = await runLanes({
+        lanes: [[ok], [fail, never]],
+        verbose: false,
+        title: "RUNLANES TEST",
+      });
+
+      expect(results["lane-ok"].status).toBe(0);
+      expect(results["lane-fail"].status).toBe(1);
+      expect(results["lane-never"]).toBeUndefined();
+    });
+
+    expect(output.join("\n")).toContain("RUNLANES TEST");
+    exitSpy.mockRestore();
+  }, 30_000);
+});
+
+describe("coverage failure diagnostics", () => {
+  test("printSummary points coverage failures at the ignore list", () => {
+    const steps = [{ name: "tests:unit", cmd: "npx", args: [] }];
+    const results = {
+      "tests:unit": {
+        status: 1,
+        stdout: [
+          "120 pass",
+          "0 fail",
+          "File | % Funcs | % Lines | Uncovered Lines",
+        ].join("\n"),
+        stderr: "",
+      },
+    };
+
+    const output = captureSummaryOutput(steps, results, "COVERAGE SUMMARY");
+
+    expect(output).toContain(
+      "Excluded files are listed in test/coverage-ignore.js.",
+    );
+  });
+
+  test("extractErrorsFromOutput keeps coverage table rows with uncovered lines", () => {
+    const output = [
+      "src/foo.js | 90.00 | 85.00 | 12,14",
+      "src/bar.js | 100.00 | 100.00 | ",
+    ].join("\n");
+
+    const errors = extractErrorsFromOutput(output);
+
+    expect(errors).toContain("src/foo.js | 90.00 | 85.00 | 12,14");
+    expect(errors.some((e) => e.includes("src/bar.js"))).toBe(false);
   });
 });

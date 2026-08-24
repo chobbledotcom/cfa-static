@@ -1,4 +1,4 @@
-// Main JS bundle - processed by Bun during build
+// Main JS bundle - bundled by esbuild during build
 
 // NPM dependencies
 import "instant.page";

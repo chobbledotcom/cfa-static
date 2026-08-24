@@ -41,3 +41,11 @@ export const docs = {
   notes: FILE_RESOLUTION_NOTE,
 };
 /* jscpd:ignore-end */
+
+export const example = {
+  type: "downloads",
+  intro_content: "## Files to download",
+  items: [
+    { file: "/files/template-overview.txt", label: "Template overview (TXT)" },
+  ],
+};

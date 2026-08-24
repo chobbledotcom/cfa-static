@@ -46,7 +46,7 @@ export default defineConfig({
       // each worker's vite transform variant, and the merged report showed
       // phantom misses for functions the tests demonstrably execute.
       provider: "istanbul",
-      // Bun-parity semantics: report only files the tests actually load
+      // Report only files the tests actually load
       // (all: false), and require full line/function coverage of them.
       all: false,
       reporter: ["lcov", "text-summary"],

@@ -303,7 +303,7 @@ import { orig as alias } from "#utils/test.js";
     });
 
     test("returns null for node modules", () => {
-      expect(resolveImportPath("bun:test")).toBe(null);
+      expect(resolveImportPath("node:test")).toBe(null);
       expect(resolveImportPath("fs")).toBe(null);
     });
   });
