@@ -1,9 +1,23 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
+import { green, write } from "#test/precommit/colors.js";
 import {
   createDotsProgress,
   extractSlowTests,
   extractTestTotal,
 } from "#test/precommit/output.js";
+
+describe("precommit colour helpers", () => {
+  test("write sends raw text to stdout", () => {
+    const writeSpy = vi
+      .spyOn(process.stdout, "write")
+      .mockImplementation(() => true);
+
+    write(green("ok"));
+
+    expect(writeSpy).toHaveBeenCalledWith("\x1b[32mok\x1b[0m");
+    writeSpy.mockRestore();
+  });
+});
 
 describe("precommit output helpers", () => {
   test("createDotsProgress ignores non-dot chunks until dots pass", () => {

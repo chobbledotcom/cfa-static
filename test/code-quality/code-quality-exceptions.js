@@ -70,7 +70,7 @@ const ALLOWED_PROCESS_CWD = frozenSet([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = frozenSet([
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:157", // createExtractor accumulates results in a Set
+  "test/test-utils.js:158", // createExtractor accumulates results in a Set
   "test/build-profiling.js",
   "test/test-runner-utils.js",
   "test/code-scanner.js",
@@ -189,6 +189,18 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
   "packages/js-toolkit/fp/array.js:uniqueBy", // Toolkit API surface
   "packages/js-toolkit/fp/sorting.js:compareBy", // Toolkit API surface
   "packages/js-toolkit/fp/sorting.js:descending", // Toolkit API surface
+
+  // Browser-automation internals: consumed inside their own modules by the
+  // exported orchestrators (startServer, screenshot, configureScreenshots),
+  // exported so unit tests can exercise each piece directly.
+  "src/_lib/media/browser-utils.js:buildOutputPath",
+  "src/_lib/media/browser-utils.js:createOutputPathBuilder",
+  "src/_lib/media/browser-utils.js:createOperationContext",
+  "src/_lib/media/browser-utils.js:pathErrorInfo",
+  "src/_lib/media/browser-utils.js:waitForServer",
+  "src/_lib/media/screenshot.js:takeScreenshotWithPlaywright",
+  "src/_lib/eleventy/screenshots.js:captureScreenshots",
+  "src/_lib/eleventy/screenshots.js:logScreenshotErrors",
 
   // Build utilities - tested directly for build pipeline verification
   "src/_lib/build/scss.js:createScssCompiler",

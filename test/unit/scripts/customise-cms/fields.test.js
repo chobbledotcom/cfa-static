@@ -3,6 +3,7 @@ import {
   COMMON_FIELDS,
   createAddOnsField,
   createBodyField,
+  createEleventyNavigationField,
   createMarkdownField,
   createReferenceField,
   getBodyField,
@@ -120,5 +121,22 @@ describe("createAddOnsField", () => {
     expect(names).toContain("name");
     expect(names).toContain("price");
     expect(optionsField.fields.every((f) => f.required)).toBe(true);
+  });
+});
+
+describe("createEleventyNavigationField", () => {
+  test("includes only key and order by default", () => {
+    const field = createEleventyNavigationField();
+    const names = field.fields.map((f) => f.name);
+
+    expect(field.name).toBe("eleventyNavigation");
+    expect(names).toEqual(["key", "order"]);
+  });
+
+  test("adds a url field when includeUrl is set", () => {
+    const field = createEleventyNavigationField(true);
+    const names = field.fields.map((f) => f.name);
+
+    expect(names).toEqual(["key", "order", "url"]);
   });
 });

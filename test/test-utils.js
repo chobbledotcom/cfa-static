@@ -75,6 +75,7 @@ import {
   bracketAsync,
   cleanupTempDir,
   createTempFile,
+  withChdirAsync,
   withMockedCwd,
   withMockedCwdAsync,
   withMockedProcessExit,
@@ -275,18 +276,6 @@ const createFrontmatter = (frontmatterData, content = "") =>
 // Eleventy-specific assertion helpers
 // ============================================
 
-/**
- * Assert that an HTML string contains a valid unordered list structure.
- */
-/**
- * Assert that a result is a valid script tag with correct id and type.
- */
-const expectValidScriptTag = (result) => {
-  expect(result.startsWith('<script id="site-config"')).toBe(true);
-  expect(result.includes('type="application/json"')).toBe(true);
-  expect(result.endsWith("</script>")).toBe(true);
-};
-
 // Pre-built data array checkers
 const expectResultTitles = expectDataArray("name");
 
@@ -361,7 +350,6 @@ export {
   expectObjectProps,
   expectProp,
   expectResultTitles,
-  expectValidScriptTag,
   extractFunctions,
   fs,
   // File discovery
@@ -383,6 +371,7 @@ export {
   TEST_FILES,
   toData,
   // Curried config mock factories
+  withChdirAsync,
   withConfiguredMock,
   withMockedCwd,
   withMockedCwdAsync,
