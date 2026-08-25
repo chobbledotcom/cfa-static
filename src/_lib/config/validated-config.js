@@ -9,7 +9,7 @@
  */
 import languages from "#data/languages.json" with { type: "json" };
 import site from "#data/site.json" with { type: "json" };
-import { baseLanguageErrors } from "#utils/i18n.js";
+import { baseLanguageErrors, languageFieldErrors } from "#utils/i18n.js";
 
 const siteUrlProtocolErrors = !site.url
   ? []
@@ -28,7 +28,11 @@ const siteUrlErrors = !site.url
       ...siteUrlProtocolErrors,
     ];
 
-const errors = [...baseLanguageErrors(languages), ...siteUrlErrors];
+const errors = [
+  ...baseLanguageErrors(languages),
+  ...languageFieldErrors(languages),
+  ...siteUrlErrors,
+];
 
 if (errors.length > 0) {
   const heading =

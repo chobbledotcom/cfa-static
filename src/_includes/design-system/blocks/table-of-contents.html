@@ -1,0 +1,14 @@
+{%- comment -%}
+In-page contents.
+
+This template writes the landmark and its title; the list inside it is built
+after the page renders, by src/_lib/transforms/table-of-contents.js, from the
+headings the finished page actually contains. `data-toc-levels` is what tells
+that transform which heading levels to list, so it is the marker that makes
+the whole block work - dropping it leaves an empty landmark behind.
+{%- endcomment -%}
+{%- assign _toc_title = block.title | default: "On this page" -%}
+{%- assign _toc_levels = block.levels | default: "2,3" -%}
+<nav class="table-of-contents" data-toc-levels="{{ _toc_levels }}">
+  <h2 class="toc-title">{{ _toc_title }}</h2>
+</nav>

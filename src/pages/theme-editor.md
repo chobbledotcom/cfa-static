@@ -108,9 +108,10 @@ blocks:
           </div>
         </form>
 
-        <h2>Theme</h2>
+        <h2 id="theme-output-label">Theme</h2>
         <textarea
           id="theme-output"
+          aria-labelledby="theme-output-label"
           rows="20"
           style="width: 100%; font-family: monospace"
         >

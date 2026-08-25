@@ -432,6 +432,24 @@ Renders markdown content as rich text.
 
 ---
 
+### `table-of-contents`
+
+In-page contents built from the headings the page actually renders.
+
+**Component:** `block_table_of_contents`
+**Template:** `src/_includes/design-system/blocks/table-of-contents.html`
+**SCSS:** `src/css/design-system/_table-of-contents.scss`
+**HTML root:** `<nav class="table-of-contents">`
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `title` | string | `"On this page"` | Heading above the list, and the accessible name of the navigation landmark. |
+| `levels` | string | `"2,3"` | Comma-separated heading levels to list, from `2` to `6`. Every other level is left out of the list, so `"2"` gives a top-level-only contents. An unlistable level fails the build. |
+
+The list is filled in after the page renders, from the headings in the page's main content at the levels this block names — no matter which blocks wrote them. Each listed heading gets an `id` (its own, when it already has one) so the links are stable, and the entries nest the way the headings do. A page whose headings none of the named levels match fails the build rather than publishing an empty contents.
+
+---
+
 ### `html`
 
 Outputs raw HTML without processing.

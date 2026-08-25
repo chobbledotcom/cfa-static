@@ -18,11 +18,11 @@
   {%- endif -%}
   {%- assign navItems = collections.navigationLinks | eleventyNavigation -%}
   {%- if page and page.navigationParent -%}
-    {{ navItems | toNavigation: page.navigationParent -}}
+    {{ navItems | toNavigation: page.navigationParent, pageLanguage.search_label -}}
   {%- elsif eleventyNavigation and eleventyNavigation.key -%}
-    {{- navItems | toNavigation: eleventyNavigation.key -}}
+    {{- navItems | toNavigation: eleventyNavigation.key, pageLanguage.search_label -}}
   {%- else -%}
-    {{- navItems | toNavigation: navigationParent -}}
+    {{- navItems | toNavigation: navigationParent, pageLanguage.search_label -}}
   {%- endif -%}
   {%- include "navigation-end.html" -%}
 </nav>

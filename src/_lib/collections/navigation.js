@@ -57,14 +57,32 @@ const renderNavEntry = async (
   return createHtml("li", {}, anchor + childrenHtml);
 };
 
-/** @returns {Promise<string>} */
-const renderSearchItem = async () => {
+/**
+ * The search field in the navigation. Its button is an icon, and its field has
+ * only a placeholder, so both are named from the page language's label -
+ * without it neither says what it does to a screen reader.
+ * @param {string} searchLabel - The page language's `search_label`
+ * @returns {Promise<string>}
+ */
+const renderSearchItem = async (searchLabel) => {
+  if (!searchLabel) {
+    throw new Error(
+      "toNavigation needs the page language's search_label to name the " +
+        "search field: {{ navItems | toNavigation: activeKey, " +
+        "pageLanguage.search_label }}.",
+    );
+  }
   const iconSvg = await getIcon(SEARCH_ICON_ID);
-  const searchButton = await createHtml("button", { type: "submit" }, iconSvg);
+  const searchButton = await createHtml(
+    "button",
+    { type: "submit", "aria-label": searchLabel },
+    iconSvg,
+  );
   const searchInput = await createHtml("input", {
     type: "search",
     name: "q",
-    placeholder: "Search...",
+    placeholder: searchLabel,
+    "aria-label": searchLabel,
     autocomplete: "off",
   });
   const searchForm = await createHtml(
@@ -76,12 +94,15 @@ const renderSearchItem = async () => {
 };
 
 /**
- * Filter: renders navigation HTML. Usage: {{ navItems | toNavigation: activeKey }}
+ * Filter: renders navigation HTML.
+ * Usage: {{ navItems | toNavigation: activeKey, pageLanguage.search_label }}
  * @param {NavigationEntry[]} pages
  * @param {string} [activeKey]
+ * @param {string} [searchLabel] - The page language's `search_label`, needed
+ *   only by sites that publish a search page
  * @returns {Promise<string>}
  */
-const toNavigation = async (pages, activeKey = "") => {
+const toNavigation = async (pages, activeKey = "", searchLabel = "") => {
   if (!pages?.length) return "";
   if (pages[0]?.pluginType !== "eleventy-navigation") {
     throw new Error("toNavigation requires eleventyNavigation filter first");
@@ -98,7 +119,7 @@ const toNavigation = async (pages, activeKey = "") => {
     renderNavEntry(entry, activeKey, renderChildren, true, showThumbnails),
   )(pages);
   const searchItem = fs.existsSync(SEARCH_PAGE_PATH)
-    ? [await renderSearchItem()]
+    ? [await renderSearchItem(searchLabel)]
     : [];
   const items = [...navItems, ...searchItem];
   return createHtml("ul", { class: "nav-thumbnails" }, items.join("\n"));

@@ -569,6 +569,14 @@ components:
       - name: intro_content
         type: rich-text
         label: Intro Content (Markdown)
+  block_table_of_contents:
+    label: Table Of Contents
+    type: object
+    fields:
+      - { name: dark, type: boolean, label: Dark }
+      - { name: compact, type: boolean, label: Compact }
+      - { name: title, type: string, label: Title }
+      - { name: levels, type: string, label: Heading Levels }
   faqs:
     label: FAQs
     type: object
@@ -671,6 +679,7 @@ content:
           - { name: split-icon-links, component: block_split_icon_links }
           - { name: split-image, component: block_split_image }
           - { name: stats, component: block_stats }
+          - { name: table-of-contents, component: block_table_of_contents }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
@@ -739,6 +748,7 @@ content:
           - { name: split-icon-links, component: block_split_icon_links }
           - { name: split-image, component: block_split_image }
           - { name: stats, component: block_stats }
+          - { name: table-of-contents, component: block_table_of_contents }
   - name: guide-categories
     label: Guide Categories
     path: src/guide-categories
@@ -794,6 +804,7 @@ content:
           - { name: split-icon-links, component: block_split_icon_links }
           - { name: split-image, component: block_split_image }
           - { name: stats, component: block_stats }
+          - { name: table-of-contents, component: block_table_of_contents }
   - name: guide-pages
     label: Guide Pages
     path: src/guide-pages
@@ -856,6 +867,7 @@ content:
           - { name: split-icon-links, component: block_split_icon_links }
           - { name: split-image, component: block_split_image }
           - { name: stats, component: block_stats }
+          - { name: table-of-contents, component: block_table_of_contents }
   - name: snippets
     label: Snippets
     path: src/snippets

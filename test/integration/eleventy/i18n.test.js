@@ -124,9 +124,10 @@ describe("a site publishing two languages", () => {
 
   test("keeps a translated page's breadcrumbs in its own language", async () => {
     const doc = await getSite().getDoc("/de/ueber-uns/index.html");
-    const crumbs = doc.querySelector("ol.breadcrumbs");
-    expect(crumbs.getAttribute("aria-label")).toBe("Brotkrumennavigation");
-    const first = crumbs.querySelector("a");
+    // The trail is a navigation landmark, and the landmark carries the name.
+    const landmark = doc.querySelector("nav:has(> ol.breadcrumbs)");
+    expect(landmark.getAttribute("aria-label")).toBe("Brotkrumennavigation");
+    const first = landmark.querySelector("a");
     expect(first.getAttribute("href")).toBe("/de/");
     expect(first.textContent.trim()).toBe("Startseite");
   });
