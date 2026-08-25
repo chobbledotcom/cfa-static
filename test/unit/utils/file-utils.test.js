@@ -93,13 +93,9 @@ describe("file-utils", () => {
       const mockConfig = createMockEleventyConfig();
       configureFileUtils(mockConfig);
 
-      expect(typeof mockConfig.filters.file_exists).toBe("function");
-      expect(typeof mockConfig.filters.file_missing).toBe("function");
       expect(typeof mockConfig.filters.snippet_data).toBe("function");
-      expect(typeof mockConfig.filters.escape_html).toBe("function");
       expect(typeof mockConfig.filters.markdown).toBe("function");
       expect(typeof mockConfig.asyncShortcodes.render_snippet).toBe("function");
-      expect(typeof mockConfig.shortcodes.read_file).toBe("function");
     });
   });
 
@@ -118,72 +114,6 @@ describe("file-utils", () => {
       expect(markdown("")).toBe("");
       expect(markdown(null)).toBe("");
       expect(markdown(undefined)).toBe("");
-    });
-  });
-
-  describe("file_exists filter", () => {
-    test("Returns true for existing files", () => {
-      testWithFile("file_exists", "test.txt", "test content", (mockConfig) => {
-        expect(mockConfig.filters.file_exists("test.txt")).toBe(true);
-      });
-    });
-
-    test("Returns false for non-existing files", () => {
-      testWithEmptyDir("file_exists-false", (mockConfig) => {
-        expect(mockConfig.filters.file_exists("nonexistent.txt")).toBe(false);
-      });
-    });
-  });
-
-  describe("file_missing filter", () => {
-    test("Returns false for existing files", () => {
-      testWithFile("file_missing", "test.txt", "test content", (mockConfig) => {
-        expect(mockConfig.filters.file_missing("test.txt")).toBe(false);
-      });
-    });
-
-    test("Returns true for non-existing files", () => {
-      testWithEmptyDir("file_missing-true", (mockConfig) => {
-        expect(mockConfig.filters.file_missing("nonexistent.txt")).toBe(true);
-      });
-    });
-  });
-
-  describe("escape_html filter", () => {
-    test("Escapes HTML special characters", () => {
-      const { escape_html } = createConfiguredMock().filters;
-
-      expect(escape_html("<div>")).toBe("&lt;div&gt;");
-      expect(escape_html("a & b")).toBe("a &amp; b");
-      expect(escape_html('"quoted"')).toBe("&quot;quoted&quot;");
-      expect(escape_html('<a href="test">link</a>')).toBe(
-        "&lt;a href=&quot;test&quot;&gt;link&lt;/a&gt;",
-      );
-    });
-
-    test("Handles empty string", () => {
-      const { escape_html } = createConfiguredMock().filters;
-      expect(escape_html("")).toBe("");
-    });
-
-    test("Leaves plain text unchanged", () => {
-      const { escape_html } = createConfiguredMock().filters;
-      expect(escape_html("Hello World")).toBe("Hello World");
-    });
-  });
-
-  describe("read_file shortcode", () => {
-    test("Reads content from existing file", () => {
-      const content = "Hello, World!";
-      testWithFile("read_file", "test.txt", content, (mockConfig) => {
-        expect(mockConfig.shortcodes.read_file("test.txt")).toBe(content);
-      });
-    });
-
-    test("Returns empty string for missing file", () => {
-      testWithEmptyDir("read_file-missing", (mockConfig) => {
-        expect(mockConfig.shortcodes.read_file("nonexistent.txt")).toBe("");
-      });
     });
   });
 

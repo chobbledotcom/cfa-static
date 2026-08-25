@@ -2,22 +2,7 @@
  * Tests for js-toolkit sorting utilities
  */
 import { describe, expect, test } from "vitest";
-import {
-  compareBy,
-  compareStrings,
-  descending,
-  orderThenString,
-} from "#toolkit/fp/sorting.js";
-
-describe("compareStrings", () => {
-  test("sorts strings alphabetically", () => {
-    expect(["banana", "apple", "cherry"].sort(compareStrings)).toEqual([
-      "apple",
-      "banana",
-      "cherry",
-    ]);
-  });
-});
+import { compareBy, descending, orderThenString } from "#toolkit/fp/sorting.js";
 
 describe("compareBy", () => {
   test("uses locale comparison for string keys", () => {

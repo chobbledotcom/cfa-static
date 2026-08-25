@@ -1,18 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { createMockEleventyConfig } from "#test/test-utils.js";
-import {
-  configureCollectionUtils,
-  createFieldIndexer,
-} from "#utils/collection-utils.js";
+import { createFieldIndexer } from "#utils/collection-utils.js";
 
 describe("collection-utils", () => {
-  describe("configureCollectionUtils", () => {
-    test("does not throw", () => {
-      const mockConfig = createMockEleventyConfig();
-      configureCollectionUtils(mockConfig);
-    });
-  });
-
   describe("createFieldIndexer slug normalisation", () => {
     const indexByParent = createFieldIndexer("parent");
 

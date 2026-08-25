@@ -41,7 +41,7 @@ export const COLUMN_DISALLOWED_TYPES = [
 ];
 
 /** @param {string} type */
-export const isColumnSafeType = (type) =>
+const isColumnSafeType = (type) =>
   !COLUMN_DISALLOWED_TYPES.includes(type) && !type.startsWith("split-");
 
 /**

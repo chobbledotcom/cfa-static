@@ -127,36 +127,15 @@
       }
 
       // =======================================================================
-      // CART BUTTONS
+      // CARD BUTTONS
       // =======================================================================
 
-      // "Select Options" link or standalone "Add to Cart" button
-      > .button,
-      > .add-to-cart {
+      // "Read more" style call-to-action button pinned to the card foot
+      > .button {
         @include button-primary;
 
         margin-block-start: auto;
         margin-inline: var(--item-padding-inline);
-      }
-
-      // Cart controls row (button + quantity selector)
-      .list-item-cart-controls {
-        display: flex;
-        gap: $space-sm;
-        align-items: center;
-
-        margin-block-start: auto;
-        padding: 0 var(--item-padding-inline) var(--item-padding-inline);
-
-        .add-to-cart {
-          @include button-primary;
-
-          margin: 0;
-        }
-
-        .item-quantity {
-          margin: 0;
-        }
       }
     }
 

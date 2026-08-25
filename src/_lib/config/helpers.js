@@ -10,7 +10,7 @@ const DEFAULTS = frozenObject({
   placeholder_images: true,
   enable_theme_switcher: false,
   timezone: "Europe/London",
-  list_item_fields: ["link", "subtitle", "thumbnail"],
+  list_item_fields: ["thumbnail", "link", "date", "subtitle"],
   nav_thumbnails: false,
   navigation_content_anchor: false,
   screenshots: {},

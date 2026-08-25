@@ -1,8 +1,8 @@
 /**
  * Sorting utilities - Eleventy-specific comparators and sort helpers.
  *
- * For generic sorting utilities (compareBy, compareStrings, descending,
- * orderThenString), import directly from "#toolkit/fp/sorting.js".
+ * For generic sorting utilities (compareBy, descending, orderThenString),
+ * import directly from "#toolkit/fp/sorting.js".
  */
 import { orderThenString } from "#toolkit/fp/sorting.js";
 

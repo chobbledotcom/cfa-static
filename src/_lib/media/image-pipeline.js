@@ -13,8 +13,22 @@ import {
   removeLqip,
 } from "#media/image-lqip.js";
 import { JPEG_FALLBACK_WIDTH } from "#media/image-utils.js";
-import { wrapImageHtml } from "#media/image-wrapper.js";
-import { parseHtml } from "#utils/dom-builder.js";
+import { join } from "#toolkit/fp/array.js";
+import { createHtml, parseHtml } from "#utils/dom-builder.js";
+
+/**
+ * Wrap image HTML in the standard image wrapper.
+ * @param {string} innerHtml
+ * @param {Object} options
+ * @param {string | null | undefined} options.classes
+ * @param {string | null | undefined} options.style
+ * @returns {Promise<string>}
+ */
+export const wrapImageHtml = (innerHtml, { classes, style }) => {
+  const classParts = classes ? ["image-wrapper", classes] : ["image-wrapper"];
+  const className = join(" ")(classParts);
+  return createHtml("div", { class: className, style }, innerHtml);
+};
 
 /**
  * Process image through parallel webp + jpeg format generation.
@@ -65,22 +79,6 @@ export const prepareLqipMetadata = async (
 };
 
 /**
- * Generate picture element HTML from processed metadata.
- * @param {Object} htmlMetadata - Metadata (with LQIP filtered out)
- * @param {Object} imgAttributes - Image element attributes
- * @param {Object} pictureAttributes - Picture element attributes
- * @returns {Promise<string>} Generated HTML
- */
-export const generatePictureHtml = async (
-  htmlMetadata,
-  imgAttributes,
-  pictureAttributes,
-) => {
-  const { generateHTML } = await getEleventyImg();
-  return generateHTML(htmlMetadata, imgAttributes, pictureAttributes);
-};
-
-/**
  * Generate picture HTML and wrap it in the standard image wrapper.
  * Shared by both local and external image processing paths.
  * @param {Object} htmlMetadata - Metadata (with LQIP filtered out)
@@ -97,7 +95,8 @@ export const wrapProcessedImage = async (
   pictureAttributes,
   { classes, style },
 ) => {
-  const innerHTML = await generatePictureHtml(
+  const { generateHTML } = await getEleventyImg();
+  const innerHTML = generateHTML(
     htmlMetadata,
     imgAttributes,
     pictureAttributes,

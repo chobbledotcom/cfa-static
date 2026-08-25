@@ -27,24 +27,14 @@ const externalFilenameFormat = (_id, _src, width, format, options) =>
   `${options.slug}-${width}.${format}`;
 
 /**
- * Process an external image URL through eleventy-img.
+ * Process an external image URL through eleventy-img into wrapped HTML.
+ * Downloads and caches the image locally; throws if it cannot be fetched.
  *
  * Deduplicated to avoid duplicate concurrent work for the same URL/options tuple.
  * While eleventy-img disk-caches downloaded images, this still prevents
  * overlapping fetch/processing work without retaining every settled result in memory.
- *
- * @param {Object} options - Processing options
- * @param {string} options.src - External image URL
- * @param {string | null} options.alt - Alt text (used for filename slug)
- * @param {string | null} options.loading - Loading attribute
- * @param {string | null} options.classes - CSS classes
- * @param {string | null} options.sizes - Sizes attribute
- * @param {string | string[] | null} options.widths - Responsive widths
- * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
- * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
- * @returns {Promise<string>} Wrapped image HTML
  */
-const computeExternalImageHtml = dedupeAsync(
+const processExternal = dedupeAsync(
   async ({
     src,
     alt,
@@ -103,30 +93,13 @@ const computeExternalImageHtml = dedupeAsync(
 );
 
 /**
- * Process an external image URL into HTML or an Element.
- * Downloads and caches the image locally via eleventy-img.
- * Throws an error if the remote image cannot be fetched.
- *
- * @param {Object} options - Processing options
- * @param {string} options.src - External image URL
- * @param {string | null} options.alt - Alt text (used for filename slug)
- * @param {string | null} options.loading - Loading attribute
- * @param {string | null} options.classes - CSS classes
- * @param {string | null} options.sizes - Sizes attribute
- * @param {string | string[] | null} options.widths - Responsive widths
- * @param {string | null} options.aspectRatio - Aspect ratio like "16/9"
- * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
- * @param {boolean} options.returnElement - Whether to return Element or HTML string
- * @param {Document | null} options.document - Optional document for element creation
- * @returns {Promise<string | Element>} HTML string or element
+ * Compute wrapped HTML for an external image from the shared image-props
+ * shape: renames imageName to the pipeline's src and drops the local-only
+ * noLqip flag so it cannot fragment the dedupe cache key.
+ * @param {import("#lib/types").ComputeImageProps} props
+ * @returns {Promise<string>} Wrapped image HTML
  */
-const processExternalImage = async ({
-  returnElement,
-  document: doc,
-  ...imageProps
-}) => {
-  const html = await computeExternalImageHtml(imageProps);
-  return pipeline.resolveOutput(html, returnElement, doc);
-};
+const computeExternalImageHtml = ({ imageName, noLqip: _noLqip, ...props }) =>
+  processExternal({ src: imageName, ...props });
 
-export { processExternalImage };
+export { computeExternalImageHtml };

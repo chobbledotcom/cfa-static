@@ -95,9 +95,9 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/unit/utils/block-docs.test.js",
 
   // Frontend - Set used to track visible parallax elements for scroll updates
-  "src/_lib/public/design-system.js:35",
+  "src/_lib/public/design-system.js:61",
   // Frontend - Map cache for uWrap font counters (one per unique computed font)
-  "src/_lib/public/masonry.js:13",
+  "src/_lib/public/masonry.js:11",
 ]);
 
 // ============================================
@@ -134,7 +134,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/media/image-utils.js", // buildImgAttributes, buildPictureAttributes - helper functions for prepareImageAttributes
   "src/_lib/eleventy/file-utils.js", // Filter callbacks extracted for strict type safety
   "src/_lib/eleventy/style-bundle.js", // Options parsing helpers for type safety
-  "src/_lib/eleventy/link-list.js", // Helpers kept separate for clarity
   "src/_lib/eleventy/html-transform.js", // Transform helpers kept separate to manage complexity
   "src/_lib/transforms/external-links.js", // attrTuple for TypeScript tuple inference
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity

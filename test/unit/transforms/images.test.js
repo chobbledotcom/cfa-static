@@ -4,10 +4,8 @@ import {
   extractImageOptions,
   fixDivsInParagraphs,
   IGNORE_ATTRIBUTE,
-  LEGACY_WIDTHS_ATTRIBUTE,
   NO_LQIP_ATTRIBUTE,
   processImages,
-  WIDTHS_ATTRIBUTE,
 } from "#transforms/images.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
@@ -234,18 +232,6 @@ describe("images transform", () => {
         return div;
       });
       expect(dom.serialize()).not.toContain("<p><div");
-    });
-  });
-
-  describe("constants", () => {
-    test("ASPECT_RATIO_ATTRIBUTE is correct", () => {
-      expect(ASPECT_RATIO_ATTRIBUTE).toBe("eleventy:aspectRatio");
-    });
-
-    test("IGNORE_ATTRIBUTE is correct", () => {
-      expect(IGNORE_ATTRIBUTE).toBe("eleventy:ignore");
-      expect(WIDTHS_ATTRIBUTE).toBe("eleventy:widths");
-      expect(LEGACY_WIDTHS_ATTRIBUTE).toBe("widths");
     });
   });
 });

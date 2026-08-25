@@ -22,12 +22,4 @@ const getPlaceholderForPath = (itemPath) =>
     (color) => `images/placeholders/${color}.svg`,
   )(itemPath);
 
-const configureThumbnailPlaceholder = (eleventyConfig) => {
-  eleventyConfig.addFilter("thumbnailPlaceholder", getPlaceholderForPath);
-};
-
-export {
-  configureThumbnailPlaceholder,
-  getPlaceholderForPath,
-  PLACEHOLDER_COLORS,
-};
+export { getPlaceholderForPath, PLACEHOLDER_COLORS };

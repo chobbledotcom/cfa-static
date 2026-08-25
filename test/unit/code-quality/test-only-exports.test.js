@@ -29,7 +29,6 @@ const IMPORT_ALIASES = {
   "#lib/": "src/_lib/",
   "#collections/": "src/_lib/collections/",
   "#config/": "src/_lib/config/",
-  "#filters/": "src/_lib/filters/",
   "#eleventy/": "src/_lib/eleventy/",
   "#build/": "src/_lib/build/",
   "#media/": "src/_lib/media/",

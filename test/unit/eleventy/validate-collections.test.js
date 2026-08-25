@@ -154,40 +154,8 @@ describe("configureCollectionValidation", () => {
     });
   });
 
-  test("discovers filter-based collections from configure-filters.js", () => {
-    withTempDir("filter-collections", (tempDir) => {
-      writeFile(
-        tempDir,
-        "_lib/filters/configure-filters.js",
-        'const config = { pages: "filteredByColor", redirects: "colorRedirects" };',
-      );
-      writeFile(
-        tempDir,
-        "views/page.html",
-        "{{ collections.filteredByColor }}",
-      );
-      expect(() => getHandler(tempDir)()).not.toThrow();
-    });
-  });
-
-  test("discovers ListingFilterUI collections from filter names", () => {
-    withTempDir("listing-filter-ui", (tempDir) => {
-      writeFile(
-        tempDir,
-        "_lib/filters/configure-filters.js",
-        'const config = { pages: "filteredBySize" };',
-      );
-      writeFile(
-        tempDir,
-        "views/page.html",
-        "{{ collections.filteredBySizeListingFilterUI }}",
-      );
-      expect(() => getHandler(tempDir)()).not.toThrow();
-    });
-  });
-
-  test("works when configure-filters.js does not exist", () => {
-    withTempDir("no-filters", (tempDir) => {
+  test("accepts collections registered via addCollection", () => {
+    withTempDir("registered-collections", (tempDir) => {
       writeFile(tempDir, "lib.js", '.addCollection("items", fn);');
       writeFile(tempDir, "views/page.html", "{{ collections.items }}");
       expect(() => getHandler(tempDir)()).not.toThrow();

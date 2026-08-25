@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import { join } from "node:path";
 import config from "#data/config.js";
-import { getBySlug } from "#eleventy/collection-lookup.js";
 import { PAGES_DIR } from "#lib/paths.js";
 import { getIcon } from "#media/iconify.js";
 import { imageShortcode } from "#media/image.js";
@@ -9,7 +8,6 @@ import { filter, mapAsync, pipe, sort } from "#toolkit/fp/array.js";
 import { createHtml } from "#utils/dom-builder.js";
 import { sortNavigationItems } from "#utils/sorting.js";
 
-/** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
 /** @typedef {import("../types/navigation.d.ts").NavigationEntry} NavigationEntry */
 /** @typedef {(children: NavigationEntry[]) => Promise<string>} RenderChildren */
 
@@ -107,21 +105,6 @@ const toNavigation = async (pages, activeKey = "") => {
 };
 
 /**
- * Find URL for a page matching tag and slug. Uses O(1) slug lookup.
- * @param {EleventyCollectionItem[]} collection
- * @param {string} tag
- * @param {string} slug
- * @returns {string}
- */
-const findPageUrl = (collection, tag, slug) => {
-  const item = getBySlug(collection, slug);
-  if (!item.data.tags?.includes(tag)) {
-    throw new Error(`Page "${slug}" does not have tag "${tag}".`);
-  }
-  return item.url;
-};
-
-/**
  * @param {import("11ty.ts").EleventyConfig} eleventyConfig
  * @returns {Promise<void>}
  */
@@ -129,7 +112,6 @@ const configureNavigation = async (eleventyConfig) => {
   const nav = await import("@11ty/eleventy-navigation");
   eleventyConfig.addPlugin(nav.default);
   eleventyConfig.addAsyncFilter("toNavigation", toNavigation);
-  eleventyConfig.addFilter("pageUrl", findPageUrl);
   eleventyConfig.addCollection("navigationLinks", (collectionApi) =>
     pipe(
       filter((item) => item.data.eleventyNavigation),
@@ -138,4 +120,4 @@ const configureNavigation = async (eleventyConfig) => {
   );
 };
 
-export { configureNavigation, findPageUrl, toNavigation };
+export { configureNavigation, toNavigation };

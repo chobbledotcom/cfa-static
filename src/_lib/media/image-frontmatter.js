@@ -8,6 +8,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { SRC_DIR } from "#lib/paths.js";
 import { memoize } from "#toolkit/fp/memoize.js";
+import { isExternalUrl } from "#utils/url-utils.js";
 
 // Memoize the file existence check since the same images are checked repeatedly
 const checkImageExists = memoize(
@@ -27,7 +28,7 @@ const checkImageExists = memoize(
  */
 export const isValidImage = (imagePath, baseDir = SRC_DIR) => {
   if (!imagePath || imagePath.trim() === "") return false;
-  if (imagePath.indexOf("http") === 0) return true;
+  if (isExternalUrl(imagePath)) return true;
 
   // Remove leading slash and strip "src/" prefix if present
   const relativePath = imagePath.replace(/^\//, "").replace(/^src\//, "");

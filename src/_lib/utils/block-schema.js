@@ -379,6 +379,5 @@ export {
   getBlockTemplate,
   isBlockAllowedIn,
   NAMED_LIST_FIELDS,
-  validateBlock,
   validateBlocks,
 };

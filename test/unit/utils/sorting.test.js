@@ -1,11 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { data } from "#test/test-utils.js";
-import {
-  compareBy,
-  compareStrings,
-  descending,
-  orderThenString,
-} from "#toolkit/fp/sorting.js";
+import { compareBy, descending, orderThenString } from "#toolkit/fp/sorting.js";
 import {
   sortByDateDescending,
   sortItems,
@@ -155,14 +150,6 @@ describe("sorting", () => {
     const items = ["a", "aaa", "aa"];
     const sorted = [...items].sort(byLengthDesc);
     expect(sorted).toEqual(["aaa", "aa", "a"]);
-  });
-
-  test("compareStrings sorts strings alphabetically", () => {
-    expect(["cherry", "apple", "banana"].sort(compareStrings)).toEqual([
-      "apple",
-      "banana",
-      "cherry",
-    ]);
   });
 
   test("orderThenString sorts by numeric key then string key", () => {

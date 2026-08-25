@@ -11,13 +11,13 @@ This directory contains all JavaScript modules for the Eleventy build system, or
 
 ```
 _lib/
-├── build/          # Build tooling (JS bundling, SCSS compilation)
-├── collections/    # Domain collections (products, events, etc.)
+├── build/          # Build tooling (JS bundling, SCSS, themes)
+├── collections/    # Domain collections (news, guides, navigation)
 ├── config/         # Configuration helpers (used by data files)
-├── eleventy/       # Eleventy-specific plugins and config helpers
-├── filters/        # URL-based filtering system for products/properties
+├── eleventy/       # Eleventy-specific plugins and filters
 ├── media/          # Image processing and asset handling
-├── scripts/        # Standalone CLI utilities
+├── public/         # Frontend JavaScript (bundled by esbuild)
+├── transforms/     # HTML output transforms
 └── utils/          # Pure utility functions (no Eleventy dependencies)
 ```
 
@@ -32,29 +32,24 @@ import { configureImages } from "#media/image.js";
 import config from "#data/config.json" with { type: "json" };
 ```
 
-Available aliases:
-
-- `#data/*` - `./src/_data/*`
-- `#lib/*` - `./src/_lib/*`
-- `#build/*` - `./src/_lib/build/*`
-- `#collections/*` - `./src/_lib/collections/*`
-- `#config/*` - `./src/_lib/config/*`
-- `#eleventy/*` - `./src/_lib/eleventy/*`
-- `#media/*` - `./src/_lib/media/*`
-- `#utils/*` - `./src/_lib/utils/*`
+See `package.json`'s `imports` field for the full alias list.
 
 ## Conventions
 
 ### Eleventy Plugin Files
 
-Files that register with Eleventy should export a `configureX` function:
+Files that register with Eleventy export a `configureX` function, and
+`.eleventy.js` runs every configurator from its `CONFIGURATORS` list:
 
 ```js
 export function configureNews(eleventyConfig) {
-  eleventyConfig.addCollection("products", ...);
-  eleventyConfig.addFilter("getProductsByCategory", ...);
+  eleventyConfig.addCollection("news", ...);
 }
 ```
+
+Simple standalone filters live in the central registry in
+`eleventy/filters.js` rather than one module each; a code-quality test
+fails the suite when a registered filter has no template consumer.
 
 ### Directory Details
 
@@ -65,68 +60,59 @@ Build-time tooling that runs during the Eleventy build process:
 - `js-bundler.js` - JavaScript bundling
 - `scss.js` - SCSS compilation
 - `theme-compiler.js` - Compiles theme SCSS files for theme-switcher
+- `css-variable-validator.js` - Validates CSS custom properties
 
 #### `collections/`
 
 Domain-specific collections and their associated filters:
 
-- `products.js` - Products, reviews, SKUs
-- `properties.js` - Property listings
-- `events.js` - Event categorization (upcoming/past/recurring)
-- `categories.js` - Category management with inherited images
+- `news.js` - News posts
 - `guides.js` - Guide categories and pages
-- `menus.js` - Restaurant menu system
-- `locations.js` - Location/area handling
-- `navigation.js` - Site navigation
-- `search.js` - Product keyword search
-- `tags.js` - Tag extraction
+- `navigation.js` - Site navigation rendering
 
 #### `config/`
 
 Configuration helpers separated from data files (required because Eleventy data files cannot have named exports):
 
-- `helpers.js` - Config defaults, validation, and form_target computation
+- `helpers.js` - Config defaults
+- `validated-config.js` - Startup validation for site.json and languages
 
 #### `eleventy/`
 
 Eleventy-specific configuration helpers:
 
-- `cache-buster.js` - URL cache busting for production
-- `external-links.js` - External link handling (target="\_blank")
-- `feed.js` - RSS feed configuration
-- `file-utils.js` - File existence checks, snippet rendering
-- `ical.js` - iCal generation for events
+- `filters.js` - Central registry of standalone filters
+- `blocks.js` - Block rendering filters
+- `breadcrumbs.js` - Breadcrumb + schema.org decorators
+- `collection-lookup.js` - O(1) slug/path lookups
+- `file-utils.js` - Snippet rendering and markdown filters
+- `html-transform.js` - Unified HTML output transform
 - `layout-aliases.js` - Auto-registers layout aliases
-- `opening-times.js` - Opening times shortcode/filter
-- `recurring-events.js` - Recurring events shortcode/filter
-
-#### `filters/`
-
-URL-based filtering system:
-
-- `item-filters.js` - Generic filtering factory (used by products and properties)
-- `product-filters.js` - Product-specific filter configuration
-- `property-filters.js` - Property-specific filter configuration
+- `screenshots.js` - Optional post-build screenshot capture
+- `validate-collections.js` - Build-time collection reference validation
 
 #### `media/`
 
 Image and asset processing:
 
-- `image.js` - Responsive images, lazy loading, blurry placeholders
-- `inline-asset.js` - Inline SVG and images into HTML
+- `image.js` - Responsive images, cropping, LQIP
+- `image-pipeline.js` - Shared local/external processing steps
+- `iconify.js` - Iconify SVG fetching and caching
 - `unused-images.js` - Reports unused images after build
 
-#### `scripts/`
+#### `public/`
 
-Standalone CLI utilities (not part of the build):
+Frontend JavaScript bundled by esbuild (`bundle.js` is the entry).
 
-- `add-skus.js` - Add unique SKUs to product options
+#### `transforms/`
+
+HTML output transforms applied by `eleventy/html-transform.js`.
 
 #### `utils/`
 
 Pure utility functions with no Eleventy dependencies:
 
-- `memoize.js` - Caching wrapper
+- `block-schema.js` - Block registry and validation
 - `sorting.js` - Collection sorting utilities
 - `slug-utils.js` - Slug normalization and permalink building
 - `schema-helper.js` - Schema.org/structured data helpers
