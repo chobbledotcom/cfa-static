@@ -21,6 +21,32 @@ const observeIntersections = (selector, callback, options) => {
   return observer;
 };
 
+/**
+ * Reveal elements as they scroll into view: adds visibleClass once per
+ * element, immediately when the user prefers reduced motion.
+ * Shared by the design-system reveal and the items scroll-fade.
+ */
+export const revealOnIntersect = (selector, visibleClass) => {
+  const elements = document.querySelectorAll(selector);
+  if (elements.length === 0) return;
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    for (const el of elements) el.classList.add(visibleClass);
+    return;
+  }
+
+  observeIntersections(
+    selector,
+    (visible, target, observer) => {
+      if (visible) {
+        target.classList.add(visibleClass);
+        observer.unobserve(target);
+      }
+    },
+    { rootMargin: "0px 0px -50px 0px", threshold: 0.1 },
+  );
+};
+
 const applyParallaxOffset = (el) => {
   const rect = el.getBoundingClientRect();
   const progress =
@@ -80,22 +106,7 @@ const initMarquees = () => {
 
 const init = () => {
   // Scroll reveal - animate elements as they enter viewport
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    for (const el of document.querySelectorAll(`${SCOPE} [data-reveal]`)) {
-      el.classList.add("is-visible");
-    }
-  } else {
-    observeIntersections(
-      `${SCOPE} [data-reveal]`,
-      (visible, target, observer) => {
-        if (visible) {
-          target.classList.add("is-visible");
-          observer.unobserve(target);
-        }
-      },
-      { rootMargin: "0px 0px -50px 0px", threshold: 0.1 },
-    );
-  }
+  revealOnIntersect(`${SCOPE} [data-reveal]`, "is-visible");
 
   // Smooth scroll for anchor links within design system
   for (const anchor of document.querySelectorAll(`${SCOPE} a[href^="#"]`)) {

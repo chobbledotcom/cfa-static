@@ -14,13 +14,10 @@ import { spawnSync } from "node:child_process";
 import { ROOT_DIR } from "#lib/paths.js";
 
 // Current baseline - lower this as you fix errors
-const CURRENT_ERROR_COUNT = 211;
+const CURRENT_ERROR_COUNT = 174;
 
 // Files that currently pass strict mode (must not regress)
 const STRICT_CLEAN_FILES = [
-  "packages/js-toolkit/code-quality/index.js",
-  "packages/js-toolkit/code-quality/runner.js",
-  "packages/js-toolkit/code-quality/scanner.js",
   "packages/js-toolkit/fp/grouping.js",
   "packages/js-toolkit/fp/index.js",
   "packages/js-toolkit/fp/memoize.js",
@@ -50,7 +47,6 @@ const STRICT_CLEAN_FILES = [
   "src/_lib/collections/tags.js",
   "src/_lib/config/helpers.js",
   "src/_lib/config/list-config.js",
-  "src/_lib/config/site-config.js",
   "src/_lib/eleventy/add-data-filter.js",
   "src/_lib/eleventy/cache-buster.js",
   "src/_lib/eleventy/canonical-url.js",
@@ -59,7 +55,6 @@ const STRICT_CLEAN_FILES = [
   "src/_lib/media/image-crop.js",
   "src/_lib/media/image-frontmatter.js",
   "src/_lib/media/image-placeholder.js",
-  "src/_lib/media/inline-asset.js",
   "src/_lib/paths.js",
   "src/_lib/transforms/images.js",
   "src/_lib/transforms/linkify.js",

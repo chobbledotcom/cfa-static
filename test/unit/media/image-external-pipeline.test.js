@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { processExternalImage } from "#media/image-external.js";
+import { computeExternalImageHtml } from "#media/image-external.js";
 import { LQIP_WIDTH } from "#media/image-lqip.js";
 
 const imageFn = vi.fn();
@@ -11,7 +11,6 @@ const prepareLqipMetadata = vi.fn(() =>
   }),
 );
 const wrapProcessedImage = vi.fn(() => Promise.resolve("<div>wrapped</div>"));
-const resolveOutput = vi.fn((html) => `resolved:${html}`);
 
 vi.mock("#media/image-lqip.js", async (importOriginal) => ({
   ...(await importOriginal()),
@@ -21,24 +20,21 @@ vi.mock("#media/image-pipeline.js", () => ({
   processFormats: (...args) => processFormats(...args),
   prepareLqipMetadata: (...args) => prepareLqipMetadata(...args),
   wrapProcessedImage: (...args) => wrapProcessedImage(...args),
-  resolveOutput: (...args) => resolveOutput(...args),
 }));
 
-describe("processExternalImage", () => {
-  test("processes the url through the pipeline and resolves the output", async () => {
-    const result = await processExternalImage({
-      src: "https://example.com/pic.jpg",
+describe("computeExternalImageHtml", () => {
+  test("processes the url through the pipeline into wrapped html", async () => {
+    const result = await computeExternalImageHtml({
+      imageName: "https://example.com/pic.jpg",
       alt: "Sample Picture",
       loading: "lazy",
       classes: "hero",
       sizes: "100vw",
       widths: "400",
       aspectRatio: "16/9",
-      returnElement: false,
-      document: null,
     });
 
-    expect(result).toBe("resolved:<div>wrapped</div>");
+    expect(result).toBe("<div>wrapped</div>");
 
     const [passedImageFn, src, imageOptions, widths] =
       processFormats.mock.calls[0];
@@ -66,16 +62,14 @@ describe("processExternalImage", () => {
   });
 
   test("falls back to a generic slug when alt text is missing", async () => {
-    await processExternalImage({
-      src: "https://example.com/other.jpg",
+    await computeExternalImageHtml({
+      imageName: "https://example.com/other.jpg",
       alt: null,
       loading: null,
       classes: null,
       sizes: null,
       widths: null,
       aspectRatio: null,
-      returnElement: false,
-      document: null,
     });
 
     const options = processFormats.mock.calls.at(-1)[2];

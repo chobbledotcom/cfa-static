@@ -72,16 +72,6 @@ export const datesFor = (inputPath) => {
   return null;
 };
 
-export const formatHuman = (iso) => {
-  if (!iso) return "";
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-GB", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
-
 export const formatIso = (iso) => {
   if (!iso) return "";
   return new Date(iso).toISOString().slice(0, 10);

@@ -1,15 +1,15 @@
 import { describe, expect, test } from "vitest";
 import {
   buildImageWrapperStyles,
-  buildWrapperStyles,
-  filenameFormat,
+  DEFAULT_IMAGE_OPTIONS,
   getPathAwareBasename,
-  isExternalUrl,
   normalizeImagePath,
   normalizeImageUrl,
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
+
+const { filenameFormat } = DEFAULT_IMAGE_OPTIONS;
 
 describe("image-utils", () => {
   describe("normalizeImagePath", () => {
@@ -79,24 +79,6 @@ describe("image-utils", () => {
     });
   });
 
-  describe("isExternalUrl", () => {
-    test("returns true for http:// URLs", () => {
-      expect(isExternalUrl("http://example.com/image.jpg")).toBe(true);
-    });
-
-    test("returns true for https:// URLs", () => {
-      expect(isExternalUrl("https://example.com/image.jpg")).toBe(true);
-    });
-
-    test("returns false for relative paths", () => {
-      expect(isExternalUrl("/images/photo.jpg")).toBe(false);
-    });
-
-    test("returns false for bare filenames", () => {
-      expect(isExternalUrl("photo.jpg")).toBe(false);
-    });
-  });
-
   describe("parseWidths", () => {
     test("splits comma-separated string into array and appends auto", () => {
       expect(parseWidths("240,480,900")).toEqual(["240", "480", "900", "auto"]);
@@ -157,60 +139,6 @@ describe("image-utils", () => {
         classes: "  ",
       });
       expect(pictureAttributes).toEqual({});
-    });
-  });
-
-  describe("buildWrapperStyles", () => {
-    const mockGetAspectRatio = (ratio, _metadata) => ratio || "auto";
-
-    test("builds style string with background image", () => {
-      const styles = buildWrapperStyles(
-        "url(thumb.jpg)",
-        "16:9",
-        { width: 800 },
-        mockGetAspectRatio,
-      );
-      expect(styles).toContain("background-image: url(thumb.jpg)");
-      expect(styles).toContain("aspect-ratio: 16:9");
-      expect(styles).toContain("max-width: min(800px, 100%)");
-    });
-
-    test("omits background image when not provided", () => {
-      const styles = buildWrapperStyles(
-        null,
-        "16:9",
-        { width: 800 },
-        mockGetAspectRatio,
-      );
-      expect(styles).not.toContain("background-image");
-    });
-
-    test("omits max-width when metadata has no width", () => {
-      const styles = buildWrapperStyles(null, "16:9", {}, mockGetAspectRatio);
-      expect(styles).not.toContain("max-width");
-    });
-
-    test("omits max-width when skipMaxWidth is true", () => {
-      const styles = buildWrapperStyles(
-        null,
-        "16:9",
-        { width: 800 },
-        mockGetAspectRatio,
-        true,
-      );
-      expect(styles).not.toContain("max-width");
-      expect(styles).toContain("aspect-ratio: 16:9");
-    });
-
-    test("includes max-width when skipMaxWidth is false", () => {
-      const styles = buildWrapperStyles(
-        null,
-        "16:9",
-        { width: 800 },
-        mockGetAspectRatio,
-        false,
-      );
-      expect(styles).toContain("max-width: min(800px, 100%)");
     });
   });
 

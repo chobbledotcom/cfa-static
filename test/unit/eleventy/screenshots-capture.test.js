@@ -12,8 +12,8 @@ const getConfigMock = vi.fn();
 const startServerMock = vi.fn();
 const screenshotMultipleMock = vi.fn();
 
-vi.mock("#config/site-config.js", () => ({
-  getConfig: (...args) => getConfigMock(...args),
+vi.mock("#data/config.js", () => ({
+  default: (...args) => getConfigMock(...args),
 }));
 vi.mock("#media/browser-utils.js", async (importOriginal) => ({
   ...(await importOriginal()),
@@ -156,13 +156,5 @@ describe("configureScreenshots capture wiring", () => {
 
     expect(startServerMock).toHaveBeenCalledWith("_site", 8080);
     expect(server.stop).toHaveBeenCalled();
-  });
-
-  test("exposes the viewports as global data", async () => {
-    const mockConfig = await runAfterHandler({});
-
-    const viewports = mockConfig.globalData.screenshotViewports();
-
-    expect(Object.keys(viewports)).toContain("desktop");
   });
 });

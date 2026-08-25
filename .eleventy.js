@@ -7,46 +7,47 @@ import config from "#data/config.json" with { type: "json" };
 // rewrites rendered URLs; templates and frontend code read `pathPrefix`.
 const PATH_PREFIX = process.env.PATH_PREFIX || "/";
 
-// Build tools
 import { configureJsBundler } from "#build/js-bundler.js";
 import { configureScss } from "#build/scss.js";
-
-// Collections
-import { configureCollectionUtils } from "#utils/collection-utils.js";
 import { configureGuides } from "#collections/guides.js";
-import { configureNews } from "#collections/news.js";
 import { configureNavigation } from "#collections/navigation.js";
-import { configureTags } from "#collections/tags.js";
+import { configureNews } from "#collections/news.js";
+import { configureBlocks } from "#eleventy/blocks.js";
 import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 import { configureCollectionLookup } from "#eleventy/collection-lookup.js";
-// Validation
-import { configureCollectionValidation } from "#eleventy/validate-collections.js";
-// Eleventy plugins
-import { configureBlocks } from "#eleventy/blocks.js";
-import { configureCacheBuster } from "#eleventy/cache-buster.js";
-import { configureCanonicalUrl } from "#eleventy/canonical-url.js";
-import { configureCollectionFilter } from "#eleventy/collection-filter.js";
-import { configureCapture } from "#eleventy/capture.js";
-import { configureFeed } from "#eleventy/feed.js";
-import { configureFileInfo } from "#eleventy/file-info.js";
 import { amendMarkdown, configureFileUtils } from "#eleventy/file-utils.js";
-import { configureGitDates } from "#eleventy/git-dates.js";
+import { configureFilters } from "#eleventy/filters.js";
 import { configureHtmlTransform } from "#eleventy/html-transform.js";
 import { configureLayoutAliases } from "#eleventy/layout-aliases.js";
-import { configureItemsTextList } from "#eleventy/items-text-list.js";
-import { configureLinkList } from "#eleventy/link-list.js";
-
-import { configureRemovePattern } from "#eleventy/remove-pattern.js";
 import { configureScreenshots } from "#eleventy/screenshots.js";
 import { configureStyleBundle } from "#eleventy/style-bundle.js";
-import { configureWrapHashtags } from "#eleventy/wrap-hashtags.js";
-
-// Media
+import { configureCollectionValidation } from "#eleventy/validate-collections.js";
 import { configureIconify } from "#media/iconify.js";
 import { configureImages, processAndWrapImage } from "#media/image.js";
-import { configureInlineAsset } from "#media/inline-asset.js";
-import { configureThumbnailPlaceholder } from "#media/thumbnail-placeholder.js";
 import { configureUnusedImages } from "#media/unused-images.js";
+
+/** Every plugin registered with Eleventy, in registration order. */
+const CONFIGURATORS = [
+  configureBlocks,
+  configureBreadcrumbs,
+  configureCollectionLookup,
+  configureFilters,
+  configureLayoutAliases,
+  configureFileUtils,
+  configureGuides,
+  /** @param {*} eleventyConfig */
+  (eleventyConfig) =>
+    configureHtmlTransform(eleventyConfig, processAndWrapImage),
+  configureImages,
+  configureIconify,
+  configureNavigation,
+  configureNews,
+  configureScreenshots,
+  configureScss,
+  configureStyleBundle,
+  configureUnusedImages,
+  configureJsBundler,
+];
 
 export default async function (eleventyConfig) {
   eleventyConfig.addWatchTarget("./src/**/*");
@@ -70,37 +71,9 @@ export default async function (eleventyConfig) {
 
   eleventyConfig.amendLibrary("md", amendMarkdown);
 
-  configureBlocks(eleventyConfig);
-  configureBreadcrumbs(eleventyConfig);
-  configureCacheBuster(eleventyConfig);
-  configureCollectionLookup(eleventyConfig);
-  configureCollectionUtils(eleventyConfig);
-  configureCanonicalUrl(eleventyConfig);
-  configureCollectionFilter(eleventyConfig);
-  configureCapture(eleventyConfig);
-  configureLayoutAliases(eleventyConfig);
-  await configureFeed(eleventyConfig);
-  configureFileInfo(eleventyConfig);
-  configureFileUtils(eleventyConfig);
-  configureGitDates(eleventyConfig);
-  configureGuides(eleventyConfig);
-  configureHtmlTransform(eleventyConfig, processAndWrapImage);
-  configureLinkList(eleventyConfig);
-  await configureImages(eleventyConfig);
-  configureIconify(eleventyConfig);
-  configureInlineAsset(eleventyConfig);
-  configureItemsTextList(eleventyConfig);
-  await configureNavigation(eleventyConfig);
-  configureNews(eleventyConfig);
-  configureRemovePattern(eleventyConfig);
-  configureScreenshots(eleventyConfig);
-  configureScss(eleventyConfig);
-  configureStyleBundle(eleventyConfig);
-  configureTags(eleventyConfig);
-  configureThumbnailPlaceholder(eleventyConfig);
-  configureUnusedImages(eleventyConfig);
-  configureWrapHashtags(eleventyConfig);
-  configureJsBundler(eleventyConfig);
+  for (const configure of CONFIGURATORS) {
+    await configure(eleventyConfig);
+  }
 
   return {
     dir: {

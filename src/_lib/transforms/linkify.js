@@ -1,20 +1,16 @@
 /**
- * DOM transforms for auto-linking URLs, emails, and phone numbers in text.
+ * DOM transforms for auto-linking phone numbers and configured link texts.
  *
  * These transforms walk the DOM tree looking for text nodes that contain
- * linkable content and replace them with anchor elements.
+ * linkable content and replace them with anchor elements. URL and email
+ * linkification is handled by the linkify-html library in html-transform.js;
+ * this module only supplies its SKIP_TAGS and display formatting.
  */
 import { flatMap } from "#toolkit/fp/array.js";
 import { frozenSet } from "#toolkit/fp/set.js";
 
-/** @typedef {{ type: "text" | "url" | "email" | "phone" | "configLink", value: string }} TextPart */
+/** @typedef {{ type: "text" | "phone" | "configLink", value: string }} TextPart */
 /** @typedef {{ parts: TextPart[], lastIndex: number }} TextPartsAccumulator */
-
-/** Matches http:// or https:// URLs in text */
-const URL_PATTERN = /https?:\/\/[^\s<>]+/g;
-
-/** Matches email addresses: chars@charswithatleastonedot */
-const EMAIL_PATTERN = /[\w.+-]+@[\w.-]+\.[\w-]+/g;
 
 /** Tags to skip when processing text nodes */
 const SKIP_TAGS = frozenSet(["a", "script", "style", "code", "pre", "title"]);
@@ -49,10 +45,6 @@ const BLOCK_TAGS = frozenSet([
 
 /** @type {(value: string) => TextPart} */
 const textPart = (value) => ({ type: "text", value });
-/** @type {(value: string) => TextPart} */
-const urlPart = (value) => ({ type: "url", value });
-/** @type {(value: string) => TextPart} */
-const emailPart = (value) => ({ type: "email", value });
 /** @type {(value: string) => TextPart} */
 const phonePart = (value) => ({ type: "phone", value });
 
@@ -183,26 +175,6 @@ const createSimpleLink = (document, href, text) => {
   return link;
 };
 
-/**
- * Create link element for a URL
- * @param {*} document
- * @param {string} url
- * @param {boolean} targetBlank
- * @returns {HTMLAnchorElement}
- */
-const createUrlLink = (document, url, targetBlank) => {
-  const link = createSimpleLink(document, url, formatUrlDisplay(url));
-  if (targetBlank) {
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-  }
-  return link;
-};
-
-/** @type {(document: *, email: string) => HTMLAnchorElement} */
-const createEmailLink = (document, email) =>
-  createSimpleLink(document, `mailto:${email}`, email);
-
 /** @type {(document: *, phone: string) => HTMLAnchorElement} */
 const createPhoneLink = (document, phone) =>
   createSimpleLink(document, `tel:${phone.replace(/\s/g, "")}`, phone);
@@ -211,16 +183,12 @@ const createPhoneLink = (document, phone) =>
  * Create DOM node for a text part
  * @param {*} document
  * @param {TextPart} part
- * @param {boolean} targetBlank
  * @returns {Node}
  */
-const createNodeForPart = (document, part, targetBlank) => {
-  if (part.type === "url")
-    return createUrlLink(document, part.value, targetBlank);
-  if (part.type === "email") return createEmailLink(document, part.value);
-  if (part.type === "phone") return createPhoneLink(document, part.value);
-  return document.createTextNode(part.value);
-};
+const createNodeForPart = (document, part) =>
+  part.type === "phone"
+    ? createPhoneLink(document, part.value)
+    : document.createTextNode(part.value);
 
 /**
  * Build a document fragment by mapping parts through a node-creation function
@@ -238,64 +206,31 @@ const buildFragment = (document, parts, createNode) => {
 };
 
 /**
- * Create document fragment from parts
+ * Replace each text node whose parsed parts contain the link type with a
+ * fragment built by the given node factory. The shared core of every
+ * linkify transform.
  * @param {*} document
- * @param {TextPart[]} parts
- * @param {boolean} targetBlank
- * @returns {DocumentFragment}
- */
-const createLinkFragment = (document, parts, targetBlank) =>
-  buildFragment(document, parts, (part) =>
-    createNodeForPart(document, part, targetBlank),
-  );
-
-/**
- * Process text nodes and replace with linkified content
- * @param {*} document
- * @param {RegExp} pattern
+ * @param {Text[]} textNodes
  * @param {(text: string) => TextPart[]} parser
  * @param {string} linkType
- * @param {boolean} targetBlank
+ * @param {(part: TextPart) => Node} createNode
  */
-const processTextNodes = (document, pattern, parser, linkType, targetBlank) => {
-  for (const textNode of collectTextNodes(document, pattern)) {
+const replaceMatchedTextNodes = (
+  document,
+  textNodes,
+  parser,
+  linkType,
+  createNode,
+) => {
+  for (const textNode of textNodes) {
     const parts = parser(textNode.textContent);
     if (parts.some((p) => p.type === linkType)) {
       textNode.parentNode?.replaceChild(
-        createLinkFragment(document, parts, targetBlank),
+        buildFragment(document, parts, createNode),
         textNode,
       );
     }
   }
-};
-
-/**
- * Linkify URLs in document
- * @param {*} document
- * @param {{ externalLinksTargetBlank: boolean }} config
- */
-const linkifyUrls = (document, config) =>
-  processTextNodes(
-    document,
-    URL_PATTERN,
-    (text) => parseTextByPattern(text, URL_PATTERN, urlPart),
-    "url",
-    config.externalLinksTargetBlank,
-  );
-
-/**
- * Linkify email addresses in document
- * @param {*} document
- * @param {{ externalLinksTargetBlank?: boolean }} _config
- */
-const linkifyEmails = (document, _config) => {
-  processTextNodes(
-    document,
-    EMAIL_PATTERN,
-    (text) => parseTextByPattern(text, EMAIL_PATTERN, emailPart),
-    "email",
-    false,
-  );
 };
 
 /**
@@ -320,12 +255,12 @@ const linkifyPhones = (document, config) => {
     `\\b(\\d(?:\\s*\\d){${config.phoneNumberLength - 1}})\\b`,
     "g",
   );
-  processTextNodes(
+  replaceMatchedTextNodes(
     document,
-    phonePat,
+    collectTextNodes(document, phonePat),
     (text) => parseTextByPattern(text, phonePat, phonePart),
     "phone",
-    false,
+    (part) => createNodeForPart(document, part),
   );
 };
 
@@ -365,10 +300,6 @@ const collectProseTextNodes = (document, pattern) =>
     ),
   )([...document.querySelectorAll(".prose")]);
 
-/** @type {(document: *, text: string, url: string) => HTMLAnchorElement} */
-const createConfigLink = (document, text, url) =>
-  createSimpleLink(document, url, text);
-
 /**
  * Create DOM node for a config link part
  * @param {*} document
@@ -378,7 +309,7 @@ const createConfigLink = (document, text, url) =>
  */
 const createConfigLinkNode = (document, part, linksMap) =>
   part.type === "configLink"
-    ? createConfigLink(document, part.value, linksMap[part.value])
+    ? createSimpleLink(document, linksMap[part.value], part.value)
     : document.createTextNode(part.value);
 
 /**
@@ -393,21 +324,13 @@ const linkifyConfigLinks = (document, linksMap) => {
 
   const pattern = buildConfigLinksPattern(texts);
 
-  for (const textNode of collectProseTextNodes(document, pattern)) {
-    const parts = parseTextByPattern(
-      textNode.textContent,
-      pattern,
-      configLinkPart,
-    );
-    if (parts.some((p) => p.type === "configLink")) {
-      textNode.parentNode?.replaceChild(
-        buildFragment(document, parts, (part) =>
-          createConfigLinkNode(document, part, linksMap),
-        ),
-        textNode,
-      );
-    }
-  }
+  replaceMatchedTextNodes(
+    document,
+    collectProseTextNodes(document, pattern),
+    (text) => parseTextByPattern(text, pattern, configLinkPart),
+    "configLink",
+    (part) => createConfigLinkNode(document, part, linksMap),
+  );
 };
 
 /**
@@ -422,24 +345,13 @@ const hasConfigLinks = (content, linksMap) => {
 };
 
 export {
-  BLOCK_TAGS,
   buildConfigLinksPattern,
-  collectProseTextNodes,
-  collectTextNodes,
-  createConfigLink,
-  createEmailLink,
-  createPhoneLink,
-  createUrlLink,
-  EMAIL_PATTERN,
   formatUrlDisplay,
   hasConfigLinks,
   hasPhonePattern,
   linkifyConfigLinks,
-  linkifyEmails,
   linkifyPhones,
-  linkifyUrls,
   // Exported for testing
   parseTextByPattern,
   SKIP_TAGS,
-  URL_PATTERN,
 };

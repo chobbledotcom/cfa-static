@@ -97,13 +97,6 @@ const createMarkdownRenderer = () => {
 /** @param {unknown[]} args */
 const cacheKeyFromArgs = (args) => args.join(",");
 
-/**
- * @param {string} relativePath
- * @param {string} [baseDir]
- */
-const resolvePath = (relativePath, baseDir = process.cwd()) =>
-  path.join(baseDir, relativePath);
-
 /** @param {string} dirPath */
 const ensureDir = (dirPath) => {
   if (!fs.existsSync(dirPath)) {
@@ -111,28 +104,6 @@ const ensureDir = (dirPath) => {
   }
   return dirPath;
 };
-
-const fileExists = memoize(
-  /**
-   * @param {string} relativePath
-   * @param {string} baseDir
-   */
-  (relativePath, baseDir) => fs.existsSync(resolvePath(relativePath, baseDir)),
-  { cacheKey: cacheKeyFromArgs },
-);
-
-const readFileContent = memoize(
-  /**
-   * @param {string} relativePath
-   * @param {string} baseDir
-   */
-  (relativePath, baseDir) => {
-    const fullPath = resolvePath(relativePath, baseDir);
-    if (!fs.existsSync(fullPath)) return "";
-    return fs.readFileSync(fullPath, "utf8");
-  },
-  { cacheKey: cacheKeyFromArgs },
-);
 
 /**
  * @param {string} name
@@ -177,12 +148,6 @@ const renderSnippet = memoize(
   },
   { cacheKey: cacheKeyFromArgs },
 );
-
-/** @param {string} name */
-const fileExistsFilter = (name) => fileExists(name);
-
-/** @param {string} name */
-const fileMissingFilter = (name) => !fileExists(name);
 
 /** @param {string} name */
 const snippetDataFilter = (name) => readSnippetData(name);
@@ -233,14 +198,6 @@ async function renderBlockLiquidFilter(blocks) {
   return processLiquidStrings(blocks, this.context.environments);
 }
 
-/** @param {string} str */
-const escapeHtmlFilter = (str) =>
-  str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-
 /**
  * @param {string} name
  * @param {string} defaultString
@@ -249,22 +206,16 @@ const escapeHtmlFilter = (str) =>
 const renderSnippetShortcode = async (name, defaultString, mdRenderer) =>
   await renderSnippet(name, defaultString, process.cwd(), mdRenderer);
 
-/** @param {string} relativePath */
-const readFileShortcode = (relativePath) => readFileContent(relativePath);
-
 /**
  * @param {{ addFilter: Function, addAsyncFilter: Function, addShortcode: Function, addAsyncShortcode: Function }} eleventyConfig
  */
 const configureFileUtils = (eleventyConfig) => {
   const mdRenderer = createMarkdownRenderer();
 
-  eleventyConfig.addFilter("file_exists", fileExistsFilter);
-  eleventyConfig.addFilter("file_missing", fileMissingFilter);
   eleventyConfig.addFilter("snippet_data", snippetDataFilter);
   eleventyConfig.addAsyncFilter("snippet_blocks", snippetBlocksFilter);
   eleventyConfig.addAsyncFilter("sidebar_blocks", sidebarBlocksFilter);
   eleventyConfig.addAsyncFilter("render_block_liquid", renderBlockLiquidFilter);
-  eleventyConfig.addFilter("escape_html", escapeHtmlFilter);
   eleventyConfig.addFilter("markdown", (str) =>
     str ? mdRenderer.render(str) : "",
   );
@@ -278,8 +229,6 @@ const configureFileUtils = (eleventyConfig) => {
     async (name, defaultString) =>
       await renderSnippetShortcode(name, defaultString, mdRenderer),
   );
-
-  eleventyConfig.addShortcode("read_file", readFileShortcode);
 };
 
 export { amendMarkdown, configureFileUtils, ensureDir };

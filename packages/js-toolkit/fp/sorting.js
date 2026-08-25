@@ -3,20 +3,6 @@
  */
 
 /**
- * Comparator for sorting strings alphabetically using locale-aware comparison.
- * Use directly with sort() for string arrays.
- *
- * @param {string} a - First string
- * @param {string} b - Second string
- * @returns {number} Comparison result
- *
- * @example
- * ['banana', 'apple', 'cherry'].sort(compareStrings)  // ['apple', 'banana', 'cherry']
- * pipe(sort(compareStrings))(names)
- */
-const compareStrings = (a, b) => a.localeCompare(b);
-
-/**
  * Compare two string keys using locale comparison.
  * @param {string} keyA
  * @param {string} keyB
@@ -87,4 +73,4 @@ const orderThenString = (getNumeric, getString) => (a, b) => {
   return diff !== 0 ? diff : compareBy(getString)(a, b);
 };
 
-export { compareBy, compareStrings, descending, orderThenString };
+export { compareBy, descending, orderThenString };

@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { withTempDirAsync } from "#test/test-utils.js";
-import { datesFor, formatHuman, formatIso } from "#utils/git-dates.js";
+import { datesFor, formatIso } from "#utils/git-dates.js";
 
 const runGitInDir = (args, cwd) =>
   execFileSync("git", args, {
@@ -42,18 +42,6 @@ const withGitRepo =
     });
 
 describe("git-dates", () => {
-  describe("formatHuman", () => {
-    test("formats ISO date to human-readable en-GB format", () => {
-      expect(formatHuman("2025-01-06T12:00:00+00:00")).toBe("6 January 2025");
-    });
-
-    test("returns empty string for null/undefined", () => {
-      expect(formatHuman(null)).toBe("");
-      expect(formatHuman(undefined)).toBe("");
-      expect(formatHuman("")).toBe("");
-    });
-  });
-
   describe("formatIso", () => {
     test("formats ISO date to YYYY-MM-DD", () => {
       expect(formatIso("2025-01-06T12:00:00+00:00")).toBe("2025-01-06");

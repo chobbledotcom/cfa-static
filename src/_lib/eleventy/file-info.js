@@ -101,11 +101,4 @@ const readFileInfo = memoize(
 const fileInfo = (urlPath, baseDir = process.cwd()) =>
   readFileInfo(urlPath, baseDir);
 
-/**
- * @param {{ addFilter: Function }} eleventyConfig
- */
-const configureFileInfo = (eleventyConfig) => {
-  eleventyConfig.addFilter("fileInfo", fileInfo);
-};
-
-export { configureFileInfo, fileInfo };
+export { fileInfo };

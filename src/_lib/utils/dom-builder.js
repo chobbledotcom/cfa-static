@@ -114,11 +114,4 @@ const parseHtml = async (html, document = null) => {
   return getTemplateContent(template);
 };
 
-export {
-  createHtml,
-  elementToHtml,
-  escapeAttrValue,
-  getSharedDocument,
-  parseHtml,
-  VOID_ELEMENTS,
-};
+export { createHtml, elementToHtml, getSharedDocument, parseHtml };

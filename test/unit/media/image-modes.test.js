@@ -13,7 +13,7 @@ const importImage = async ({ placeholderMode, externalStub } = {}) => {
   }
   if (externalStub) {
     vi.doMock("#media/image-external.js", () => ({
-      processExternalImage: externalStub,
+      computeExternalImageHtml: externalStub,
     }));
   }
   vi.resetModules();
@@ -80,7 +80,7 @@ describe("processAndWrapImage with external urls", () => {
     expect(html).toBe("<div>external</div>");
     expect(externalStub).toHaveBeenCalledWith(
       expect.objectContaining({
-        src: "https://example.com/remote.jpg",
+        imageName: "https://example.com/remote.jpg",
         alt: "Remote",
       }),
     );

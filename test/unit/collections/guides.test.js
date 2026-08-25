@@ -2,7 +2,6 @@ import { describe, expect, test } from "vitest";
 import {
   configureGuides,
   generalGuides,
-  guideCategoriesByProperty,
   guidesByCategory,
   guidesForProperty,
 } from "#collections/guides.js";
@@ -122,19 +121,6 @@ describe("guides", () => {
     expect(mockConfig.filters.guidesByCategory).toBe(guidesByCategory);
   });
 
-  test("Adds guideCategoriesByProperty filter", () => {
-    const mockConfig = createMockEleventyConfig();
-
-    configureGuides(mockConfig);
-
-    expect(typeof mockConfig.filters.guideCategoriesByProperty).toBe(
-      "function",
-    );
-    expect(mockConfig.filters.guideCategoriesByProperty).toBe(
-      guideCategoriesByProperty,
-    );
-  });
-
   test("Adds generalGuides filter", () => {
     const mockConfig = createMockEleventyConfig();
 
@@ -226,49 +212,5 @@ describe("guidesForProperty", () => {
     guidesForProperty(pagesCopy, "seaside-cottage");
 
     expect(pagesCopy).toEqual(originalPages);
-  });
-});
-
-describe("guideCategoriesByProperty", () => {
-  test("Filters guide categories by property slug", () => {
-    const categories = [
-      guideCategory("Getting Started", "seaside-cottage"),
-      guideCategory("Advanced", "mountain-lodge"),
-      guideCategory("Tips", "seaside-cottage"),
-    ];
-
-    const result = guideCategoriesByProperty(categories, "seaside-cottage");
-
-    expectResultTitles(result, ["Getting Started", "Tips"]);
-  });
-
-  test("Returns empty array when no categories match property", () => {
-    const categories = [
-      guideCategory("Getting Started", "seaside-cottage"),
-      guideCategory("Advanced", "mountain-lodge"),
-    ];
-
-    const result = guideCategoriesByProperty(categories, "nonexistent");
-
-    expect(result).toEqual([]);
-  });
-
-  test("Handles empty categories array", () => {
-    const result = guideCategoriesByProperty([], "seaside-cottage");
-
-    expect(result).toEqual([]);
-  });
-
-  test("Skips categories without property field", () => {
-    const categories = [
-      guideCategory("Getting Started", "seaside-cottage"),
-      guideCategory("Advanced"), // no property
-      guideCategory("Tips", "seaside-cottage"),
-    ];
-
-    expectResultTitles(
-      guideCategoriesByProperty(categories, "seaside-cottage"),
-      ["Getting Started", "Tips"],
-    );
   });
 });

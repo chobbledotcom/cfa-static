@@ -1,14 +1,7 @@
 import { isAbsolute, join } from "node:path";
-import { getConfig } from "#config/site-config.js";
-import { sanitizePagePath, startServer } from "#media/browser-utils.js";
-import {
-  buildViewportSuffix,
-  getViewports,
-  screenshot,
-  screenshotAllViewports,
-  screenshotMultiple,
-} from "#media/screenshot.js";
-import { map, pipe } from "#toolkit/fp/array.js";
+import getConfig from "#data/config.js";
+import { startServer } from "#media/browser-utils.js";
+import { screenshotMultiple } from "#media/screenshot.js";
 import { log, error as logError } from "#utils/console.js";
 
 /** @typedef {import("#media/browser-utils.js").DevServerHandle} DevServerHandle */
@@ -17,12 +10,7 @@ import { log, error as logError } from "#utils/console.js";
 const getScreenshotConfig = () => getConfig().screenshots;
 
 const extractPagePaths = (collection) =>
-  pipe(map((item) => item.url || item.data?.page?.url))(collection).filter(
-    Boolean,
-  );
-
-export const buildScreenshotPath = (pagePath, viewport = "desktop") =>
-  `/screenshots/${sanitizePagePath(pagePath)}${buildViewportSuffix(viewport)}.png`;
+  collection.map((item) => item.url || item.data?.page?.url).filter(Boolean);
 
 export const buildCollectionHandler = (pageUrlsRef) => (collectionApi) => {
   const screenshotConfig = getScreenshotConfig();
@@ -87,8 +75,6 @@ export const configureScreenshots = (eleventyConfig) => {
     "_screenshotPages",
     buildCollectionHandler(pageUrlsRef),
   );
-  eleventyConfig.addGlobalData("screenshotViewports", () => getViewports());
-  eleventyConfig.addFilter("screenshotPath", buildScreenshotPath);
 
   eleventyConfig.on("eleventy.after", async ({ dir }) => {
     const screenshotConfig = getScreenshotConfig();
@@ -100,5 +86,3 @@ export const configureScreenshots = (eleventyConfig) => {
     await captureScreenshots(pageUrlsRef.urls, screenshotConfig, dir.output);
   });
 };
-
-export { screenshot, screenshotAllViewports, screenshotMultiple, startServer };

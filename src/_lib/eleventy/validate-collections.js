@@ -34,10 +34,6 @@ const DOT_ACCESS_PATTERN = /collections\.([a-zA-Z_][\w-]*)/g;
 /** Match collections["NAME"] (bracket notation) in templates */
 const BRACKET_ACCESS_PATTERN = /collections\["([^"]+)"\]/g;
 
-/** Dynamic collection name patterns from configure-filters.js */
-const FILTER_CONFIG_PATTERN = /(?:pages|redirects|attributes)\s*:\s*"([^"]+)"/g;
-const CATEGORY_KEY_PATTERN = /^\s+(\w+)\s*:/gm;
-
 const TEMPLATE_EXTENSIONS = frozenSet([".html", ".liquid"]);
 
 /**
@@ -51,34 +47,19 @@ const collectFiles = (dir, predicate) =>
   });
 
 /**
- * Extract all regex group-1 matches from content.
- */
-const extractAllMatches = (content, pattern) =>
-  [...content.matchAll(pattern)].map((m) => m[1]);
-
-/**
- * Extract collection names from files matching a predicate, using a regex.
+ * Extract collection names from files matching a predicate, using the
+ * regex's group-1 matches.
  */
 const extractNamesFromFiles = (srcDir, filePredicate, pattern) =>
   collectFiles(srcDir, filePredicate).flatMap((file) =>
-    extractAllMatches(fs.readFileSync(file, "utf-8"), pattern),
+    [...fs.readFileSync(file, "utf-8").matchAll(pattern)].map((m) => m[1]),
   );
 
 /**
  * Build the set of all registered collection names from source files.
  */
-const buildRegisteredNames = (srcDir) => {
-  const configPath = path.join(
-    srcDir,
-    "_lib",
-    "filters",
-    "configure-filters.js",
-  );
-  const filterSource = fs.existsSync(configPath)
-    ? fs.readFileSync(configPath, "utf-8")
-    : "";
-  const filterNames = extractAllMatches(filterSource, FILTER_CONFIG_PATTERN);
-  return frozenSet([
+const buildRegisteredNames = (srcDir) =>
+  frozenSet([
     "all",
     ...extractNamesFromFiles(
       srcDir,
@@ -88,13 +69,7 @@ const buildRegisteredNames = (srcDir) => {
     ...[TAG_ARRAY_PATTERN, TAG_STRING_PATTERN].flatMap((pattern) =>
       extractNamesFromFiles(srcDir, (n) => n.endsWith(".json"), pattern),
     ),
-    ...filterNames,
-    ...extractAllMatches(filterSource, CATEGORY_KEY_PATTERN),
-    ...filterNames
-      .filter((n) => n.startsWith("filtered"))
-      .map((n) => `${n}ListingFilterUI`),
   ]);
-};
 
 /**
  * Find all template collection references that are not registered.

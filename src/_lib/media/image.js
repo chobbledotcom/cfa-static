@@ -7,8 +7,9 @@
  * - processAndWrapImage(): Main function for image processing (used by html-transform)
  *
  * Processing flow:
- * - processAndWrapImage(): Main function, handles external URLs with simple img tag
- * - computeWrappedImageHtml(): Generates wrapped picture element with LQIP
+ * - processAndWrapImage(): routes each image to the placeholder, external
+ *   (image-external.js), or local pipeline
+ * - computeLocalImageHtml(): generates the wrapped picture element with LQIP
  *
  * PLACEHOLDER_MODE (env PLACEHOLDER_IMAGES=1): Skip processing for faster builds.
  * Image cache is copied to _site/img/ after Eleventy build completes.
@@ -26,7 +27,7 @@ import {
   getMetadata,
   sanitizeCropWidths,
 } from "#media/image-crop.js";
-import { processExternalImage } from "#media/image-external.js";
+import { computeExternalImageHtml } from "#media/image-external.js";
 import {
   getEleventyImg,
   LQIP_WIDTH,
@@ -40,24 +41,16 @@ import {
 } from "#media/image-pipeline.js";
 import { generatePlaceholderHtml } from "#media/image-placeholder.js";
 import {
-  buildWrapperStyles,
-  filenameFormat,
-  isExternalUrl,
+  buildImageWrapperStyles,
+  DEFAULT_IMAGE_OPTIONS,
   JPEG_FALLBACK_WIDTH,
   normalizeImagePath,
   normalizeImageUrl,
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
-import { dedupeAsync } from "#toolkit/fp/memoize.js";
-import { frozenObject } from "#toolkit/fp/object.js";
-
-const DEFAULT_OPTIONS = frozenObject({
-  outputDir: ".image-cache",
-  urlPath: "/img/",
-  svgShortCircuit: true,
-  filenameFormat,
-});
+import { dedupeAsync, jsonKey } from "#toolkit/fp/memoize.js";
+import { isExternalUrl } from "#utils/url-utils.js";
 
 /**
  * Deduplicated image processing — the expensive part.
@@ -108,7 +101,8 @@ const processImageData = dedupeAsync(
       Image,
       imagePath,
       {
-        ...DEFAULT_OPTIONS,
+        ...DEFAULT_IMAGE_OPTIONS,
+        svgShortCircuit: true,
         fixOrientation: true,
         ...getCropImageOptions(aspectRatio),
       },
@@ -121,30 +115,44 @@ const processImageData = dedupeAsync(
       generateLqip,
     );
 
-    const style = buildWrapperStyles(
+    const style = buildImageWrapperStyles({
       bgImage,
-      aspectRatio,
-      { ...metadata, width: getCropMaxWidth(aspectRatio, metadata) },
-      getAspectRatio,
+      aspectRatio: getAspectRatio(aspectRatio, metadata),
+      maxWidth: getCropMaxWidth(aspectRatio, metadata),
       skipMaxWidth,
-    );
+    });
 
     return { htmlMetadata, style };
   },
-  {
-    cacheKey: (args) =>
-      JSON.stringify(args[0], [
-        "imageName",
-        "widths",
-        "aspectRatio",
-        "noLqip",
-        "skipMaxWidth",
-      ]),
-  },
+  { cacheKey: jsonKey },
 );
 
 /**
- * Generate wrapped image HTML from processing data + presentation attributes.
+ * Called from two paths with different imageName types:
+ * 1. From transforms/images.js: extractImageOptions passes getAttribute("src") = string | null
+ * 2. From imageShortcode: template syntax passes string directly
+ *
+ * @param {ImageProps} props - Image processing properties
+ * @returns {Promise<string | Element>} Wrapped image HTML or Element
+ */
+const processAndWrapImage = async ({
+  logName: _logName,
+  returnElement = false,
+  document = null,
+  ...imageProps
+}) => {
+  const computeHtml = () => {
+    if (PLACEHOLDER_MODE) return generatePlaceholderHtml(imageProps);
+    if (isExternalUrl(imageProps.imageName)) {
+      return computeExternalImageHtml(imageProps);
+    }
+    return computeLocalImageHtml(imageProps);
+  };
+  return resolveOutput(await computeHtml(), returnElement, document);
+};
+
+/**
+ * Generate wrapped image HTML for a local image.
  *
  * Delegates expensive work to deduplicated processImageData, then applies
  * cheap presentation attributes (alt, classes, sizes, loading) to produce
@@ -153,7 +161,7 @@ const processImageData = dedupeAsync(
  * @param {ComputeImageProps} props - Image processing properties
  * @returns {Promise<string>} Wrapped image HTML
  */
-const computeWrappedImageHtml = async ({
+const computeLocalImageHtml = async ({
   imageName,
   alt,
   classes,
@@ -164,16 +172,6 @@ const computeWrappedImageHtml = async ({
   noLqip = false,
   skipMaxWidth = false,
 }) => {
-  if (PLACEHOLDER_MODE) {
-    return generatePlaceholderHtml({
-      alt,
-      classes,
-      sizes,
-      loading,
-      aspectRatio,
-    });
-  }
-
   const { htmlMetadata, style } = await processImageData({
     imageName,
     widths,
@@ -189,59 +187,10 @@ const computeWrappedImageHtml = async ({
     classes,
   });
 
-  return await wrapProcessedImage(
-    htmlMetadata,
-    imgAttributes,
-    pictureAttributes,
-    {
-      classes,
-      style,
-    },
-  );
-};
-
-/**
- * Called from two paths with different imageName types:
- * 1. From image-transform.js: extractImageOptions passes getAttribute("src") = string | null
- * 2. From imageShortcode: template syntax passes string directly
- *
- * @param {ImageProps} props - Image processing properties
- * @returns {Promise<string | Element>} Wrapped image HTML or Element
- */
-const processAndWrapImage = async ({
-  logName: _logName,
-  returnElement = false,
-  document = null,
-  ...imageProps
-}) => {
-  if (isExternalUrl(imageProps.imageName)) {
-    if (PLACEHOLDER_MODE) {
-      const html = await generatePlaceholderHtml({
-        alt: imageProps.alt,
-        classes: imageProps.classes,
-        sizes: imageProps.sizes,
-        loading: imageProps.loading,
-        aspectRatio: imageProps.aspectRatio,
-      });
-      return resolveOutput(html, returnElement, document);
-    }
-    return await processExternalImage({
-      src: imageProps.imageName,
-      alt: imageProps.alt,
-      loading: imageProps.loading,
-      classes: imageProps.classes,
-      sizes: imageProps.sizes,
-      widths: imageProps.widths,
-      aspectRatio: imageProps.aspectRatio,
-      skipMaxWidth: imageProps.skipMaxWidth,
-      returnElement,
-      document,
-    });
-  }
-
-  const html = await computeWrappedImageHtml(imageProps);
-
-  return resolveOutput(html, returnElement, document);
+  return wrapProcessedImage(htmlMetadata, imgAttributes, pictureAttributes, {
+    classes,
+    style,
+  });
 };
 
 const configureImages = async (eleventyConfig) => {

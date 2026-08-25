@@ -7,11 +7,6 @@ import { normaliseSlug } from "#utils/slug-utils.js";
 
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */
 
-/** @param {import("@11ty/eleventy").UserConfig} _eleventyConfig */
-export const configureCollectionUtils = (_eleventyConfig) => {
-  // Featured items are now pre-computed as collections (featuredCategories, etc.)
-};
-
 /**
  * Create an indexer that groups items by a scalar data field (one-to-many).
  * Normalizes slug references so "events/foo.md", "events/foo", and "foo" all match.

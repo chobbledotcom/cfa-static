@@ -18,7 +18,7 @@ vi.mock("#data/config.js", async () => {
   };
 });
 
-const { configureNavigation, findPageUrl, toNavigation } = await import(
+const { configureNavigation, toNavigation } = await import(
   "#collections/navigation.js"
 );
 
@@ -57,65 +57,6 @@ const navEntry = (key, options = {}) => ({
   pluginType: "eleventy-navigation",
   data: options.data ?? {},
   children: options.children ?? [],
-});
-
-describe("findPageUrl", () => {
-  const HELLO_WORLD = pageItem("hello-world", "/posts/hello-world/", ["post"]);
-  const ABOUT = pageItem("about", "/about/", ["page"]);
-  const FEATURED_POST = pageItem("featured-post", "/posts/featured-post/", [
-    "post",
-    "featured",
-  ]);
-
-  test("returns the URL of the matching tag + slug", () => {
-    const collection = [HELLO_WORLD, ABOUT, FEATURED_POST];
-    expect(findPageUrl(collection, "post", "hello-world")).toBe(
-      "/posts/hello-world/",
-    );
-  });
-
-  test("matches on any of the page's tags", () => {
-    expect(findPageUrl([FEATURED_POST], "featured", "featured-post")).toBe(
-      "/posts/featured-post/",
-    );
-  });
-
-  test("matches exact slug even when similar slugs exist", () => {
-    const target = pageItem("hello-world", "/posts/hello-world/", ["post"]);
-    const collection = [
-      pageItem("hello", "/posts/hello/", ["post"]),
-      pageItem("hello-world-2", "/posts/hello-world-2/", ["post"]),
-      target,
-    ];
-    expect(findPageUrl(collection, "post", "hello-world")).toBe(target.url);
-  });
-
-  test("ignores items whose tags are missing or null", () => {
-    const target = pageItem("real", "/real/", ["post"]);
-    const noisy = [
-      { data: {}, fileSlug: "no-tags", url: "/no-tags/" },
-      pageItem("null-tags", "/null-tags/", null),
-    ];
-    expect(findPageUrl([...noisy, target], "post", "real")).toBe("/real/");
-  });
-
-  test("throws when the slug is not present", () => {
-    expect(() => findPageUrl([HELLO_WORLD], "post", "nonexistent")).toThrow(
-      'Slug "nonexistent" not found',
-    );
-  });
-
-  test("throws when the slug exists but the tag does not match", () => {
-    expect(() => findPageUrl([HELLO_WORLD], "page", "hello-world")).toThrow(
-      'Page "hello-world" does not have tag "page"',
-    );
-  });
-
-  test("throws for an empty collection", () => {
-    expect(() => findPageUrl([], "post", "test")).toThrow(
-      'Slug "test" not found',
-    );
-  });
 });
 
 describe("navigationLinks collection", () => {
@@ -158,14 +99,6 @@ describe("navigationLinks collection", () => {
 });
 
 describe("configureNavigation wiring", () => {
-  test("registers pageUrl filter that finds URLs", async () => {
-    const mockConfig = await configureWithMock();
-    const collection = [pageItem("widget", "/products/widget/", ["product"])];
-    expect(mockConfig.filters.pageUrl(collection, "product", "widget")).toBe(
-      "/products/widget/",
-    );
-  });
-
   test("registers async toNavigation filter", async () => {
     const mockConfig = await configureWithMock();
     expect(await mockConfig.asyncFilters.toNavigation([])).toBe("");

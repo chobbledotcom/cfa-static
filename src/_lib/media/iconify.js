@@ -12,7 +12,7 @@ const ICONS_DIR = "src/assets/icons/iconify";
  * @param {string} name
  * @returns {string}
  */
-export const normalizeIconName = (name) =>
+const normalizeIconName = (name) =>
   name
     .trim()
     .toLowerCase()

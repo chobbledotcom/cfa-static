@@ -79,15 +79,6 @@ const runReady = () => {
   readyCallback();
 };
 
-const expectReadyGrid = (grid, width, metrics) => {
-  const cards = [...grid.children];
-  expect(grid.classList.contains("masonry-ready")).toBe(true);
-  expect(cards[0].style.width).toBe(width);
-  expect(cards[0].style.transform).toBe("translate(0px, 0px)");
-  expect(JSON.parse(cards[0].dataset.metrics)).toEqual(metrics);
-  return cards;
-};
-
 beforeEach(() => {
   resetDom();
   installCreateElement();
@@ -195,7 +186,7 @@ describe("masonry layout", () => {
           <a class="image-link">
             <span class="image-wrapper"></span>
           </a>
-          <button class="add-to-cart" data-css-height="36px">Add</button>
+          <button class="button" data-css-height="36px">Read more</button>
         </li>
         <li>
           <p>Text only card</p>
@@ -211,7 +202,11 @@ describe("masonry layout", () => {
 
     runReady();
 
-    const cards = expectReadyGrid(grid, "280px", {
+    const cards = [...grid.children];
+    expect(grid.classList.contains("masonry-ready")).toBe(true);
+    expect(cards[0].style.width).toBe("280px");
+    expect(cards[0].style.transform).toBe("translate(0px, 0px)");
+    expect(JSON.parse(cards[0].dataset.metrics)).toEqual({
       gap: 32,
       padX: 48,
       padY: 48,
@@ -316,94 +311,6 @@ describe("masonry layout", () => {
 
     const [h] = JSON.parse(grid.children[0].dataset.heights);
     expect(h).toBeGreaterThan(20);
-  });
-
-  test.sequential("places review cards with review-specific metrics", () => {
-    const grid = mountGrid(
-      "items masonry reviews-grid",
-      `
-        <li>
-          <div class="review-header">
-            <span class="rating">★★★★★</span>
-            <time class="date">12 June 2026</time>
-          </div>
-          <div class="review"><p>Great service and helpful support</p></div>
-          <p class="products">Product one and product two</p>
-          <div class="author-info">
-            <strong class="name">Ada Lovelace</strong>
-            <a class="review-link">Verified source</a>
-          </div>
-        </li>
-        <li>
-          <time class="date">11 June 2026</time>
-          <div class="review"><p>Good</p></div>
-        </li>
-        <li></li>
-      `,
-      640,
-    );
-
-    runReady();
-
-    const cards = expectReadyGrid(grid, "640px", {
-      gap: 16,
-      padX: 48,
-      padY: 48,
-      contentWidth: 590,
-    });
-    expect(cards[1].style.transform.startsWith("translate(0px, ")).toBe(true);
-    expect(cards[0].querySelector(".date").dataset.height).toBe("20");
-    expect(cards[0].querySelector(".review p").dataset.height).toBe("20");
-    expect(cards[0].querySelector(".products").dataset.height).toBe("20");
-    expect(cards[0].querySelector(".name").dataset.height).toBe("20");
-    expect(cards[0].querySelector(".review-link").dataset.height).toBe("20");
-    expect(Number.parseFloat(cards[2].dataset.height)).toBeGreaterThan(32);
-
-    // Exact card heights pin the whole review aggregation. Card 0:
-    //   author = max(AVATAR_SIZE 40, name 20 + halfGap 8 + reviewLink 20 = 48) = 48
-    //   sumWithGaps([rating 20, review 20, products 20, author 48], gap 16, padY 48)
-    //   = CARD_BORDER 2 + 108 + 16*3 + 48 = 206
-    expect(cards[0].dataset.height).toBe("206.0");
-    // Card 1 has only a date (drives the rating section) and a review:
-    //   sumWithGaps([20, 20], 16, 48) = 2 + 40 + 16 + 48 = 106
-    expect(cards[1].dataset.height).toBe("106.0");
-  });
-
-  test.sequential("caps the review body height at the element's max-height", () => {
-    // The review body has `max-height: 160px; overflow-y: auto`, so a long
-    // review must not reserve more than 160px (otherwise the column gap below
-    // it is too large). The card is review-only:
-    //   sumWithGaps([null, 160, null, null], 16, padY 48) = 2 + 160 + 48 = 210
-    const longReview = "word ".repeat(150).trim(); // far taller than 160px
-    const grid = mountGrid(
-      "items masonry reviews-grid",
-      `<li><div class="review" data-css-max-height="160px"><p>${longReview}</p></div></li>`,
-      640,
-    );
-
-    runReady();
-
-    const card = grid.children[0];
-    // Sanity: the unbounded text really is taller than the cap.
-    const measured = Number.parseFloat(card.querySelector("p").dataset.height);
-    expect(measured).toBeGreaterThan(160);
-    expect(card.dataset.height).toBe("210.0");
-  });
-
-  test.sequential("measures the author name at the narrow author-column width", () => {
-    // 35 single-char words (69 chars). At authorWidth (contentWidth 590 −
-    // AVATAR 40 − gap 16 = 534, ~66 chars/line) this wraps to two lines; the
-    // `- → /` mutant widens the column and would fit it on one line.
-    const longName = "n ".repeat(35).trim();
-    const grid = mountGrid(
-      "items masonry reviews-grid",
-      `<li><div class="author-info"><strong class="name">${longName}</strong></div></li>`,
-      640,
-    );
-
-    runReady();
-
-    expect(grid.children[0].querySelector(".name").dataset.height).toBe("40");
   });
 
   test.sequential("throws when computed metrics cannot produce a valid height", () => {
