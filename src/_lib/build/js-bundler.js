@@ -1,5 +1,10 @@
 import { build } from "esbuild";
 
+/**
+ * @param {string} name
+ * @param {boolean} isDevelopment
+ * @param {import("esbuild").BuildOptions} [options]
+ */
 const buildBundle = (name, isDevelopment, options = {}) =>
   build({
     entryPoints: [`src/_lib/public/${name}.js`],

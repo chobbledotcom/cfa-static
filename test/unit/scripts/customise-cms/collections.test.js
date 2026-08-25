@@ -121,11 +121,12 @@ describe("resolveDependencies", () => {
 });
 
 describe("COLLECTIONS data integrity", () => {
-  test("every collection with dependencies references existing collections", () => {
+  test("every collection declares dependencies that reference existing collections", () => {
     const names = COLLECTIONS.map((c) => c.name);
 
     for (const collection of COLLECTIONS) {
-      for (const dep of collection.dependencies ?? []) {
+      expect(Array.isArray(collection.dependencies)).toBe(true);
+      for (const dep of collection.dependencies) {
         expect(names).toContain(dep);
       }
     }

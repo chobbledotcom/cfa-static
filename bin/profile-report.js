@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync } from "node:fs";
+
 /**
  * Parse a Chrome CPU profile and generate a text report
  * Usage: node profile-report.js <profile.cpuprofile> <output.txt> <project-dir>
@@ -21,10 +22,14 @@ const nodes = new Map(
   profile.nodes.map((node) => [
     node.id,
     {
-      functionName: node.callFrame.functionName || "(anonymous)",
-      url: node.callFrame.url || "",
+      // cpuprofile fields are optional per the format - state the
+      // defaults explicitly rather than coercing falsy values
+      functionName: node.callFrame.functionName
+        ? node.callFrame.functionName
+        : "(anonymous)",
+      url: node.callFrame.url === undefined ? "" : node.callFrame.url,
       lineNumber: node.callFrame.lineNumber,
-      hitCount: node.hitCount || 0,
+      hitCount: node.hitCount === undefined ? 0 : node.hitCount,
     },
   ]),
 );
@@ -54,12 +59,13 @@ for (const node of profile.nodes) {
   stats.get(key).hitCount += info.hitCount;
 }
 
-// Calculate self-time from samples
-const sampleInterval = profile.samples?.length
-  ? (profile.endTime - profile.startTime) / profile.samples.length
+// Calculate self-time from samples (absent in a degenerate profile)
+const samples = Array.isArray(profile.samples) ? profile.samples : [];
+const sampleInterval = samples.length
+  ? (profile.endTime - profile.startTime) / samples.length
   : 0;
 
-for (const nodeId of profile.samples || []) {
+for (const nodeId of samples) {
   const info = nodes.get(nodeId);
   if (!info) continue;
 

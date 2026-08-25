@@ -1,5 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { fs, path, rootDir, SRC_JS_FILES } from "#test/test-utils.js";
+import { combineFileLists } from "#test/code-scanner.js";
+import {
+  fs,
+  path,
+  rootDir,
+  SCRIPT_JS_FILES,
+  SRC_JS_FILES,
+} from "#test/test-utils.js";
 import { frozenSet } from "#toolkit/fp/set.js";
 
 // Configuration
@@ -65,7 +72,10 @@ const extractCamelCaseIdentifiers = (source) => {
 const analyzeNamingConventions = () => {
   const violations = {};
 
-  for (const relativePath of SRC_JS_FILES()) {
+  for (const relativePath of combineFileLists([
+    SRC_JS_FILES(),
+    SCRIPT_JS_FILES(),
+  ])) {
     const fullPath = path.join(rootDir, relativePath);
     const source = fs.readFileSync(fullPath, "utf-8");
     const identifiers = extractCamelCaseIdentifiers(source);

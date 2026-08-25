@@ -2,12 +2,17 @@
  * Shared helpers and types for the CMS config generator.
  *
  * Collects the reusable pieces that stitch collection field lists together:
- * the `FieldContext` (body field precomputed from the visual-editor
- * setting), the common meta fields, and the composition helpers (`withEnabled`,
- * used by each per-collection field builder.
+ * the `FieldContext` (body field precomputed from the visual-editor setting),
+ * the common meta fields, the feature-gated optional fields, and the
+ * `withEnabled` composition helper.
  */
 
-import { COMMON_FIELDS, getBodyField } from "#scripts/customise-cms/fields.js";
+import {
+  COMMON_FIELDS,
+  FAQS_FIELD,
+  GALLERY_FIELD,
+  getBodyField,
+} from "#scripts/customise-cms/fields.js";
 import { compact, memberOf, pipe } from "#toolkit/fp/array.js";
 
 /**
@@ -104,3 +109,17 @@ export const slugToLabel = (slug) =>
  */
 export const getDataPath = (hasSrcFolder) =>
   hasSrcFolder ? "src/_data" : "_data";
+
+/**
+ * Optional fields gated by feature flags, in their canonical order.
+ * Shared by the standard collections and custom blocks collections so
+ * both emit the same fields for the same feature set.
+ * @param {import('./config.js').CmsFeatures} features - Enabled features
+ * @returns {(false | import('./fields.js').CmsField)[]} Fields with false for disabled features
+ */
+export const getFeatureFields = (features) => [
+  features.permalinks && COMMON_FIELDS.permalink,
+  features.redirects && COMMON_FIELDS.redirect_from,
+  features.faqs && FAQS_FIELD,
+  features.galleries && GALLERY_FIELD,
+];

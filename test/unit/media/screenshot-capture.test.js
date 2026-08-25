@@ -27,7 +27,7 @@ vi.mock("playwright", () => ({
 // race past the mock registry and load the real playwright.
 vi.mock("#media/browser-utils.js", async (importOriginal) => ({
   ...(await importOriginal()),
-  ensurePlaywrightBrowsers: () => Promise.resolve(true),
+  ensureBrowserInstalled: () => Promise.resolve(process.execPath),
 }));
 
 describe("takeScreenshotWithPlaywright", () => {

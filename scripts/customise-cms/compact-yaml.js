@@ -37,10 +37,18 @@ const getIndent = (line) => {
  * @param {string} trimmed - Trimmed line content
  * @returns {boolean} Whether the line should be skipped
  */
+/**
+ * A key with no inline value ("fields:"), i.e. the opener of a nested block
+ * @param {string} trimmed - Trimmed YAML line
+ * @returns {boolean}
+ */
+const isBlockKeyLine = (trimmed) =>
+  trimmed.endsWith(":") && !trimmed.includes(": ");
+
 const shouldSkipLine = (trimmed) => {
   if (!trimmed || trimmed.startsWith("#")) return true;
   if (trimmed === "-") return true;
-  if (trimmed.endsWith(":") && !trimmed.includes(": ")) return true;
+  if (isBlockKeyLine(trimmed)) return true;
   return false;
 };
 
@@ -96,16 +104,8 @@ const objectToInline = (lines) => {
  * @param {string[]} lines - YAML lines to check
  * @returns {boolean} Whether the lines contain nested structures
  */
-const hasNestedStructures = (lines) => {
-  for (const line of lines) {
-    const trimmed = line.trim();
-    // Check for lines that end with : and have no value (indicating nested block)
-    if (trimmed.endsWith(":") && !trimmed.includes(": ")) {
-      return true;
-    }
-  }
-  return false;
-};
+const hasNestedStructures = (lines) =>
+  lines.some((line) => isBlockKeyLine(line.trim()));
 
 /**
  * Collect lines that belong to a YAML list item object
@@ -195,12 +195,16 @@ const processLine = (lines, i) => {
  */
 export const compactYaml = (yamlString) => {
   const lines = yamlString.split("\n");
+  const result = [];
 
-  const processFrom = (index, acc) => {
-    if (index >= lines.length) return acc;
-    const { output, nextIndex } = processLine(lines, index);
-    return processFrom(nextIndex, [...acc, ...output]);
-  };
+  // Iterative walk: processLine consumes a variable number of input lines
+  // per step, so index advances by its nextIndex rather than by one.
+  const state = { index: 0 };
+  while (state.index < lines.length) {
+    const { output, nextIndex } = processLine(lines, state.index);
+    result.push(...output);
+    state.index = nextIndex;
+  }
 
-  return processFrom(0, []).join("\n");
+  return result.join("\n");
 };

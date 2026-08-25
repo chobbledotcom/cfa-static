@@ -1,9 +1,11 @@
 import { describe, expect, test } from "vitest";
+import { combineFileLists } from "#test/code-scanner.js";
 import {
   extractFunctions,
   fs,
   path,
   rootDir,
+  SCRIPT_JS_FILES,
   SRC_JS_FILES,
 } from "#test/test-utils.js";
 import {
@@ -238,7 +240,7 @@ describe("function-length", () => {
           ),
         )(functions);
       }),
-    )(SRC_JS_FILES());
+    )(combineFileLists([SRC_JS_FILES(), SCRIPT_JS_FILES()]));
 
     if (violations.length > 0) {
       const sorted = violations.toSorted((a, b) => b.lineCount - a.lineCount);

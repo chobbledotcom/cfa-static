@@ -16,15 +16,19 @@ import { spawn } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve as resolvePath } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
-import { dim, green, red, write, yellow } from "#test/precommit/colors.js";
-import { applyMutant, generateMutants } from "./generate.js";
-import { ignoreListProblems, isIgnored, loadIgnoreList } from "./ignore.js";
+import { dim, green, red, write, yellow } from "#scripts/lib/colors.js";
+import { applyMutant, generateMutants } from "#scripts/mutation/generate.js";
+import {
+  ignoreListProblems,
+  isIgnored,
+  loadIgnoreList,
+} from "#scripts/mutation/ignore.js";
 import {
   formatSummaryLines,
   rel,
   summarize,
   writeStepSummary,
-} from "./summary.js";
+} from "#scripts/mutation/summary.js";
 
 const BASELINE_TIMEOUT = 120_000;
 const TIMEOUT_MULTIPLIER = 3;
@@ -265,11 +269,36 @@ const runMutants = async (opts) => {
     return 130;
   }
 
+  return finishRun(results, ignoreList, sourceFiles);
+};
+
+/**
+ * Print the report, fold ignore-list problems into the exit code.
+ * @param {{ file: string, mutant: object, status: string }[]} results
+ * @param {{ entries: string[], keys: Set<string> }} ignoreList
+ * @param {string[]} sourceFiles
+ * @returns {number}
+ */
+const finishRun = (results, ignoreList, sourceFiles) => {
   const exitCode = report(results);
   const problems = ignoreListProblems(ignoreList, results, sourceFiles);
   reportIgnoreProblems(problems);
   if (problems.length > 0 && exitCode === 0) return 1;
   return exitCode;
+};
+
+/**
+ * Never silent: a source file left mutated on disk is the worst outcome
+ * this tool has, so a failed restore is reported and fails the run while
+ * restoreAll keeps restoring the other files.
+ * @param {string} file
+ * @param {unknown} err
+ */
+const reportRestoreFailure = (file, err) => {
+  const reason = err instanceof Error ? err.message : String(err);
+  console.error(red(`FAILED to restore ${rel(file)}: ${reason}`));
+  console.error(red("Restore it from git before trusting the tree."));
+  process.exitCode = 1;
 };
 
 /**
@@ -289,8 +318,8 @@ export const runMutationTesting = async (options) => {
     for (const [file, content] of originals) {
       try {
         writeFileSync(file, content);
-      } catch {
-        // best effort; the file is git-tracked and recoverable
+      } catch (err) {
+        reportRestoreFailure(file, err);
       }
     }
   };

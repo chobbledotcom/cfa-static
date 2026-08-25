@@ -380,3 +380,16 @@ describe("generatePagesYaml custom blocks collections", () => {
     expect(yaml).toContain("name: pages");
   });
 });
+
+describe("generatePagesYaml validation", () => {
+  test("throws on a collection name with no definition", () => {
+    const config = {
+      ...createDefaultConfig(),
+      collections: ["pages", "bogus-collection"],
+    };
+
+    expect(() => generatePagesYaml(config)).toThrow(
+      'Unknown collection "bogus-collection"',
+    );
+  });
+});

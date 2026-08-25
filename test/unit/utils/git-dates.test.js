@@ -1,9 +1,13 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { withTempDirAsync } from "#test/test-utils.js";
 import { datesFor, formatIso } from "#utils/git-dates.js";
+
+// These tests run real git subprocesses, which can far exceed the global
+// 1.5s testTimeout when the full suite's lanes load the machine.
+vi.setConfig({ testTimeout: 15_000 });
 
 const runGitInDir = (args, cwd) =>
   execFileSync("git", args, {

@@ -6,7 +6,7 @@ import { rootDir } from "#test/test-utils.js";
 import { collectBlockReferences } from "#test/unit/utils/pages-yml-helpers.js";
 import { BLOCK_CMS_FIELDS, BLOCK_SCHEMAS } from "#utils/block-schema.js";
 
-/** Inverse of scripts/customise-cms/generator.js#blockTypeToComponentName —
+/** Inverse of scripts/customise-cms/generator.js#componentNameFor —
  *  turns `block_section_header` back into `section-header`. */
 const componentNameToBlockType = (componentName) =>
   componentName.replace(/^block_/, "").replace(/_/g, "-");

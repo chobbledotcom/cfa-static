@@ -107,6 +107,7 @@ const BLOCK_MODULES = [
 const indexByType = (getValue) =>
   Object.fromEntries(BLOCK_MODULES.map((m) => [m.type, getValue(m)]));
 
+/** @type {Record<string, string>} */
 const DOC_TYPE_MAP = {
   markdown: "string",
   image: "string",
@@ -188,6 +189,22 @@ const BLOCK_CMS_FIELDS = indexByType((m) => ({
   ),
 }));
 
+/**
+ * @typedef {Object} BlockParamDoc
+ * @property {string} type
+ * @property {boolean} [required]
+ * @property {unknown} [default]
+ * @property {string} [description]
+ *
+ * @typedef {Object} BlockDoc
+ * @property {string} summary
+ * @property {string} [scss]
+ * @property {string} [htmlRoot]
+ * @property {string} [notes]
+ * @property {Record<string, BlockParamDoc>} params
+ */
+
+/** @type {Record<string, BlockDoc>} */
 const BLOCK_DOCS = indexByType((m) => ({
   ...m.docs,
   params: Object.fromEntries(

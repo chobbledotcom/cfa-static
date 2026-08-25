@@ -1,7 +1,11 @@
 import { describe, expect, test } from "vitest";
 import stringsBase from "#data/strings-base.json" with { type: "json" };
-import { assertNoViolations, createCodeChecker } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import {
+  assertNoViolations,
+  combineFileLists,
+  createCodeChecker,
+} from "#test/code-scanner.js";
+import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 import { memoize } from "#toolkit/fp/memoize.js";
 
 // Build hardcoded URL patterns dynamically from strings-base.json
@@ -46,7 +50,7 @@ const { find: findHardcodedUrls, analyze: analyzeHardcodedUrls } =
   createCodeChecker({
     patterns: HARDCODED_URL_PATTERNS,
     skipPatterns: SKIP_LINE_PATTERNS,
-    files: SRC_JS_FILES(),
+    files: combineFileLists([SRC_JS_FILES(), SCRIPT_JS_FILES()]),
     excludeFiles: ALLOWED_FILES,
   });
 

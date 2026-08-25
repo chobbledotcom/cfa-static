@@ -45,6 +45,21 @@ const ALLOWED_TRY_CATCHES = frozenSet([
   // test/integration/pages-yml-validation.test.js - Git clone may fail in offline environments
   // Needed: gracefully skips validation when GitHub is not reachable
   "test/integration/pages-yml-validation.test.js:30",
+
+  // Pre-existing catches surfaced when this gate's coverage was extended to
+  // scripts/ and bin/ - baseline entries, not new debt. Each one handles the
+  // error loudly or with documented degradation, never by masking:
+  // CLI arg-parse errors become a friendly usage message + exit 1
+  "scripts/customise-cms/index.js:179",
+  // Two justified catches: restoreAll must keep restoring the other
+  // mutated files after one write fails (printed, fails the run via
+  // process.exitCode), and a spawn failure means a mutant's tests never
+  // ran, so sources are restored and the whole run fails loudly instead
+  // of scoring a false pass.
+  "scripts/mutation/runner.js",
+  // GitHub step summary is best-effort cosmetics; a write failure must not
+  // fail the mutation run (covered by an explicit test)
+  "scripts/mutation/summary.js:196",
 ]);
 
 // ============================================
@@ -70,8 +85,7 @@ const ALLOWED_PROCESS_CWD = frozenSet([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = frozenSet([
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:158", // createExtractor accumulates results in a Set
-  "test/build-profiling.js",
+  "test/test-utils.js:195", // createExtractor accumulates results in a Set
   "test/test-runner-utils.js",
   "test/code-scanner.js",
 
@@ -169,8 +183,8 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
 // NOTE: The scanner now detects Eleventy registrations (addFilter, addShortcode, etc.)
 // so exports registered with Eleventy no longer need to be listed here.
 const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
-  // FP toolkit utilities - used by code-quality/scanner.js via relative import
-  // (relative imports aren't detected by our analysis)
+  // FP toolkit utilities - part of the toolkit's public API, currently
+  // exercised only from test code
   "packages/js-toolkit/fp/object.js:omit",
   "packages/js-toolkit/fp/set.js:frozenSetFrom", // Available for iterable sources
   "packages/js-toolkit/fp/set.js:setHas", // Curried predicate for filter/some/every

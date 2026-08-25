@@ -5,7 +5,14 @@ import {
   lighthouse,
   lighthouseMultiple,
 } from "#media/lighthouse.js";
-import { buildCommonOptions, logErrors, runCli } from "#scripts/cli-utils.js";
+import {
+  COMMON_OPTIONS_HELP,
+  logErrors,
+  optionsBuilder,
+  runCliWhenMain,
+  stringListValue,
+  usageError,
+} from "#scripts/cli-utils.js";
 
 const USAGE = `
 Lighthouse Tool - Run Lighthouse audits on rendered pages
@@ -16,17 +23,12 @@ Usage:
   node scripts/lighthouse.js --serve <site-dir> [options] <page-path>
 
 Options:
-  -h, --help              Show this help message
+${COMMON_OPTIONS_HELP}
   -c, --category <name>   Category: performance, accessibility, best-practices, seo
                           Can be specified multiple times (default: all)
-  -o, --output <path>     Output file path (auto-generated if not specified)
   -d, --output-dir <dir>  Output directory (default: lighthouse-reports/)
-  -u, --base-url <url>    Base URL (default: http://localhost:8080)
-  -t, --timeout <ms>      Timeout in milliseconds (default: 10000)
   -f, --format <type>     Output format: html, json, csv (default: html)
   -p, --pages             Run audits on multiple pages
-  -s, --serve <dir>       Start a server for the given directory
-  --port <port>           Port for the server (default: 8080)
   --threshold <cat=score> Minimum score threshold (e.g., performance=90)
                           Can be specified multiple times. Exit 1 if not met.
   --list-categories       List available categories
@@ -39,7 +41,7 @@ Examples:
   node scripts/lighthouse.js -c performance /
 
   # Audit multiple pages
-  node scripts/lighthouse.js -p / /about/ /products/
+  node scripts/lighthouse.js -p / /news/ /guide/
 
   # Start server and audit
   node scripts/lighthouse.js -s _site /
@@ -51,6 +53,7 @@ Examples:
   node scripts/lighthouse.js -o my-report.html /
 `;
 
+/** @type {import("node:util").ParseArgsConfig["options"]} */
 const PARSE_OPTIONS = {
   category: { type: "string", short: "c", multiple: true },
   "output-dir": { type: "string", short: "d", default: "lighthouse-reports" },
@@ -67,16 +70,16 @@ const showCategories = () => {
   process.exit(0);
 };
 
-const formatScore = (score) =>
+const displayScore = (score) =>
   score === null ? "N/A" : `${Math.round(score * 100)}`;
 
 const logScores = (scores, indent = "") => {
   for (const [cat, score] of Object.entries(scores)) {
-    console.log(`${indent}${cat}: ${formatScore(score)}`);
+    console.log(`${indent}${cat}: ${displayScore(score)}`);
   }
 };
 
-const logResults = (results) => {
+const logAuditResults = (results) => {
   for (const result of results) {
     console.log(`\n  ${result.url}:`);
     logScores(result.scores, "    ");
@@ -91,28 +94,25 @@ const logFailures = (failures, prefix = "") => {
 };
 
 const logThresholdFailures = (results) => {
-  let hasFailures = false;
-  for (const result of results) {
-    if (!result.thresholds.passed) {
-      hasFailures = true;
-      console.error(`\nThreshold failures for ${result.url}:`);
-      logFailures(result.thresholds.failures, "  ");
-    }
+  const failed = results.filter((result) => !result.thresholds.passed);
+  for (const result of failed) {
+    console.error(`\nThreshold failures for ${result.url}:`);
+    logFailures(result.thresholds.failures, "  ");
   }
-  return hasFailures;
+  return failed.length > 0;
 };
 
-const handleMultiplePages = async (pagePaths, options) => {
+const auditMultiplePages = async (pagePaths, options) => {
   console.log(`\nRunning Lighthouse on ${pagePaths.length} pages...`);
   const { results, errors } = await lighthouseMultiple(pagePaths, options);
   console.log(`\nCompleted: ${results.length} audits`);
-  logResults(results);
+  logAuditResults(results);
   const hasErrors = logErrors(errors, (e) => e.pagePath);
   const hasThresholdFailures = logThresholdFailures(results);
   return hasErrors || hasThresholdFailures;
 };
 
-const handleSinglePage = async (pagePath, options) => {
+const auditSinglePage = async (pagePath, options) => {
   const result = await lighthouse(pagePath, options);
   console.log(`\nLighthouse audit complete for ${result.url}:`);
   logScores(result.scores, "  ");
@@ -126,42 +126,44 @@ const handleSinglePage = async (pagePath, options) => {
   return false;
 };
 
-const selectHandler = (isMultiplePages) =>
-  isMultiplePages ? handleMultiplePages : handleSinglePage;
+/**
+ * Parse repeated cat=score threshold flags into a 0-1 score map,
+ * or null when no thresholds were requested.
+ * @param {string[]} thresholdArgs
+ */
+export const parseThresholds = (thresholdArgs) => {
+  if (thresholdArgs.length === 0) return null;
 
-const parseThresholds = (thresholdArgs) => {
-  if (!thresholdArgs || thresholdArgs.length === 0) return null;
-
-  const thresholds = {};
-  for (const t of thresholdArgs) {
-    const [category, scoreStr] = t.split("=");
-    const score = Number.parseInt(scoreStr, 10);
-    if (Number.isNaN(score) || score < 0 || score > 100) {
-      console.error(`Invalid threshold: ${t}. Score must be 0-100.`);
-      process.exit(1);
-    }
-    thresholds[category] = score / 100;
-  }
-  return thresholds;
+  return Object.fromEntries(
+    thresholdArgs.map((arg) => {
+      const [category, scoreStr] = arg.split("=");
+      const score = Number.parseInt(scoreStr, 10);
+      if (Number.isNaN(score) || score < 0 || score > 100) {
+        usageError(`Invalid threshold: ${arg}. Score must be 0-100.`, USAGE);
+      }
+      return [category, score / 100];
+    }),
+  );
 };
 
-const buildOptions = (values) => ({
-  ...buildCommonOptions(values, "lighthouse-reports"),
-  onlyCategories: values.category?.length > 0 ? values.category : null,
-  format: values.format,
-  thresholds: parseThresholds(values.threshold),
+export const buildOptions = optionsBuilder((values) => {
+  const categories = stringListValue(values.category);
+  return {
+    onlyCategories: categories.length > 0 ? categories : null,
+    format: values.format,
+    thresholds: parseThresholds(stringListValue(values.threshold)),
+  };
 });
 
-const extraExitChecks = (v) => {
-  if (v["list-categories"]) showCategories();
-};
-
-const getInput = ({ positionals, isMultiple }) =>
+export const getInput = ({ positionals, isMultiple }) =>
   isMultiple ? positionals : positionals[0];
 
-runCli(PARSE_OPTIONS, USAGE, {
-  selectHandler: ({ isMultiple }) => selectHandler(isMultiple),
+await runCliWhenMain(import.meta.url, PARSE_OPTIONS, USAGE, {
+  selectHandler: ({ isMultiple }) =>
+    isMultiple ? auditMultiplePages : auditSinglePage,
   getInput,
   buildOptions,
-  extraExitChecks,
+  extraExitChecks: (values) => {
+    if (values["list-categories"]) showCategories();
+  },
 });

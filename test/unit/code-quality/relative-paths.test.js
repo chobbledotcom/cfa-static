@@ -9,12 +9,7 @@ const IMPORT_PATH_REGEX = /from\s+["']([^"']+)["']/;
 // _data/*.js files legitimately use relative imports for sibling JSON files
 // This is required for test isolation - test sites copy these files and need
 // JSON imports to resolve relative to the copied location, not via path aliases
-const DATA_JS_FILES = [
-  "src/_data/config.js",
-  "src/_data/contact-form.js",
-  "src/_data/quote-fields.js",
-  "src/_data/site.js",
-];
+const DATA_JS_FILES = ["src/_data/config.js", "src/_data/site.js"];
 
 describe("relative-paths", () => {
   // Factory for import-style code checkers with common configuration

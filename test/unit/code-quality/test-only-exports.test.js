@@ -35,7 +35,13 @@ const IMPORT_ALIASES = {
   "#utils/": "src/_lib/utils/",
   "#public/": "src/_lib/public/",
   "#test/": "test/",
+  "#scripts/": "scripts/",
+  "#bin/": "bin/",
   "#toolkit/": "packages/js-toolkit/",
+  // NOTE: #transforms/ and #guide-categories/ are deliberately absent for
+  // now: resolving them makes this gate see the transform test suites'
+  // white-box imports, which need their own refactor before the gate can
+  // cover them without an allowlist.
 };
 
 /**

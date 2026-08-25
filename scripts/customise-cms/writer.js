@@ -4,6 +4,7 @@
 
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { ROOT_DIR } from "#lib/paths.js";
 import { compactYaml } from "#scripts/customise-cms/compact-yaml.js";
 import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
 
@@ -11,7 +12,7 @@ import { generatePagesYaml } from "#scripts/customise-cms/generator.js";
  * Path to the .pages.yml file
  * @type {string}
  */
-const PAGES_YML_PATH = join(process.cwd(), ".pages.yml");
+const PAGES_YML_PATH = join(ROOT_DIR, ".pages.yml");
 
 /**
  * Write generated YAML content to .pages.yml

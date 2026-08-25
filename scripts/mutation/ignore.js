@@ -20,8 +20,11 @@
  * real surviving mutant, so a stale/redundant/duplicate entry fails the run.
  */
 
-import { readFileSync } from "node:fs";
-import { rel } from "./summary.js";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { ROOT_DIR } from "#lib/paths.js";
+import { rel } from "#scripts/mutation/summary.js";
+import { unique } from "#toolkit/fp/array.js";
 
 const IGNORE_FILE = new URL("./equivalent-mutants.txt", import.meta.url);
 
@@ -32,7 +35,7 @@ const keyFor = (relPath, mutant) =>
 /** Canonical key for a mutant given its absolute source path. */
 export const mutantKey = (file, mutant) => keyFor(rel(file), mutant);
 
-/** Parse one ignore-file line into a canonical key, or null when blank/comment. */
+/** Parse one ignore-file line into `{ key, path }`, or null when blank/comment. */
 const parseLine = (line) => {
   const trimmed = line.trim();
   if (trimmed === "" || trimmed.startsWith("#")) return null;
@@ -44,21 +47,35 @@ const parseLine = (line) => {
   const match = trimmed.match(/^(.+:\d+:\d+)\s+(.+?)\s*→\s*(.+?)$/);
   if (!match) return null;
   const to = match[3].replace(/\s+#.*$/, "").trim();
-  return `${match[1]} ${match[2]}→${to}`;
+  return {
+    key: `${match[1]} ${match[2]}→${to}`,
+    path: match[1].replace(/:\d+:\d+$/, ""),
+  };
 };
 
-/** Load the ignore-list (empty when the file is absent). */
+/**
+ * Load the ignore-list (empty when the file is absent). Entries that point
+ * at files which no longer exist throw immediately: the per-run validation
+ * only covers the files being mutated, so a deleted file's entries would
+ * otherwise rot silently forever.
+ */
 export const loadIgnoreList = (file = IGNORE_FILE) => {
-  let text;
-  try {
-    text = readFileSync(file, "utf-8");
-  } catch {
-    return { entries: [], keys: new Set() };
-  }
-  const entries = text
+  if (!existsSync(file)) return { entries: [], keys: new Set() };
+  const parsed = readFileSync(file, "utf-8")
     .split("\n")
     .map(parseLine)
-    .filter((key) => key !== null);
+    .filter((entry) => entry !== null);
+
+  const missing = unique(parsed.map((entry) => entry.path)).filter(
+    (path) => !existsSync(join(ROOT_DIR, path)),
+  );
+  if (missing.length > 0) {
+    throw new Error(
+      `equivalent-mutants.txt lists files that no longer exist - remove their entries:\n  ${missing.join("\n  ")}`,
+    );
+  }
+
+  const entries = parsed.map((entry) => entry.key);
   return { entries, keys: new Set(entries) };
 };
 

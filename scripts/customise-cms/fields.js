@@ -8,6 +8,7 @@
  * @typedef {Object} FieldOptions
  * @property {string} [language] - Code language for code fields
  * @property {boolean} [multiple] - Allow multiple values for image fields
+ * @property {number} [maxlength] - Maximum string length
  * @property {string} [collection] - Referenced collection for reference fields
  * @property {string} [search] - Search field for reference fields
  * @property {string} [value] - Value template for reference fields
@@ -17,14 +18,16 @@
 /**
  * @typedef {Object} CmsField
  * @property {string} name - Field name
- * @property {string} type - Field type (string, number, boolean, image, date, code, object, reference)
+ * @property {string} [type] - Field type (string, number, boolean, image, date, code, object, reference)
  * @property {string} [label] - Display label
  * @property {boolean} [required] - Whether field is required
  * @property {boolean} [list] - Whether field allows multiple values
- * @property {number} [maxlength] - Maximum string length
  * @property {*} [default] - Default value
  * @property {FieldOptions} [options] - Type-specific options
  * @property {CmsField[]} [fields] - Nested fields for object types
+ * @property {CmsField[]} [blocks] - Nested block fields for block editors
+ * @property {string} [component] - Reference to a hoisted component
+ * @property {string} [_componentName] - Marker: hoist this field into `components:`
  */
 
 /**
@@ -35,12 +38,6 @@ export const COMMON_FIELDS = {
   name: { name: "name", type: "string", label: "Name", required: true },
   thumbnail: { name: "thumbnail", type: "image", label: "Thumbnail" },
   subtitle: { name: "subtitle", type: "string", label: "Subtitle" },
-  body: {
-    name: "body",
-    label: "Body",
-    type: "code",
-    options: { language: "markdown" },
-  },
   meta_title: {
     name: "meta_title",
     type: "string",
@@ -63,7 +60,6 @@ export const COMMON_FIELDS = {
     list: true,
   },
   order: { name: "order", type: "number", label: "Order" },
-  featured: { name: "featured", type: "boolean", label: "Featured" },
   no_index: { name: "no_index", type: "boolean", label: "Hide from listings" },
 };
 
@@ -121,11 +117,6 @@ export const GALLERY_FIELD = {
 };
 
 /**
- * Common nested fields for name/value pair objects
- * Used by specs, filter attributes, and similar list fields
- * @type {CmsField[]}
- */
-/**
  * Create an object list field with custom nested fields
  * @param {string} name - Field name
  * @param {string} label - Display label
@@ -140,14 +131,6 @@ export const createObjectListField = (name, label, nestedFields) => ({
   fields: nestedFields,
 });
 
-/**
- * Features list field configuration
- * @type {CmsField}
- */
-/**
- * Keywords field configuration for search terms
- * @type {CmsField}
- */
 /**
  * Create a reference field
  * @param {string} name - Field name
@@ -198,53 +181,9 @@ export const createEleventyNavigationField = (includeUrl = false) => {
 };
 
 /**
- * Product options field
- * @type {CmsField}
- */
-/**
- * Filter attributes field
- * @type {CmsField}
- */
-
-/**
- * Create add-ons field with appropriate intro type based on config
- * @param {boolean} useVisualEditor - Whether to use visual editor
- * @returns {CmsField} Add-ons field configuration
- */
-export const createAddOnsField = (useVisualEditor) => ({
-  name: "add_ons",
-  label: "Add-ons",
-  type: "object",
-  fields: [
-    createMarkdownField("intro", "Intro", useVisualEditor),
-    {
-      name: "options",
-      label: "Add-on Options",
-      type: "object",
-      list: true,
-      fields: [
-        { name: "name", type: "string", label: "Name", required: true },
-        { name: "price", type: "number", label: "Price", required: true },
-      ],
-    },
-  ],
-});
-
-/**
  * Get body field based on visual editor configuration
  * @param {boolean} useVisualEditor - Whether to use visual editor
  * @returns {CmsField} Body field configuration
  */
 export const getBodyField = (useVisualEditor) =>
   createMarkdownField("body", "Body", useVisualEditor);
-
-/**
- * Create a body field with custom label
- * @param {string} label - Custom label for the body field
- * @param {boolean} useVisualEditor - Whether to use visual editor
- * @returns {CmsField} Body field configuration with custom label
- */
-export const createBodyField = (label, useVisualEditor) => ({
-  ...getBodyField(useVisualEditor),
-  label,
-});

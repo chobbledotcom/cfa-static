@@ -7,15 +7,18 @@
  * to identify errors in CI logs (they get buried under thousands of lines).
  *
  * This wrapper monitors the build output and immediately terminates on error,
- * ensuring errors are visible at the end of the log output.
+ * ensuring errors are visible at the end of the log output. Every CLI arg is
+ * forwarded to Eleventy verbatim; the wrapper only inspects them.
  */
-import { spawn, spawnSync } from "node:child_process";
-import { parseArgs } from "node:util";
+import { spawn } from "node:child_process";
+import { join } from "node:path";
+import { ROOT_DIR } from "#lib/paths.js";
 import {
   calculateAverageCpuUsage,
   formatAverageCpuUsage,
   getCpuSnapshot,
 } from "#scripts/build-metrics.js";
+import { runTool } from "#scripts/lib/run-tool.js";
 
 const ERROR_PATTERNS = [
   "[11ty] Problem writing Eleventy templates:",
@@ -24,33 +27,24 @@ const ERROR_PATTERNS = [
   "EleventyShortcodeError",
 ];
 
-const { values, positionals } = parseArgs({
-  args: process.argv.slice(2),
-  options: {
-    serve: { type: "boolean", short: "s" },
-    incremental: { type: "boolean", short: "i" },
-  },
-  allowPositionals: true,
-  strict: false,
-});
-
-const args = [];
-if (values.serve) args.push("--serve");
-if (values.incremental) args.push("--incremental");
-args.push(...positionals);
+const args = process.argv.slice(2);
+// Recognise both the long flag and the short alias the wrapper's old
+// parser accepted, so `-s` still triggers the serve-mode Pagefind run.
+const isServeMode = args.includes("--serve") || args.includes("-s");
 
 const cpuStart = getCpuSnapshot();
 
 const eleventy = spawn(
   process.execPath,
-  ["./node_modules/@11ty/eleventy/cmd.cjs", ...args],
+  [join(ROOT_DIR, "node_modules/@11ty/eleventy/cmd.cjs"), ...args],
   {
+    cwd: ROOT_DIR,
     stdio: ["inherit", "pipe", "pipe"],
     env: process.env,
   },
 );
 
-let errorDetected = false;
+const buildState = { errorDetected: false, pagefindRanForServe: false };
 
 const containsError = (text) =>
   ERROR_PATTERNS.some((pattern) => text.includes(pattern));
@@ -69,7 +63,7 @@ const printFailureBanner = () => {
 };
 
 const triggerFailFast = () => {
-  errorDetected = true;
+  buildState.errorDetected = true;
   setTimeout(() => {
     printFailureBanner();
     eleventy.kill("SIGTERM");
@@ -89,11 +83,8 @@ const writeNormalOutput = (data, isStderr) => {
 
 const runPagefind = () => {
   console.log("\nRunning Pagefind indexer...");
-  const result = spawnSync("npx", ["pagefind", "--site", "_site"], {
-    stdio: "inherit",
-    env: process.env,
-  });
-  if (result.status !== 0) {
+  const status = runTool("npx", ["pagefind", "--site", "_site"]);
+  if (status !== 0) {
     console.error("Pagefind indexing failed");
     return false;
   }
@@ -101,11 +92,9 @@ const runPagefind = () => {
   return true;
 };
 
-let pagefindRanForServe = false;
-
 const processChunk = (data, isStderr) => {
   const text = data.toString();
-  if (errorDetected) {
+  if (buildState.errorDetected) {
     writeErrorOutput(data, text);
     return;
   }
@@ -114,11 +103,11 @@ const processChunk = (data, isStderr) => {
     triggerFailFast();
   }
   if (
-    values.serve &&
-    !pagefindRanForServe &&
+    isServeMode &&
+    !buildState.pagefindRanForServe &&
     text.includes("[11ty] Watching")
   ) {
-    pagefindRanForServe = true;
+    buildState.pagefindRanForServe = true;
     runPagefind();
   }
 };
@@ -131,10 +120,10 @@ handleOutput(eleventy.stdout, false);
 handleOutput(eleventy.stderr, true);
 
 eleventy.on("close", (code) => {
-  if (errorDetected || code !== 0) {
+  if (buildState.errorDetected || code !== 0) {
     process.exit(code || 1);
   }
-  if (!values.serve) {
+  if (!isServeMode) {
     if (!runPagefind()) {
       process.exit(1);
     }

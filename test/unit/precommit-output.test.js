@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { green, write } from "#test/precommit/colors.js";
+import { green, write } from "#scripts/lib/colors.js";
 import {
   createDotsProgress,
   extractSlowTests,

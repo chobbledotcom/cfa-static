@@ -16,9 +16,8 @@
  */
 
 import YAML from "yaml";
-import { generateBlocksField } from "#scripts/customise-cms/blocks.js";
+import { blocksFieldFor } from "#scripts/customise-cms/blocks.js";
 import { generateCollectionConfig } from "#scripts/customise-cms/collection-config.js";
-import { getCollection } from "#scripts/customise-cms/collections.js";
 import {
   applyComponentRefs,
   collectComponents,
@@ -26,12 +25,11 @@ import {
 import {
   COMMON_FIELDS,
   createEleventyNavigationField,
-  FAQS_FIELD,
-  GALLERY_FIELD,
 } from "#scripts/customise-cms/fields.js";
 import {
   createFieldContext,
   getDataPath,
+  getFeatureFields,
   META_FIELDS,
   slugToLabel,
 } from "#scripts/customise-cms/generator-helpers.js";
@@ -40,8 +38,7 @@ import {
   getMetaConfig,
   getSiteConfig,
 } from "#scripts/customise-cms/static-configs.js";
-import { compact, filterMap } from "#toolkit/fp/array.js";
-import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
+import { compact } from "#toolkit/fp/array.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig
@@ -51,18 +48,6 @@ import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
  */
 
 /**
- * Get optional fields for a custom blocks collection based on enabled features
- * @param {CmsConfig} config - CMS configuration
- * @returns {(false | CmsField)[]} Optional fields (with false for disabled features)
- */
-const getCustomBlocksOptionalFields = (config) => [
-  config.features.permalinks && COMMON_FIELDS.permalink,
-  config.features.redirects && COMMON_FIELDS.redirect_from,
-  config.features.faqs && FAQS_FIELD,
-  config.features.galleries && GALLERY_FIELD,
-];
-
-/**
  * Generate configuration for a custom blocks collection.
  * Custom blocks collections are page-like collections that use the blocks layout.
  * @param {string} name - Collection name slug (e.g., "clients")
@@ -70,9 +55,8 @@ const getCustomBlocksOptionalFields = (config) => [
  * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {CollectionConfig} Collection configuration
  */
-const generateCustomBlocksCollectionConfig = (name, config, fieldContext) => {
-  const hasSrcFolder = config.hasSrcFolder ?? true;
-  const path = hasSrcFolder ? `src/${name}` : name;
+const customCollectionConfig = (name, config, fieldContext) => {
+  const path = config.hasSrcFolder ? `src/${name}` : name;
 
   return {
     name,
@@ -88,16 +72,58 @@ const generateCustomBlocksCollectionConfig = (name, config, fieldContext) => {
       fieldContext.body,
       ...META_FIELDS,
       createEleventyNavigationField(config.features.external_navigation_urls),
-      ...getCustomBlocksOptionalFields(config),
-      generateBlocksField(
-        Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
-          isBlockAllowedIn(type, name),
-        ),
-        config.features.use_visual_editor,
-      ),
+      ...getFeatureFields(config.features),
+      blocksFieldFor(name, config.features.use_visual_editor),
     ]),
   };
 };
+
+/**
+ * Build the full content entry list: collection configs, custom blocks
+ * collections, and the site/meta/alt-tags data entries.
+ * @param {CmsConfig} config
+ * @param {FieldContext} fieldContext
+ * @returns {CollectionConfig[]}
+ */
+const buildContentArray = (config, fieldContext) => {
+  // generateCollectionConfig itself rejects unknown collection names
+  const collectionConfigs = config.collections.map((name) =>
+    generateCollectionConfig(name, config, fieldContext),
+  );
+
+  const customBlocksConfigs = config.customBlocksCollections.map((name) =>
+    customCollectionConfig(name, config, fieldContext),
+  );
+
+  const dataPath = getDataPath(config.hasSrcFolder);
+  return [
+    ...collectionConfigs,
+    ...customBlocksConfigs,
+    getSiteConfig(dataPath),
+    getMetaConfig(dataPath),
+    getAltTagsConfig(dataPath),
+  ];
+};
+
+/**
+ * The static media and settings sections of .pages.yml.
+ * @param {string} imagesPath
+ */
+const mediaAndSettings = (imagesPath) => ({
+  media: {
+    input: imagesPath,
+    output: "/images",
+    path: imagesPath,
+    categories: ["image"],
+    rename: true,
+  },
+  settings: {
+    hide: true,
+    content: {
+      merge: true,
+    },
+  },
+});
 
 /**
  * Generate complete .pages.yml configuration
@@ -107,46 +133,15 @@ const generateCustomBlocksCollectionConfig = (name, config, fieldContext) => {
 export const generatePagesYaml = (config) => {
   // Create field context once - precomputes body field based on visual editor setting
   const fieldContext = createFieldContext(config.features.use_visual_editor);
-
-  const collectionConfigs = filterMap(
-    (name) => getCollection(name),
-    (name) => generateCollectionConfig(name, config, fieldContext),
-  )(config.collections);
-
-  const customBlocksConfigs = (config.customBlocksCollections || []).map(
-    (name) => generateCustomBlocksCollectionConfig(name, config, fieldContext),
-  );
-
-  const hasSrcFolder = config.hasSrcFolder ?? true;
-  const dataPath = getDataPath(hasSrcFolder);
-  const imagesPath = hasSrcFolder ? "src/images" : "images";
-
-  const contentArray = [
-    ...collectionConfigs,
-    ...customBlocksConfigs,
-    getSiteConfig(dataPath),
-    getMetaConfig(dataPath),
-    getAltTagsConfig(dataPath),
-  ];
+  const contentArray = buildContentArray(config, fieldContext);
+  const imagesPath = config.hasSrcFolder ? "src/images" : "images";
 
   // Extract components from fields and replace with references
   const components = collectComponents(contentArray);
   const contentWithRefs = applyComponentRefs(contentArray);
 
   const pagesConfig = {
-    media: {
-      input: imagesPath,
-      output: "/images",
-      path: imagesPath,
-      categories: ["image"],
-      rename: true,
-    },
-    settings: {
-      hide: true,
-      content: {
-        merge: true,
-      },
-    },
+    ...mediaAndSettings(imagesPath),
     ...(Object.keys(components).length > 0 && { components }),
     content: contentWithRefs,
   };

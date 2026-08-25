@@ -76,8 +76,6 @@
                pc                 - Run precommit (lint/typecheck/tests) - also runs automatically on git commit
                precommit          - Alias for pc
                profile            - Profile build for performance bottlenecks
-               lint               - Format code with Biome (Nix-only)
-               screenshot         - Take website screenshots (Nix-only)
                customise-cms      - Interactive setup for PagesCMS collections
                generate-pages-yml - Generate .pages.yml with all collections
 

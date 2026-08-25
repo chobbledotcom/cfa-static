@@ -4,7 +4,7 @@ import {
   createPathContext,
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT,
-  ensurePlaywrightBrowsers,
+  ensureBrowserInstalled,
   frozenObject,
   getDefaultOutputDir,
   log,
@@ -49,6 +49,7 @@ export const takeScreenshotWithPlaywright = async (
   const browser = await chromium.launch({
     headless: true,
     args: BROWSER_ARGS,
+    executablePath: await ensureBrowserInstalled(),
   });
   const context = await browser.newContext({
     viewport: { width, height },
@@ -76,7 +77,7 @@ export const takeScreenshotWithPlaywright = async (
 };
 
 export const screenshot = async (pagePath, options = {}) => {
-  await ensurePlaywrightBrowsers();
+  await ensureBrowserInstalled();
 
   const context = createPathContext(pagePath, DEFAULT_OPTIONS, options, {
     suffix: (opts) => buildViewportSuffix(opts.viewport),

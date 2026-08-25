@@ -7,7 +7,6 @@
 		"**/_site/**",
 		"**/package-lock.json",
 		"**/.test-sites/**",
-		"**/page-layouts/**",
 		"**/packages/**/index.js",
 		"**/marquee-images.html",
 		"**/src/assets/**"

@@ -11,7 +11,10 @@ import {
   getRequiredCollections,
   resolveDependencies,
 } from "#scripts/customise-cms/collections.js";
-import { createDefaultConfig } from "#scripts/customise-cms/config.js";
+import {
+  createDefaultConfig,
+  createEmptyConfig,
+} from "#scripts/customise-cms/config.js";
 import { map, unique } from "#toolkit/fp/array.js";
 
 // Re-export I/O functions from cli-io.js
@@ -235,24 +238,17 @@ const buildCollections = (values, baseConfig) => {
  * Create base features object (all enabled or all disabled)
  * @param {boolean} allEnabled - Whether to enable all features
  * @param {Object|null} baseConfig - Base config if --all was used
- * @returns {Object} Features object
+ * @returns {import('./config.js').CmsFeatures} Features object
  */
-const createBaseFeatures = (allEnabled, baseConfig) => {
-  if (allEnabled) return { ...baseConfig.features };
-
-  const features = {};
-  for (const f of ALL_FEATURES) {
-    features[f] = false;
-  }
-  return features;
-};
+const createBaseFeatures = (allEnabled, baseConfig) =>
+  allEnabled ? { ...baseConfig.features } : createEmptyConfig().features;
 
 /**
  * Apply feature overrides (enables and disables) to features object
  * @param {Object} features - Features object to modify
  * @param {string[]} enables - Features to enable
  * @param {string[]} disables - Features to disable
- * @returns {Object} Modified features object
+ * @returns {import('./config.js').CmsFeatures} Modified features object
  */
 const applyFeatureOverrides = (features, enables, disables) => {
   for (const f of enables) features[f] = true;
@@ -284,42 +280,45 @@ const resolveBooleanFlag = (
  * @param {Object} values - Parsed CLI values
  * @returns {import('./config.js').CmsConfig} CMS configuration
  */
-export const buildConfigFromCli = (values) => {
-  const baseConfig = values.all ? createDefaultConfig() : null;
-  const collections = buildCollections(values, baseConfig);
-
+/**
+ * Resolve the feature set from the --all/--enable/--disable flags
+ * @param {Object} values - Parsed CLI values
+ * @param {import('./config.js').CmsConfig | null} baseConfig
+ */
+const buildFeaturesFromCli = (values, baseConfig) => {
   const enabledFeatures = parseCommaSeparated(values.enable);
   const disabledFeatures = parseCommaSeparated(values.disable);
   validateFeatures(enabledFeatures);
   validateFeatures(disabledFeatures);
-
-  const features = applyFeatureOverrides(
+  return applyFeatureOverrides(
     createBaseFeatures(values.all, baseConfig),
     enabledFeatures,
     disabledFeatures,
   );
+};
 
-  const customBlocksCollections = parseCommaSeparated(
-    values["custom-blocks-collections"],
-  );
+export const buildConfigFromCli = (values) => {
+  const baseConfig = values.all ? createDefaultConfig() : null;
 
   return {
-    collections,
-    features,
+    collections: buildCollections(values, baseConfig),
+    features: buildFeaturesFromCli(values, baseConfig),
     hasSrcFolder: resolveBooleanFlag(
       values,
       "src-folder",
       "no-src-folder",
       true,
     ),
-    customBlocksCollections,
+    customBlocksCollections: parseCommaSeparated(
+      values["custom-blocks-collections"],
+    ),
   };
 };
 
 /**
  * Get CLI options
  * @param {Object} values - Parsed CLI values
- * @returns {Object} CLI options object
+ * @returns {{ saveConfig: boolean, dryRun: boolean, quiet: boolean }} CLI options object
  */
 export const getCliOptions = (values) => ({
   saveConfig: values["no-save-config"] !== true,
@@ -327,7 +326,4 @@ export const getCliOptions = (values) => ({
   quiet: values.quiet === true,
 });
 
-/**
- * Export for testing
- */
-export { ALL_COLLECTIONS, ALL_FEATURES, formatCollection, generateHelp };
+export { generateHelp };

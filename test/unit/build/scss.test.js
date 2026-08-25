@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { configureScss, createScssCompiler } from "#build/scss.js";
 import {
   compileScss,
@@ -7,6 +7,10 @@ import {
   path,
   srcDir,
 } from "#test/test-utils.js";
+
+// These tests run real sass compilations, which can far exceed the global
+// 1.5s testTimeout when the full suite's lanes load the machine.
+vi.setConfig({ testTimeout: 15_000 });
 
 const compileExtension = async (ext, content, inputPath) => {
   const result = await ext.compile(content, inputPath)({});

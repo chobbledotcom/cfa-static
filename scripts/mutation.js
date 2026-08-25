@@ -17,7 +17,7 @@ import { existsSync, statSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
 import { globSync } from "tinyglobby";
 import { ROOT_DIR } from "#lib/paths.js";
-import { runMutationTesting } from "./mutation/runner.js";
+import { runIfMain } from "#scripts/lib/is-main-module.js";
 
 const DEFAULT_TIMEOUT = 10_000;
 
@@ -35,7 +35,7 @@ Options:
 
 Examples:
   npm run mutation -- src/_lib/utils/slug-utils.js test/unit/utils/slug-utils.test.js
-  npm run mutation -- 'src/_lib/filters/*.js' 'test/unit/filters/*.test.js' --exhaustive`;
+  npm run mutation -- 'src/_lib/eleventy/*.js' 'test/unit/eleventy/*.test.js' --exhaustive`;
 
 /** Boolean flags: set a field on the accumulator and consume no extra args. */
 const BOOLEAN_FLAGS = {
@@ -88,7 +88,7 @@ const resolvePositionals = (parsed, positional) => {
     return positional.length > 0
       ? `Unexpected positional argument(s) alongside --source/--test: ${positional.join(", ")}. ` +
           "A glob likely expanded to multiple files — quote it " +
-          "(e.g. --source 'src/_lib/filters/*.js') or pass repeated flags."
+          "(e.g. --source 'src/_lib/eleventy/*.js') or pass repeated flags."
       : null;
   }
   if (positional[0] !== undefined) parsed.sources.push(positional[0]);
@@ -99,16 +99,18 @@ const resolvePositionals = (parsed, positional) => {
     : null;
 };
 
-const validate = (parsed, positional) => {
+const validateParsed = (parsed, positional) => {
   const badTimeout = !Number.isFinite(parsed.timeout) || parsed.timeout < 0;
-  parsed.error =
-    resolvePositionals(parsed, positional) ??
-    (badTimeout
-      ? "Invalid --timeout: expected a non-negative number of milliseconds."
-      : null);
+  const positionalError = resolvePositionals(parsed, positional);
+  if (positionalError !== null) {
+    parsed.error = positionalError;
+  } else if (badTimeout) {
+    parsed.error =
+      "Invalid --timeout: expected a non-negative number of milliseconds.";
+  }
 };
 
-const parseArgs = (args) => {
+export const parseArgs = (args) => {
   const parsed = {
     error: null,
     exhaustive: false,
@@ -125,7 +127,7 @@ const parseArgs = (args) => {
     else index += consumed;
     index += 1;
   }
-  validate(parsed, positional);
+  validateParsed(parsed, positional);
   return parsed;
 };
 
@@ -147,8 +149,14 @@ const expand = (globs) => {
   return [...paths].sort();
 };
 
-const main = async () => {
-  const args = parseArgs(process.argv.slice(2));
+/**
+ * CLI entry: parse args, expand globs, run the mutation tester, and exit
+ * with its code. The runner is imported lazily so importing this module
+ * (for parseArgs, or in tests) never drags in the spawn machinery.
+ * @param {string[]} [argv]
+ */
+export const main = async (argv = process.argv.slice(2)) => {
+  const args = parseArgs(argv);
   if (args.error !== null) {
     console.error(args.error);
     process.exit(1);
@@ -169,6 +177,7 @@ const main = async () => {
     process.exit(1);
   }
 
+  const { runMutationTesting } = await import("#scripts/mutation/runner.js");
   const code = await runMutationTesting({
     exhaustive: args.exhaustive,
     sourceFiles,
@@ -178,4 +187,4 @@ const main = async () => {
   process.exit(code);
 };
 
-main();
+await runIfMain(import.meta.url, main);

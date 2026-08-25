@@ -32,7 +32,16 @@ describe("pages.yml validation against Pages CMS schema", () => {
           stdio: "pipe",
           timeout: 120_000,
         });
-      } catch {
+      } catch (err) {
+        // Offline local runs skip with a warning; CI has network, so there
+        // a clone failure must fail the suite rather than silently skip
+        // schema validation forever.
+        if (process.env.CI) {
+          throw new Error(`Cloning ${PAGES_CMS_REPO} failed: ${err.message}`);
+        }
+        console.warn(
+          "Skipping Pages CMS schema validation: clone failed (offline?)",
+        );
         state.skip = true;
         return;
       }
