@@ -9,8 +9,6 @@
 		"src/_lib/public/masonry.js",
 		"bin/profile-report.js",
 		"test/**/*.test.js",
-		"test/build-profiling.js",
-		"test/demo-precommit-errors.js",
 		"packages/js-toolkit/fp/index.js",
 		"packages/js-toolkit/test-utils/index.js"
 	],
@@ -19,6 +17,7 @@
 	],
 	"ignore": [],
 	"ignoreDependencies": [
+		"@biomejs/biome",
 		"pagefind",
 		"postcss-scss",
 		"zod"

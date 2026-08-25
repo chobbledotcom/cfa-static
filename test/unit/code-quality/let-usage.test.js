@@ -5,11 +5,12 @@ import {
 } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
+  combineFileLists,
   createCodeChecker,
   expectNoStaleExceptions,
   matchesAny,
 } from "#test/code-scanner.js";
-import { ALL_JS_FILES } from "#test/test-utils.js";
+import { SRC_JS_FILES, TEST_FILES } from "#test/test-utils.js";
 import { logAllowedItems } from "#test/unit/code-quality/code-quality-utils.js";
 
 // Patterns that indicate allowed let usage (lazy loading, state management)
@@ -27,6 +28,13 @@ const MUTABLE_CONST_PATTERNS = [
   /^\s*const\s+\w+\s*=\s*new\s+Map\s*\(/, // const x = new Map()
 ];
 
+// Organisation-style rule: kept to runtime src/ and test/ code — the
+// toolkit's internal caches and the imperative CLI tooling are exempt.
+const LET_GATE_FILES = () =>
+  combineFileLists([SRC_JS_FILES(), TEST_FILES()]).filter(
+    (file) => !file.startsWith("packages/"),
+  );
+
 // Complete checker for let declarations - find + analyze in one definition
 const { find: findMutableVarDeclarations, analyze: mutableVarAnalysis } =
   createCodeChecker({
@@ -36,7 +44,7 @@ const { find: findMutableVarDeclarations, analyze: mutableVarAnalysis } =
       if (matchesAny(ALLOWED_LET_PATTERNS)(line.trim())) return null;
       return { reason: "Mutable variable declaration" };
     },
-    files: ALL_JS_FILES(),
+    files: LET_GATE_FILES(),
     allowlist: ALLOWED_LET,
   });
 
@@ -51,7 +59,7 @@ const { find: findMutableConstDeclarations, analyze: mutableConstAnalysis } =
       if (/new\s+Map/.test(line)) return { reason: "Map const" };
       return { reason: "Mutable const" };
     },
-    files: ALL_JS_FILES(),
+    files: LET_GATE_FILES(),
     allowlist: ALLOWED_MUTABLE_CONST,
   });
 

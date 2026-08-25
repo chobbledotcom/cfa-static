@@ -22,6 +22,7 @@ const THIS_FILE = "test/unit/code-quality/duplicate-methods.test.js";
 // "getJsConfigFilter" - test helper for getting the filter via config registration
 const ALLOWED_DUPLICATE_NAMES = frozenSet([
   "init",
+  "main", // conventional entry-point name in every CLI script
   "createElement",
   "getJsConfigFilter",
   "transformHtml", // test helper with same name but different implementations

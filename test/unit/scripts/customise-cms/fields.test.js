@@ -1,8 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
   COMMON_FIELDS,
-  createAddOnsField,
-  createBodyField,
   createEleventyNavigationField,
   createMarkdownField,
   createReferenceField,
@@ -50,23 +48,6 @@ describe("getBodyField", () => {
   });
 });
 
-describe("createBodyField", () => {
-  test("applies custom label to body field", () => {
-    const field = createBodyField("Biography", false);
-
-    expect(field.name).toBe("body");
-    expect(field.label).toBe("Biography");
-    expect(field.type).toBe("code");
-  });
-
-  test("respects visual editor for custom-labeled body", () => {
-    const field = createBodyField("Biography", true);
-
-    expect(field.type).toBe("rich-text");
-    expect(field.label).toBe("Biography");
-  });
-});
-
 describe("createReferenceField", () => {
   test("creates multi-reference by default", () => {
     const field = createReferenceField(
@@ -95,32 +76,6 @@ describe("createReferenceField", () => {
 describe("COMMON_FIELDS", () => {
   test("requires collection names", () => {
     expect(COMMON_FIELDS.name.required).toBe(true);
-  });
-});
-
-describe("createAddOnsField", () => {
-  test("intro uses code type when visual editor disabled", () => {
-    const field = createAddOnsField(false);
-    const introField = field.fields.find((f) => f.name === "intro");
-
-    expect(introField.type).toBe("code");
-  });
-
-  test("intro uses rich-text type when visual editor enabled", () => {
-    const field = createAddOnsField(true);
-    const introField = field.fields.find((f) => f.name === "intro");
-
-    expect(introField.type).toBe("rich-text");
-  });
-
-  test("options sub-field requires name and price", () => {
-    const field = createAddOnsField(false);
-    const optionsField = field.fields.find((f) => f.name === "options");
-    const names = optionsField.fields.map((f) => f.name);
-
-    expect(names).toContain("name");
-    expect(names).toContain("price");
-    expect(optionsField.fields.every((f) => f.required)).toBe(true);
   });
 });
 

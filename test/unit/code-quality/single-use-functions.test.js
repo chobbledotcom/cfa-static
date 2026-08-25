@@ -19,7 +19,7 @@ import {
   extractExports,
   readSource,
 } from "#test/code-scanner.js";
-import { ALL_JS_FILES } from "#test/test-utils.js";
+import { SRC_JS_FILES, TEST_FILES } from "#test/test-utils.js";
 import { filterMap, pipe } from "#toolkit/fp/array.js";
 
 const THIS_FILE = "test/unit/code-quality/single-use-functions.test.js";
@@ -194,7 +194,12 @@ const buildReferenceCountMap = (fileData) => {
  * Optimized using pipe() and reference count map to avoid O(n³) complexity.
  */
 const analyzeSingleUseFunctions = () => {
-  const allFiles = combineFileLists([ALL_JS_FILES()], [THIS_FILE]);
+  // Organisation-style rule: kept to runtime src/ and test/ code - the
+  // toolkit and imperative CLI tooling are exempt.
+  const allFiles = combineFileLists(
+    [SRC_JS_FILES(), TEST_FILES()],
+    [THIS_FILE],
+  ).filter((file) => !file.startsWith("packages/"));
 
   // First pass: collect all function definitions and exports per file
   const fileData = new Map();

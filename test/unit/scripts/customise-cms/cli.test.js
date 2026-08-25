@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 import {
   buildConfigFromCli,
-  formatCollection,
   generateHelp,
   getCliOptions,
   handleListOptions,
   hasCliFlags,
 } from "#scripts/customise-cms/cli.js";
+import { captureConsole } from "#test/test-utils.js";
 
 describe("hasCliFlags", () => {
   test("returns false for empty values", () => {
@@ -198,36 +198,16 @@ describe("generateHelp", () => {
   });
 });
 
-describe("formatCollection", () => {
-  test("formats name and description", () => {
-    const result = formatCollection({
-      name: "news",
-      description: "Blog posts and news articles",
+describe("handleListOptions output", () => {
+  test("collection listing shows names, flags, and descriptions", () => {
+    const lines = captureConsole(() => {
+      handleListOptions({ "list-collections": true });
     });
 
-    expect(result).toContain("news");
-    expect(result).toContain("Blog posts and news articles");
-  });
-
-  test("includes required flag when present", () => {
-    const result = formatCollection({
-      name: "pages",
-      description: "Static pages",
-      required: true,
-    });
-
-    expect(result).toContain("(required)");
-  });
-
-  test("includes both required and internal flags", () => {
-    const result = formatCollection({
-      name: "snippets",
-      description: "Reusable content",
-      required: true,
-      internal: true,
-    });
-
-    expect(result).toContain("(required, internal)");
+    const output = lines.join("\n");
+    expect(output).toContain("pages (required)");
+    expect(output).toContain("snippets (required, internal)");
+    expect(output).toContain("Blog posts and news articles");
   });
 });
 

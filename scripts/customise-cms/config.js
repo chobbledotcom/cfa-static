@@ -7,6 +7,8 @@
 import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import siteConfig from "#data/config.json" with { type: "json" };
+import { ROOT_DIR } from "#lib/paths.js";
 import { getRequiredCollections } from "#scripts/customise-cms/collections.js";
 import { map, unique } from "#toolkit/fp/array.js";
 
@@ -26,7 +28,7 @@ import { map, unique } from "#toolkit/fp/array.js";
  * @property {string[]} collections - List of enabled collection names
  * @property {CmsFeatures} features - Feature flags
  * @property {boolean} hasSrcFolder - Whether the template has a src/ folder
- * @property {string[]} [customBlocksCollections] - Custom blocks-only collections (e.g., ["clients", "services"])
+ * @property {string[]} customBlocksCollections - Custom blocks-only collections (e.g., ["clients", "services"]); always present after normalization
  */
 
 /**
@@ -37,47 +39,87 @@ import { map, unique } from "#toolkit/fp/array.js";
  */
 
 /**
- * Get the path to site.json, checking src/_data first then _data
+ * Get the path to site.json, checking src/_data first then _data.
+ * Resolved from the repository root by default so the tool works from any
+ * directory; tests pass their own baseDir.
+ * @param {string} baseDir - Directory containing the site
  * @returns {string} Path to site.json
+ * @throws {Error} If no site.json exists in either location
  */
-const getSiteJsonPath = () => {
-  const srcPath = join(process.cwd(), "src/_data/site.json");
-  return existsSync(srcPath) ? srcPath : join(process.cwd(), "_data/site.json");
+const getSiteJsonPath = (baseDir) => {
+  const candidates = [
+    join(baseDir, "src/_data/site.json"),
+    join(baseDir, "_data/site.json"),
+  ];
+  const found = candidates.find((path) => existsSync(path));
+  if (!found) {
+    throw new Error(`site.json not found at ${candidates.join(" or ")}`);
+  }
+  return found;
 };
 
 /**
- * Ensure required collections are present in a config's collections list.
- * Handles configs saved before a collection became required.
- * @param {CmsConfig} config - The CMS configuration to normalize
- * @returns {CmsConfig} Config with required collections merged in
+ * The complete feature set with everything off - the baseline every
+ * loaded or fresh config is merged over, so downstream code can read
+ * feature flags directly without fallbacks.
+ * @type {CmsFeatures}
  */
-const normalizeCollections = (config) => {
+const FEATURE_DEFAULTS = {
+  permalinks: false,
+  redirects: false,
+  faqs: false,
+  galleries: false,
+  external_navigation_urls: false,
+  use_visual_editor: false,
+  no_index: false,
+};
+
+/**
+ * Normalize a saved config into a complete one: merge required collections
+ * back in (handles configs saved before a collection became required),
+ * fill in feature flags added after the config was saved, and default
+ * hasSrcFolder/customBlocksCollections for configs that predate them.
+ * @param {Partial<CmsConfig> & Pick<CmsConfig, "collections">} config
+ * @returns {CmsConfig} Normalized config
+ */
+const normalizeConfig = (config) => {
   const requiredNames = map((c) => c.name)(getRequiredCollections());
   return {
+    hasSrcFolder: true,
+    customBlocksCollections: [],
     ...config,
+    features: { ...FEATURE_DEFAULTS, ...config.features },
     collections: unique([...config.collections, ...requiredNames]),
   };
 };
 
 /**
+ * A complete config with only the required collections and every optional
+ * feature off - the defaults for a fresh interactive run.
+ * @returns {CmsConfig}
+ */
+export const createEmptyConfig = () => normalizeConfig({ collections: [] });
+
+/**
  * Load existing CMS config from site.json
+ * @param {string} [baseDir] - Directory containing the site
  * @returns {Promise<CmsConfig | null>} The CMS config or null if none exists
  */
-export const loadCmsConfig = async () => {
-  const content = await readFile(getSiteJsonPath(), "utf-8");
+export const loadCmsConfig = async (baseDir = ROOT_DIR) => {
+  const content = await readFile(getSiteJsonPath(baseDir), "utf-8");
   const siteData = JSON.parse(content);
-  const config = siteData.cms_config || null;
-  return config ? normalizeCollections(config) : null;
+  return siteData.cms_config ? normalizeConfig(siteData.cms_config) : null;
 };
 
 /**
  * Save CMS config to site.json
  * Preserves existing site.json data
  * @param {CmsConfig} config - The CMS configuration to save
+ * @param {string} [baseDir] - Directory containing the site
  * @returns {Promise<void>}
  */
-export const saveCmsConfig = async (config) => {
-  const path = getSiteJsonPath();
+export const saveCmsConfig = async (config, baseDir = ROOT_DIR) => {
+  const path = getSiteJsonPath(baseDir);
   const content = await readFile(path, "utf-8");
   const siteData = JSON.parse(content);
 
@@ -87,7 +129,11 @@ export const saveCmsConfig = async (config) => {
 };
 
 /**
- * Create default config with all collections and features enabled
+ * Create default config with all collections and features enabled.
+ * The single source of truth for "everything on": generate-full.js, the
+ * --all flag, and interactive defaults all start from this shape, so the
+ * committed .pages.yml can be reproduced from any entry point.
+ * use_visual_editor follows config.json so the CMS matches the site.
  * @returns {CmsConfig} Default configuration with all options enabled
  */
 export const createDefaultConfig = () => ({
@@ -97,7 +143,8 @@ export const createDefaultConfig = () => ({
     redirects: true,
     faqs: true,
     galleries: true,
-    use_visual_editor: false,
+    external_navigation_urls: true,
+    use_visual_editor: siteConfig.use_visual_editor === true,
     no_index: true,
   },
   hasSrcFolder: true,

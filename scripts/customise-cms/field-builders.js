@@ -7,13 +7,12 @@
  * body.
  */
 
-import { generateBlocksField } from "#scripts/customise-cms/blocks.js";
+import { blocksFieldFor } from "#scripts/customise-cms/blocks.js";
 import {
   COMMON_FIELDS,
   createEleventyNavigationField,
 } from "#scripts/customise-cms/fields.js";
 import { compact } from "#toolkit/fp/array.js";
-import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig
@@ -38,12 +37,7 @@ export const getCollectionFieldBuilders = (config, fields) => ({
       createEleventyNavigationField(config.features.external_navigation_urls),
       { name: "layout", type: "string" },
       config.features.no_index && COMMON_FIELDS.no_index,
-      generateBlocksField(
-        Object.keys(BLOCK_CMS_FIELDS).filter((type) =>
-          isBlockAllowedIn(type, "pages"),
-        ),
-        config.features.use_visual_editor,
-      ),
+      blocksFieldFor("pages", config.features.use_visual_editor),
     ]),
 
   "guide-categories": () =>

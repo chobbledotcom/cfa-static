@@ -80,18 +80,20 @@ const getCropImageOptions = (aspectRatio) => {
   };
 };
 
-/** @param {string} imagePath */
-const getMetadata = memoize(async (imagePath) => {
-  const sharp = await getSharp();
-  const metadata = await sharp(imagePath).metadata();
+const getMetadata = memoize(
+  /** @param {string} imagePath */
+  async (imagePath) => {
+    const sharp = await getSharp();
+    const metadata = await sharp(imagePath).metadata();
 
-  const exifRotated90Or270 = [5, 6, 7, 8].includes(metadata.orientation || 1);
-  if (exifRotated90Or270) {
-    return { ...metadata, width: metadata.height, height: metadata.width };
-  }
+    const exifRotated90Or270 = [5, 6, 7, 8].includes(metadata.orientation || 1);
+    if (exifRotated90Or270) {
+      return { ...metadata, width: metadata.height, height: metadata.width };
+    }
 
-  return metadata;
-});
+    return metadata;
+  },
+);
 
 export {
   getAspectRatio,

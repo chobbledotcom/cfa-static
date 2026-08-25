@@ -75,9 +75,11 @@ const logConfigSummary = (config, message, quiet) => {
     log(`  Features: ${enabledFeatures.join(", ")}`, quiet);
   }
 
-  const customBlocks = config.customBlocksCollections || [];
-  if (customBlocks.length > 0) {
-    log(`  Custom blocks collections: ${customBlocks.join(", ")}`, quiet);
+  if (config.customBlocksCollections.length > 0) {
+    log(
+      `  Custom blocks collections: ${config.customBlocksCollections.join(", ")}`,
+      quiet,
+    );
   }
 };
 
@@ -160,17 +162,29 @@ const runNonInteractive = async (values) => {
  * Main entry point
  * @returns {Promise<void>}
  */
-const main = async () => {
-  let values;
+/**
+ * Report a bad CLI invocation and exit non-zero.
+ * @param {unknown} error
+ * @returns {never}
+ */
+const exitWithUsageHint = (error) => {
+  const reason = error instanceof Error ? error.message : String(error);
+  console.error(`Error: ${reason}`);
+  console.error("Use --help for usage information.");
+  return process.exit(1);
+};
 
+/** Parse the CLI invocation, exiting with a usage hint on bad flags. */
+const parseOrExit = () => {
   try {
-    const parsed = parseCliArguments();
-    values = parsed.values;
+    return parseCliArguments().values;
   } catch (error) {
-    console.error(`Error: ${error.message}`);
-    console.error("Use --help for usage information.");
-    process.exit(1);
+    return exitWithUsageHint(error);
   }
+};
+
+const main = async () => {
+  const values = parseOrExit();
 
   // Handle --help
   if (values.help) {

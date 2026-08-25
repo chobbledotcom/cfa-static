@@ -5,5 +5,10 @@
 	"socials": {
 		"Github": "https://github.com/chobbledotcom/cfa-static",
 		"RSS": "/feed.xml"
+	},
+	"cms_config": {
+		"collections": [
+			"products"
+		]
 	}
 }

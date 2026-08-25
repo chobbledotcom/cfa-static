@@ -222,6 +222,11 @@ export const startServer = async (siteDir, port = 8080) => {
 
 export const getDefaultOutputDir = (subdir) => join(ROOT_DIR, subdir);
 
+/**
+ * Browser executable used for screenshots and Lighthouse runs: the
+ * CHROME_PATH override when set, otherwise Playwright's own Chromium.
+ * One resolution path for both tools, so the override works everywhere.
+ */
 export const getChromePath = async () => {
   if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
   const { chromium } = await import("playwright");
@@ -237,16 +242,19 @@ export const launchChromeHeadless = async (chromePath) => {
 };
 
 const BROWSER_NOT_INSTALLED_MSG =
-  "Playwright browsers not installed.\n" +
+  "Browser not found.\n" +
   "Run: npx playwright install chromium\n" +
-  "(Use npx to ensure the correct version is installed)";
+  "(or point CHROME_PATH at an existing Chromium binary)";
 
-export const ensurePlaywrightBrowsers = async () => {
-  const { chromium } = await import("playwright");
-  const execPath = chromium.executablePath();
+/**
+ * Resolve the browser executable and fail loudly if it does not exist.
+ * @returns {Promise<string>} Path to the browser executable
+ */
+export const ensureBrowserInstalled = async () => {
+  const execPath = await getChromePath();
   if (!existsSync(execPath)) {
     logError(BROWSER_NOT_INSTALLED_MSG);
     throw new Error(BROWSER_NOT_INSTALLED_MSG);
   }
-  return true;
+  return execPath;
 };

@@ -1,6 +1,6 @@
 # Design System Blocks Reference
 
-Technical reference for the composable page blocks in Chobble Template's design system. Blocks are declared in YAML frontmatter and rendered by the block pipeline.
+Technical reference for the composable page blocks in the CfA Static design system. Blocks are declared in YAML frontmatter and rendered by the block pipeline.
 
 ## Architecture
 
@@ -377,7 +377,7 @@ Renders items from an explicit list of paths. The collection is inferred dynamic
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | — | Array of path strings. Each entry may be a file path (e.g. `src/products/widget.md`) or a directory path (e.g. `locations/fulchester` or `locations/fulchester/`), in which case every item in that directory is included in place. |
+| `items` | array | — | Array of path strings. Each entry may be a file path (e.g. `src/news/example.md`) or a directory path (e.g. `src/news` or `src/news/`), in which case every item in that directory is included in place. |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 | `horizontal` | boolean | `false` | If true, renders as a horizontal slider instead of a wrapping grid. |
 | `masonry` | boolean | `false` | If true, renders as a masonry grid using uWrap for zero-reflow height prediction. |
@@ -511,7 +511,7 @@ Renders question/answer pairs as a definition list. Available on all page types.
 | `items` | array | **required** | FAQ question/answer pairs. Answers support markdown formatting. Falls back to page-level `faqs` array if omitted. |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 
-Define FAQs inline via `items`, or omit to fall back to the page-level `faqs` array (useful for properties/guide-pages that declare FAQs in frontmatter). Answers are rendered as markdown.
+Define FAQs inline via `items`, or omit to fall back to the page-level `faqs` array (useful for pages and guide pages that declare FAQs in frontmatter). Answers are rendered as markdown.
 
 ---
 
@@ -673,15 +673,15 @@ The referenced snippet must exist in `src/snippets/` and have a `blocks` frontma
 
 ## Multi-Column Layouts
 
-Any collection can shape its first section's blocks by adding an entry to `src/_data/blockLayouts.json`, keyed by a tag that appears on the page (e.g. `products`, `properties`). Two optional keys are supported: `before` pulls blocks into a full-width lead section, and `columns` pulls the remainder into a responsive column grid.
+Any collection can shape its first section's blocks by adding an entry to `src/_data/blockLayouts.json`, keyed by a tag that appears on the page (e.g. `news`, `pages`). Two optional keys are supported: `before` pulls blocks into a full-width lead section, and `columns` pulls the remainder into a responsive column grid.
 
 ```json
 {
-  "products": {
+  "news": {
     "before": ["hero"],
     "columns": [
       { "types": ["gallery"] },
-      { "types": ["markdown", "buy-options", "features"] }
+      { "types": ["markdown", "features"] }
     ]
   }
 }
@@ -865,54 +865,7 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 
 ## File Index
 
-### Block Templates (`src/_includes/design-system/`)
-
-| File | Block Type |
-|---|---|
-| `hero.html` | `hero` |
-| `section-header.html` | `section-header` |
-| `features.html` | `features` |
-| `image-cards.html` | `image-cards` |
-| `stats.html` | `stats` |
-| `code-block.html` | `code-block` |
-| `split.html` | `split` |
-| `split-full.html` | `split-full` |
-| `cta.html` | `cta` |
-| `video-background.html` | `video-background` |
-| `image-background.html` | `image-background` |
-| `contact-form-block.html` | `contact-form` |
-| `items-block.html` | `items` |
-| `properties-block.html` | `properties` |
-| `content-block.html` | `content` |
-| `link-button.html` | `link-button` |
-
-### SCSS Files (`src/css/design-system/`)
-
-| File | Styles |
-|---|---|
-| `_base.scss` | Root styles, containers, sections, typography, scroll animations |
-| `_hero.scss` | Hero, badge, actions |
-| `_feature.scss` | Feature cards grid |
-| `_items.scss` | Item cards, video cards, slider, cart controls |
-| `_stats.scss` | Stats display |
-| `_code-block.scss` | Code block with toolbar |
-| `_split.scss` | Split and split-full layouts |
-| `_cta.scss` | Call-to-action banner |
-| `_video-background.scss` | Video background overlay |
-| `_image-background.scss` | Image background, parallax |
-| `_contact-form-block.scss` | Contact form layout + form elements |
-| `_prose.scss` | Rich text container |
-| `_grid.scss` | Grid layout utilities |
-| `_buttons.scss` | Button variants + sizes |
-| `_icon.scss` | Icon badge styling |
-| `_property.scss` | Property detail page sections |
-| `_slider.scss` | Horizontal slider nav |
-| `_navigation.scss` | Site navigation |
-| `_breadcrumbs.scss` | Breadcrumb trail |
-| `_footer.scss` | Page footer |
-| `_reviews.scss` | Review components |
-| `_utilities.scss` | Utility classes |
-| `_link-button.scss` | Link button centering |
+Per-block template and SCSS paths are listed in the generated [Block Types](#block-types) section above (the **Template:** and **SCSS:** lines), so they can never drift from the schemas.
 
 ### Key Layout Files
 
@@ -924,4 +877,4 @@ Not a block type in `render-block.html` — used via direct `{% include %}`. Ren
 
 ### Example Page
 
-`src/pages/chobble-template.md` uses hero, video-background, items, stats, features (x3), split-full (x2), split (x3), cta, contact-form, and image-background blocks.
+`src/pages/blocks.md` demonstrates every block type and doubles as the visual regression page for themes.

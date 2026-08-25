@@ -2,7 +2,7 @@
   "name": "@chobble/js-toolkit",
   "version": "0.1.0",
   "type": "module",
-  "description": "Functional JS utilities, test infrastructure, and code quality tools",
+  "description": "Functional JS utilities and test infrastructure",
   "exports": {
     "./fp": "./fp/index.js",
     "./fp/array": "./fp/array.js",
@@ -16,22 +16,17 @@
     "./test-utils/assertions": "./test-utils/assertions.js",
     "./test-utils/mocking": "./test-utils/mocking.js",
     "./test-utils/code-analysis": "./test-utils/code-analysis.js",
-    "./code-quality": "./code-quality/index.js",
-    "./code-quality/scanner": "./code-quality/scanner.js",
-    "./code-quality/runner": "./code-quality/runner.js",
     "./configs/*": "./configs/*"
   },
   "files": [
     "fp",
     "test-utils",
-    "code-quality",
     "configs",
     "CLAUDE.md"
   ],
   "keywords": [
     "functional",
     "testing",
-    "code-quality",
     "biome",
     "vitest"
   ],

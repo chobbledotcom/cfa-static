@@ -17,8 +17,8 @@
  * JavaScript source string directly, even when it contains non-ASCII text.
  */
 
+import { basename } from "node:path";
 import { parseSync } from "oxc-parser";
-import { flatMap } from "#toolkit/fp/array.js";
 import {
   assignmentOperators,
   assignmentOperatorsExhaustive,
@@ -26,7 +26,8 @@ import {
   binaryOperatorsExhaustive,
   logicalOperators,
   logicalOperatorsExhaustive,
-} from "./operators.js";
+} from "#scripts/mutation/operators.js";
+import { flatMap } from "#toolkit/fp/array.js";
 
 const lineColumnAt = (content, index) => {
   const lines = content.slice(0, index).split("\n");
@@ -58,7 +59,9 @@ const operatorMutants = (node, content, exhaustive) => {
   const tables = node.type ? MUTABLE_NODES[node.type] : undefined;
   const { left, operator, right } = node;
   if (!tables || !left || !right || !operator) return [];
-  return (tables[exhaustive ? 1 : 0][operator] ?? []).map((newOperator) =>
+  const table = tables[exhaustive ? 1 : 0];
+  const replacements = operator in table ? table[operator] : [];
+  return replacements.map((newOperator) =>
     spanMutant(content, left.end, right.start, operator, newOperator),
   );
 };
@@ -75,7 +78,9 @@ const unaryMutants = (node, content) => {
   const { argument, operator, start } = node;
   if (!argument || operator === undefined || start === undefined) return [];
   // A prefix unary operator occupies [node.start, argument.start).
-  return (UNARY_MUTATIONS[operator] ?? []).map((m) =>
+  const unaryMutations =
+    operator in UNARY_MUTATIONS ? UNARY_MUTATIONS[operator] : [];
+  return unaryMutations.map((m) =>
     spanMutant(
       content,
       start,
@@ -126,7 +131,7 @@ const statementRemovalMutants = (node, content) => {
   const { end, expression, start } = node;
   if (
     !expression ||
-    !REMOVABLE_EXPRESSIONS.has(expression.type ?? "") ||
+    !REMOVABLE_EXPRESSIONS.has(expression.type) ||
     start === undefined ||
     end === undefined
   ) {
@@ -203,7 +208,7 @@ const parses = (fileName, source) =>
 
 /** Generate every mutant for a source file's contents. */
 export const generateMutants = (content, filePath, exhaustive) => {
-  const fileName = filePath.split("/").pop() ?? filePath;
+  const fileName = basename(filePath);
   const { program } = parseSync(fileName, content);
   const mutate = mutantsForNode(content, exhaustive);
   const candidates = flatMap((entry) =>
@@ -221,5 +226,5 @@ export const generateMutants = (content, filePath, exhaustive) => {
 /** Apply a mutant to the original source, returning the mutated source. */
 export const applyMutant = (content, mutant) =>
   `${content.slice(0, mutant.start)} ${
-    mutant.replacement ?? mutant.newOperator
+    mutant.replacement === undefined ? mutant.newOperator : mutant.replacement
   } ${content.slice(mutant.end)}`;

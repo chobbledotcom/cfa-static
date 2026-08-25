@@ -59,7 +59,7 @@ export const collectComponents = (contentArray) => {
  * @param {CmsField} field - Field configuration
  * @returns {CmsField} Transformed field
  */
-const replaceFieldWithComponentRef = (field) => {
+const toComponentRef = (field) => {
   if (field._componentName) {
     return { name: field.name, component: field._componentName };
   }
@@ -75,8 +75,7 @@ const replaceFieldWithComponentRef = (field) => {
  * @param {CmsField[]} fields - Array of field configurations
  * @returns {CmsField[]} Fields with component references replacing full definitions
  */
-const replaceWithComponentRefs = (fields) =>
-  fields.map(replaceFieldWithComponentRef);
+const replaceWithComponentRefs = (fields) => fields.map(toComponentRef);
 
 /**
  * Apply component references to all content items

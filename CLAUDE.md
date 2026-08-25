@@ -47,7 +47,9 @@ npm run mutation 'src/_lib/eleventy/*.js' 'test/unit/eleventy/*.test.js' -- --ex
 ```
 
 Confirmed-equivalent survivors (no input can distinguish them) go in
-`scripts/mutation/equivalent-mutants.txt` to keep CI gating on *new* gaps.
+`scripts/mutation/equivalent-mutants.txt`, so a run only ever fails on
+genuinely *new* gaps. Entries are validated every run and at load time
+(deleted files fail loudly), so the list cannot silently rot.
 
 ### Directory Structure
 ```
@@ -58,7 +60,7 @@ src/
 ├── _layouts/        # base.html — every page renders through it
 ├── _lib/            # Core JavaScript library
 │   ├── build/       # JS bundling, SCSS, theme compilation
-│   ├── collections/ # Eleventy collections (news, guides, navigation, tags)
+│   ├── collections/ # Eleventy collections (news, guides, navigation)
 │   ├── config/      # Configuration helpers
 │   ├── eleventy/    # Eleventy plugins (blocks, breadcrumbs, feed, …)
 │   ├── media/       # Image processing (sharp, eleventy-img)
@@ -184,7 +186,6 @@ const expensiveComputation = memoize(
 - `pick(keys)` - Extract object properties
 - `memberOf(values)`, `notMemberOf(values)` - Membership predicates
 - `pluralize(singular, plural?)` - Format counts with pluralization
-- `accumulate(fn)` - Safe array building in reduce
 
 ### Error Handling: Fail Fast, Never Mask
 
@@ -232,8 +233,8 @@ The project enforces strict code quality via Biome. Key rules:
 - **No ==** - `noDoubleEquals: error` (use `===`)
 - **No unused imports/variables** - `noUnusedImports: error`, `noUnusedVariables: error`
 - **No forEach** - `noForEach: error` (use `for...of` or curried `map`/`filter`)
-- **No accumulating spread** - `noAccumulatingSpread: error` (use `accumulate()` helper)
-- **Max cognitive complexity: 10** - `noExcessiveCognitiveComplexity: 10` (30 in tests)
+- **No accumulating spread** - `noAccumulatingSpread: error` (push into one array, or use `flatMap`)
+- **Max cognitive complexity: 7** - `noExcessiveCognitiveComplexity` (30 in tests and packages/)
 - **No console.log** - except in `build/` and `test/`
 - **No skipped/focused tests** - `noSkippedTests: error`, `noFocusedTests: error`
 
@@ -371,11 +372,11 @@ import { configureImages } from "#media/image.js";
 
 1. **Don't use bun/yarn/pnpm** - This project uses npm (`package-lock.json` is enforced)
 2. **Don't use `forEach`** - Use `for...of` loops or curried `map`/`filter`
-3. **Don't accumulate with spread** - Use `accumulate()` helper for O(1) operations
+3. **Don't accumulate with spread** - Push into one array (or use `flatMap`) for O(1) appends
 4. **Don't use `var`** - Always use `const` (or `let` when reassignment needed)
 5. **Don't use `==`** - Always use `===`
 6. **Don't add console.log** - Except in build scripts and tests
-7. **Don't exceed complexity 10** - Break complex functions into smaller pieces
+7. **Don't exceed complexity 7** - Break complex functions into smaller pieces
 8. **Don't hardcode magic values** - Import constants from production code
 9. **Don't create tautological tests** - Verify behavior, not assignments
 10. **Don't return fallbacks for errors** - Throw errors instead of masking problems with default values
@@ -390,7 +391,7 @@ import { configureImages } from "#media/image.js";
 2. **Follow existing conventions** - Match the style of surrounding code
 3. **Run tests** - `npm test` before committing
 4. **Run linter** - `npm run lint:fix` to auto-fix issues
-5. **Keep functions small** - Stay under complexity limit of 10
+5. **Keep functions small** - Stay under the complexity limit of 7
 6. **Use functional patterns** - Prefer `pipe`, curried functions, immutability
 7. **Write tests** - Follow the 6 mandatory test quality criteria
 8. **Use import aliases** - Keep imports clean with `#` prefixes

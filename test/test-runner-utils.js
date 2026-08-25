@@ -2,7 +2,7 @@
  * Shared utilities for test runners (precommit.js and run-tests.js)
  */
 
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { globSync } from "tinyglobby";
@@ -13,14 +13,6 @@ const rootDir = ROOT_DIR;
 
 /** Check if --verbose flag was passed on command line */
 export const verbose = process.argv.includes("--verbose");
-
-/**
- * Check if the current module is the main entry point.
- * @param {string} importMetaUrl - The import.meta.url of the calling module
- * @returns {boolean}
- */
-export const isMainModule = (importMetaUrl) =>
-  importMetaUrl === `file://${process.argv[1]}`;
 
 /**
  * @typedef {Object} TruncateOptions
@@ -200,21 +192,8 @@ export const reportCoverageFailures = (lcovPath) => {
  * @type {Object.<string, Object>}
  */
 export const COMMON_STEPS = {
-  install: { name: "install", cmd: "npm", args: ["install"] },
-  generateTypes: {
-    name: "generate-types",
-    cmd: "node",
-    args: ["scripts/generate-pages-cms-types.js"],
-  },
   lint: { name: "lint", cmd: "npm", args: ["run", "lint"] },
-  lintFix: { name: "lint:fix", cmd: "npm", args: ["run", "lint:fix"] },
   lintScss: { name: "lint:scss", cmd: "npm", args: ["run", "lint:scss"] },
-  lintScssFix: {
-    name: "lint:scss:fix",
-    cmd: "npm",
-    args: ["run", "lint:scss:fix"],
-  },
-  knipFix: { name: "knip:fix", cmd: "npm", args: ["run", "knip:fix"] },
   typecheck: { name: "typecheck", cmd: "npm", args: ["run", "typecheck"] },
   typecheckStrict: {
     name: "typecheck:strict",
@@ -230,7 +209,6 @@ export const COMMON_STEPS = {
   cpd: { name: "cpd", cmd: "npm", args: ["run", "cpd"] },
   cpdRatchet: { name: "cpd:ratchet", cmd: "npm", args: ["run", "cpd:ratchet"] },
   knip: { name: "knip", cmd: "npm", args: ["run", "knip"] },
-  test: { name: "test", cmd: "npx", args: ["vitest", "run"] },
   build: {
     name: "build",
     cmd: "npm",
@@ -238,11 +216,19 @@ export const COMMON_STEPS = {
   },
 };
 
+export const getNonCodeQualityTestFiles = (pattern) =>
+  globSync(pattern, { cwd: rootDir }).filter(
+    (file) => !file.startsWith("test/unit/code-quality/"),
+  );
+
 /**
  * Create the unit tests step with coverage and optional verbose flag.
  * Unit tests alone satisfy the 100% coverage thresholds; integration tests
  * run their Eleventy builds in child processes that coverage never sees,
- * so instrumenting them adds time without adding signal.
+ * so instrumenting them adds time without adding signal. The code-quality
+ * suite also runs in its own earlier fast-fail lane, but it must run here
+ * too: it is what exercises the shared code-analysis utilities, so the
+ * coverage thresholds depend on it.
  * @param {boolean} verbose - Whether to include verbose flag
  * @returns {Object} Unit tests step configuration
  */
@@ -257,11 +243,6 @@ export const unitTestsStep = (verbose) => ({
     ...(verbose ? ["--reporter=verbose"] : []),
   ],
 });
-
-export const getNonCodeQualityTestFiles = (pattern) =>
-  globSync(pattern, { cwd: rootDir }).filter(
-    (file) => !file.startsWith("test/unit/code-quality/"),
-  );
 
 export const codeQualityTestsStep = {
   name: "tests:code-quality",
@@ -279,30 +260,6 @@ export const integrationTestsStep = {
   args: ["vitest", "run", "test/integration"],
 };
 
-/**
- * Run a single test step
- * @param {Object} step - Step configuration
- * @param {boolean} verbose - Whether to show full output
- * @returns {Object} Result with status and output
- */
-export function runStep(step, verbose) {
-  // Always capture stdout/stderr so we can extract errors for the summary
-  // If verbose, we'll print the output after capturing it
-  const result = spawnSync(step.cmd, step.args, {
-    cwd: rootDir,
-    stdio: ["inherit", "pipe", "pipe"],
-    env: {
-      ...process.env,
-      VERBOSE: verbose ? "1" : "0",
-    },
-  });
-
-  const stdout = result.stdout?.toString() || "";
-  const stderr = result.stderr?.toString() || "";
-
-  return finishStepResult(result.status, stdout, stderr, verbose);
-}
-
 /** Drain a step's output stream into a string */
 const drainStepOutput = async (stream) =>
   Buffer.concat(await Array.fromAsync(stream)).toString();
@@ -318,7 +275,8 @@ const finishStepResult = (status, stdout, stderr, verbose) => {
 
 /**
  * Run a single step asynchronously so independent steps can overlap.
- * Same result shape as runStep.
+ * Output is always captured so errors can be extracted for the summary;
+ * verbose mode prints it after capturing.
  * @param {Object} step - Step configuration
  * @param {boolean} verbose - Whether to show full output
  * @returns {Promise<Object>} Result with status and output

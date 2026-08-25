@@ -40,6 +40,7 @@ const BLOCK_DEFAULTS = {
   downloads: { reveal: true },
 };
 
+/** @param {Record<string, unknown>} block */
 const applyBlockDefaults = (block) => {
   const blockType = String(block.type);
   const merged = Object.assign(

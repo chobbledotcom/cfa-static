@@ -97,32 +97,6 @@ expectProp("name")(result, ["Alice", "Bob"]);
 | `expectAsyncThrows(fn)` | Expect async function throws |
 | `extractFunctions(source)` | Parse JS function definitions |
 
-### Code Quality (`@chobble/js-toolkit/code-quality`)
-
-```javascript
-import {
-  createCodeChecker,
-  runSteps,
-  COMMON_STEPS
-} from "@chobble/js-toolkit/code-quality";
-
-// Create a code checker for custom patterns
-const { find, analyze } = createCodeChecker({
-  patterns: [/console\.log/],
-  files: () => getFiles(/\.js$/),
-  allowlist: new Set(["src/debug.js:10"]),
-  rootDir: process.cwd(),
-});
-
-// Run test steps
-runSteps({
-  steps: [COMMON_STEPS.lint, COMMON_STEPS.test],
-  verbose: false,
-  title: "CI",
-  rootDir: process.cwd(),
-});
-```
-
 ## Lint Rules Enforced
 
 The biome config enforces these patterns:
@@ -130,7 +104,7 @@ The biome config enforces these patterns:
 | Rule | What to Do Instead |
 |------|-------------------|
 | `noForEach` | Use `for...of` or curried `filter`/`map` |
-| `noAccumulatingSpread` | Use `accumulate()` helper |
+| `noAccumulatingSpread` | Push into one array (or use `flatMap`) instead of spreading the accumulator |
 | `noVar` | Use `const` (or `let` if needed) |
 | `noDoubleEquals` | Use `===` |
 | `noConsole` | Only in build scripts and tests |
@@ -157,5 +131,4 @@ import { pipe, filter, map } from "@chobble/js-toolkit/fp";
 // Specific submodule
 import { memoize } from "@chobble/js-toolkit/fp/memoize";
 import { withTempDir } from "@chobble/js-toolkit/test-utils/resource";
-import { createCodeChecker } from "@chobble/js-toolkit/code-quality/scanner";
 ```

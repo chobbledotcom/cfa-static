@@ -2,10 +2,11 @@ import { describe, expect, test } from "vitest";
 import { ALLOWED_NULLISH_COALESCING } from "#test/code-quality/code-quality-exceptions.js";
 import {
   assertNoViolations,
+  combineFileLists,
   createCodeChecker,
   expectNoStaleExceptions,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 
 const THIS_FILE = "test/unit/code-quality/nullish-coalescing.test.js";
 
@@ -18,10 +19,12 @@ describe("nullish-coalescing", () => {
     createCodeChecker({
       patterns: /\?\?/,
       files: () =>
-        SRC_JS_FILES().filter(
+        combineFileLists([SRC_JS_FILES(), SCRIPT_JS_FILES()]).filter(
           (file) => !ALLOWED_DIRS.some((dir) => file.startsWith(dir)),
         ),
-      excludeFiles: [THIS_FILE],
+      // The mutation operator tables *describe* the ?? token as quoted
+      // string data - the one file where "??" is not the operator.
+      excludeFiles: [THIS_FILE, "scripts/mutation/operators.js"],
       allowlist: ALLOWED_NULLISH_COALESCING,
     });
 

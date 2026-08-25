@@ -9,6 +9,7 @@ import { parseArgs } from "node:util";
 
 /**
  * CLI options definition for parseArgs
+ * @type {import("node:util").ParseArgsConfig["options"]}
  */
 const CLI_OPTIONS = {
   help: { type: "boolean", short: "h" },
@@ -30,7 +31,7 @@ const CLI_OPTIONS = {
 
 /**
  * Parse CLI arguments from process.argv
- * @returns {Object} Parsed arguments with values and positionals
+ * @returns {ReturnType<typeof parseArgs>} Parsed arguments with values and positionals
  */
 export const parseCliArguments = () =>
   parseArgs({

@@ -22,19 +22,19 @@ describe("eleventyComputed.blocks", () => {
   });
 
   test("throws on unknown block types", async () => {
-    expect(
+    await expect(
       runSingle({ type: "unknown-type", content: "test" }),
     ).rejects.toThrow('Unknown block type "unknown-type"');
   });
 
   test("throws when a block contains unknown keys", async () => {
-    expect(runSingle({ type: "markdown", video_url: "bad" })).rejects.toThrow(
-      'unknown keys: "video_url"',
-    );
+    await expect(
+      runSingle({ type: "markdown", video_url: "bad" }),
+    ).rejects.toThrow('unknown keys: "video_url"');
   });
 
   test("includes inputPath in thrown validation errors", async () => {
-    expect(
+    await expect(
       eleventyComputed.blocks({
         blocks: [{ type: "unknown-type" }],
         name,

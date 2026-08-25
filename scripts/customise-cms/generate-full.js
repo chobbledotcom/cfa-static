@@ -11,7 +11,6 @@
  */
 
 import { writeFile } from "node:fs/promises";
-import siteConfig from "#data/config.json" with { type: "json" };
 import { createDefaultConfig } from "#scripts/customise-cms/config.js";
 import {
   generateCompactYaml,
@@ -34,11 +33,6 @@ const main = async () => {
 
   const config = createDefaultConfig();
 
-  // Apply use_visual_editor from config.json if set
-  if (siteConfig.use_visual_editor != null) {
-    config.features.use_visual_editor = siteConfig.use_visual_editor;
-  }
-
   if (outputOverride) {
     await writeFile(outputOverride, generateCompactYaml(config), "utf-8");
   } else {
@@ -48,7 +42,7 @@ const main = async () => {
   console.log(".pages.yml has been generated with:");
   console.log(`  - ${config.collections.length} collections`);
   console.log(
-    "  - All features enabled (permalinks, redirects, faqs, features, galleries, blocks)",
+    "  - All features enabled (permalinks, redirects, faqs, galleries, navigation URLs, blocks)",
   );
   if (config.features.use_visual_editor) {
     console.log("  - Visual rich-text editor enabled");

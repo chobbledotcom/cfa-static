@@ -6,14 +6,16 @@
  * jscpd's console report tells you where the duplication is, but not what to
  * do next. This wrapper runs jscpd unchanged and forwards every arg, then
  * appends the project's duplication policy plus the affected clone spans when
- * the check fails.
+ * the check fails. A non-zero jscpd exit that produced no report is a crash
+ * (bad flag, internal error) and throws instead of masquerading as
+ * duplication.
  */
 
-import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { isAbsolute, join, relative } from "node:path";
-import { pathToFileURL } from "node:url";
 import { ROOT_DIR } from "#lib/paths.js";
+import { runIfMain } from "#scripts/lib/is-main-module.js";
+import { runTool } from "#scripts/lib/run-tool.js";
 
 const JSCPD_REPORT = join(ROOT_DIR, ".jscpd-report", "jscpd-report.json");
 const MAX_DUPLICATES_TO_SHOW = 5;
@@ -38,12 +40,26 @@ Do not use /* jscpd:ignore */ to silence it. Fix the duplication:
      certainly want option 1 or 2.
 `;
 
-export const loadCpdReport = (reportPath = JSCPD_REPORT) => {
-  try {
-    return JSON.parse(readFileSync(reportPath, "utf-8"));
-  } catch {
-    return null;
+/**
+ * Load the duplicates from a jscpd JSON report, after a failing run.
+ * A missing report or one without duplicates means jscpd crashed rather
+ * than finding duplication, so both throw.
+ * @param {string} reportPath
+ * @returns {object[]}
+ */
+export const loadCpdDuplicates = (reportPath = JSCPD_REPORT) => {
+  if (!existsSync(reportPath)) {
+    throw new Error(
+      `jscpd exited with an error but wrote no report (${reportPath}) - the run itself failed; check the output above`,
+    );
   }
+  const { duplicates } = JSON.parse(readFileSync(reportPath, "utf-8"));
+  if (!Array.isArray(duplicates) || duplicates.length === 0) {
+    throw new Error(
+      "jscpd exited with an error but its report lists no duplicates - the run itself failed; check the output above",
+    );
+  }
+  return duplicates;
 };
 
 const resolveReportFile = (fileName) => {
@@ -53,30 +69,26 @@ const resolveReportFile = (fileName) => {
   const relativePath = relative(ROOT_DIR, fullPath);
 
   if (relativePath.startsWith("..") || isAbsolute(relativePath)) return null;
-  return fullPath;
+  return existsSync(fullPath) ? fullPath : null;
 };
 
 export const buildSourceExcerptLines = ({ name, start, end }) => {
   const filePath = resolveReportFile(name);
   if (!filePath) return ["    (source unavailable)"];
 
-  try {
-    const sourceLines = readFileSync(filePath, "utf-8").split(/\r?\n/);
-    const firstLine = Math.max(1, start);
-    const lastLine = Math.min(end, firstLine + MAX_EXCERPT_LINES - 1);
-    const width = String(lastLine).length;
-    const lines = sourceLines
-      .slice(firstLine - 1, lastLine)
-      .map(
-        (line, index) =>
-          `    ${String(firstLine + index).padStart(width, " ")} | ${line}`,
-      );
+  const sourceLines = readFileSync(filePath, "utf-8").split(/\r?\n/);
+  const firstLine = Math.max(1, start);
+  const lastLine = Math.min(end, firstLine + MAX_EXCERPT_LINES - 1);
+  const width = String(lastLine).length;
+  const lines = sourceLines
+    .slice(firstLine - 1, lastLine)
+    .map(
+      (line, index) =>
+        `    ${String(firstLine + index).padStart(width, " ")} | ${line}`,
+    );
 
-    if (end > lastLine) lines.push(`    ... (${end - lastLine} more lines)`);
-    return lines.length > 0 ? lines : ["    (source unavailable)"];
-  } catch {
-    return ["    (source unavailable)"];
-  }
+  if (end > lastLine) lines.push(`    ... (${end - lastLine} more lines)`);
+  return lines.length > 0 ? lines : ["    (source unavailable)"];
 };
 
 export const buildCpdDuplicateLines = (duplicate) => {
@@ -108,58 +120,60 @@ export const buildCpdDuplicateLines = (duplicate) => {
   return lines;
 };
 
-export const buildCpdFailureLines = (report) => {
-  const duplicates = report?.duplicates || [];
-  const lines = [];
+/**
+ * @param {object[]} duplicates
+ */
+export const buildCpdFailureLines = (duplicates) => {
+  const lines = ["❌ jscpd found duplicated code"];
 
-  if (duplicates.length > 0) {
-    lines.push("❌ jscpd found duplicated code");
-
-    for (const duplicate of duplicates.slice(0, MAX_DUPLICATES_TO_SHOW)) {
-      lines.push(...buildCpdDuplicateLines(duplicate));
-    }
-
-    if (duplicates.length > MAX_DUPLICATES_TO_SHOW) {
-      lines.push(
-        `  ... and ${duplicates.length - MAX_DUPLICATES_TO_SHOW} more duplicate block(s)`,
-      );
-    }
-
-    lines.push("");
+  for (const duplicate of duplicates.slice(0, MAX_DUPLICATES_TO_SHOW)) {
+    lines.push(...buildCpdDuplicateLines(duplicate));
   }
 
+  if (duplicates.length > MAX_DUPLICATES_TO_SHOW) {
+    lines.push(
+      `  ... and ${duplicates.length - MAX_DUPLICATES_TO_SHOW} more duplicate block(s)`,
+    );
+  }
+
+  lines.push("");
   lines.push(buildCpdFailureMessage().trim());
   return lines;
 };
 
-export const throwIfSpawnFailed = (result, commandName) => {
-  if (result.error) {
-    throw new Error(`Failed to run ${commandName}: ${result.error.message}`);
-  }
+/**
+ * Spawn jscpd after deleting the previous report, so any report present
+ * after a failing run was written by this run - which is how a duplication
+ * failure is told apart from a crash.
+ * @param {string[]} args
+ * @param {string} reportPath - Where this invocation's JSON report lands
+ * @returns {number} jscpd's exit status (0 = no duplication)
+ */
+export const runJscpd = (args, reportPath) => {
+  rmSync(reportPath, { force: true });
+  return runTool("npx", ["jscpd", ...args]);
 };
 
-export const runCpd = (args = []) => {
-  const result = spawnSync("npx", ["jscpd", ...args], {
-    cwd: ROOT_DIR,
-    stdio: "inherit",
-  });
+/**
+ * Run jscpd with the given args, printing the project's duplication
+ * policy when duplication is found and throwing when the run crashed.
+ * @param {string[]} args
+ * @param {string} reportPath - Where this invocation's JSON report lands
+ * @returns {number} jscpd's exit status (0 = no duplication)
+ */
+export const runCpd = (args = [], reportPath = JSCPD_REPORT) => {
+  const status = runJscpd(args, reportPath);
+  if (status === 0) return 0;
 
-  throwIfSpawnFailed(result, "jscpd");
-
-  if ((result.status ?? 1) !== 0) {
-    const report = loadCpdReport();
-    for (const line of buildCpdFailureLines(report)) {
-      console.error(line);
-    }
+  for (const line of buildCpdFailureLines(loadCpdDuplicates(reportPath))) {
+    console.error(line);
   }
-
-  return result.status ?? 1;
+  return status;
 };
 
-const isMainModule = process.argv[1]
-  ? import.meta.url === pathToFileURL(process.argv[1]).href
-  : false;
-
-if (isMainModule) {
+/** CLI entry: run jscpd over argv and exit with its status. */
+export const cpdMain = () => {
   process.exit(runCpd(process.argv.slice(2)));
-}
+};
+
+await runIfMain(import.meta.url, cpdMain);

@@ -31,7 +31,9 @@ const renderParamTable = (params) => {
 
   for (const [key, doc] of entries) {
     const req = doc.required ? "**required**" : "\u2014";
-    const def = doc.default ? `\`${doc.default}\`` : req;
+    // Falsy defaults (false, 0, "") are real defaults - only undefined
+    // means "no default".
+    const def = doc.default !== undefined ? `\`${doc.default}\`` : req;
     lines.push(`| \`${key}\` | ${doc.type} | ${def} | ${doc.description} |`);
   }
 
@@ -68,7 +70,6 @@ const renderBlock = (type) => {
 
 const generateBlocksSection = () => {
   const types = Object.keys(BLOCK_SCHEMAS);
-  const sections = types.map(renderBlock);
 
   const missingDocs = types.filter((t) => !BLOCK_DOCS[t]);
   if (missingDocs.length > 0) {
@@ -77,29 +78,20 @@ const generateBlocksSection = () => {
     );
   }
 
-  return `## Block Types\n\n${sections.join("\n")}`;
+  return `## Block Types\n\n${types.map(renderBlock).join("\n")}`;
 };
 
-const generateMultiColumnSection = () => {
-  const splitTypes = Object.keys(BLOCK_SCHEMAS)
-    .filter((t) => t.startsWith("split-"))
-    .sort();
-  const namedDisallowed = [...COLUMN_DISALLOWED_TYPES].sort();
-  const disallowedList = [...namedDisallowed, ...splitTypes]
-    .map((t) => `- \`${t}\``)
-    .join("\n");
+const MULTI_COLUMN_INTRO = `## Multi-Column Layouts
 
-  return `## Multi-Column Layouts
-
-Any collection can shape its first section's blocks by adding an entry to \`src/_data/blockLayouts.json\`, keyed by a tag that appears on the page (e.g. \`products\`, \`properties\`). Two optional keys are supported: \`before\` pulls blocks into a full-width lead section, and \`columns\` pulls the remainder into a responsive column grid.
+Any collection can shape its first section's blocks by adding an entry to \`src/_data/blockLayouts.json\`, keyed by a tag that appears on the page (e.g. \`news\`, \`pages\`). Two optional keys are supported: \`before\` pulls blocks into a full-width lead section, and \`columns\` pulls the remainder into a responsive column grid.
 
 \`\`\`json
 {
-  "products": {
+  "news": {
     "before": ["hero"],
     "columns": [
       { "types": ["gallery"] },
-      { "types": ["markdown", "buy-options", "features"] }
+      { "types": ["markdown", "features"] }
     ]
   }
 }
@@ -117,12 +109,22 @@ Any collection can shape its first section's blocks by adding an entry to \`src/
 ### Disallowed block types
 
 These block types are rejected at build time if listed inside any column (they need full viewport width or already use a two-pane layout). They are allowed inside \`before\`, which renders full-width:
+`;
 
-${disallowedList}
-
-### Rendering
+const MULTI_COLUMN_RENDERING = `### Rendering
 
 \`before\` blocks render as full-width sections (each wrapped in its block type's container width) above the column section, in claim order. Matched \`columns\` blocks render inside \`<section class="block-columns-section">\` → \`<div class="container-wide">\` → \`<div class="block-columns block-columns-N">\` (where \`N\` is the column count). Each column is a \`<div class="block-column">\` using flexbox to stack its children with consistent spacing. At mobile widths (below \`md\`), all columns collapse to a single stack.`;
+
+const generateMultiColumnSection = () => {
+  const splitTypes = Object.keys(BLOCK_SCHEMAS)
+    .filter((t) => t.startsWith("split-"))
+    .sort();
+  const namedDisallowed = [...COLUMN_DISALLOWED_TYPES].sort();
+  const disallowedList = [...namedDisallowed, ...splitTypes]
+    .map((t) => `- \`${t}\``)
+    .join("\n");
+
+  return `${MULTI_COLUMN_INTRO}\n${disallowedList}\n\n${MULTI_COLUMN_RENDERING}`;
 };
 
 const BEGIN_MARKER = "<!-- BEGIN GENERATED BLOCKS -->";

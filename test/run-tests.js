@@ -13,11 +13,11 @@
  * Use --verbose flag to see full output from all checks.
  */
 
+import { isMainModule } from "#scripts/lib/is-main-module.js";
 import {
   COMMON_STEPS,
   codeQualityTestsStep,
   integrationTestsStep,
-  isMainModule,
   runLanes,
   unitTestsStep,
   verbose,
@@ -28,7 +28,12 @@ const mainLanes = [
   [COMMON_STEPS.lintScss],
   [COMMON_STEPS.knip],
   [COMMON_STEPS.typecheck, COMMON_STEPS.typecheckStrict],
-  [COMMON_STEPS.cpdDesignSystem, COMMON_STEPS.cpd],
+  [
+    COMMON_STEPS.cpdDesignSystem,
+    COMMON_STEPS.cpdFp,
+    COMMON_STEPS.cpd,
+    COMMON_STEPS.cpdRatchet,
+  ],
   [COMMON_STEPS.build],
   [unitTestsStep(verbose)],
   [integrationTestsStep],

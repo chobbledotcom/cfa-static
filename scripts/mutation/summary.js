@@ -11,7 +11,7 @@
 
 import { appendFileSync } from "node:fs";
 import { ROOT_DIR } from "#lib/paths.js";
-import { bold, dim, green, red, yellow } from "#test/precommit/colors.js";
+import { bold, dim, green, red, yellow } from "#scripts/lib/colors.js";
 
 /** Project-relative path for display (absolute paths get noisy in reports). */
 export const rel = (path) =>
@@ -20,7 +20,10 @@ export const rel = (path) =>
 /** Fold raw results into the score and survivor list. Pure. */
 export const summarize = (results) => {
   const byStatus = Object.groupBy(results, (result) => result.status);
-  const count = (status) => byStatus[status]?.length ?? 0;
+  const count = (status) => {
+    const group = byStatus[status];
+    return group ? group.length : 0;
+  };
   const total = results.length;
   const ignored = count("ignored");
   const effective = total - ignored;
@@ -34,7 +37,7 @@ export const summarize = (results) => {
     // can never be killed, so counting them would understate the real score.
     score: effective === 0 ? 100 : (detected / effective) * 100,
     survived: count("survived"),
-    survivors: byStatus.survived ?? [],
+    survivors: byStatus.survived ? byStatus.survived : [],
     timedOut: count("timed-out"),
     total,
   };
@@ -117,6 +120,36 @@ const survivorRow = (result) => {
   return `| \`${survivorLocation(result)}\` | \`${operator}\` → \`${newOperator}\` |`;
 };
 
+/**
+ * The one-line verdict at the top of the Markdown summary.
+ * @param {ReturnType<typeof summarize>} s
+ */
+const markdownHeadline = (s) => {
+  const suffix = s.ignored > 0 ? `, ${s.ignored} suppressed` : "";
+  return s.survived === 0
+    ? `✅ **All ${s.effective} mutants detected** — score ${s.score.toFixed(1)}%${suffix}`
+    : `❌ **${s.survived} mutant(s) survived** — score ${s.score.toFixed(1)}%` +
+        ` (detected ${s.detected}/${s.effective}${suffix})`;
+};
+
+/**
+ * The survivor-location table, empty when everything was detected.
+ * @param {ReturnType<typeof summarize>} s
+ */
+const survivorTable = (s) =>
+  s.survived === 0
+    ? []
+    : [
+        "",
+        "### Survivors",
+        "",
+        "These mutations did not fail any test:",
+        "",
+        "| location | mutation |",
+        "| --- | --- |",
+        ...s.survivors.map(survivorRow),
+      ];
+
 const markdownSummary = (s) => {
   if (s.total === 0) {
     return [
@@ -135,29 +168,10 @@ const markdownSummary = (s) => {
       "",
     ].join("\n");
   }
-  const suffix = s.ignored > 0 ? `, ${s.ignored} suppressed` : "";
-  const headline =
-    s.survived === 0
-      ? `✅ **All ${s.effective} mutants detected** — score ${s.score.toFixed(1)}%${suffix}`
-      : `❌ **${s.survived} mutant(s) survived** — score ${s.score.toFixed(1)}%` +
-        ` (detected ${s.detected}/${s.effective}${suffix})`;
-  const survivorTable =
-    s.survived === 0
-      ? []
-      : [
-          "",
-          "### Survivors",
-          "",
-          "These mutations did not fail any test:",
-          "",
-          "| location | mutation |",
-          "| --- | --- |",
-          ...s.survivors.map(survivorRow),
-        ];
   return [
     "## 🧬 Mutation testing",
     "",
-    headline,
+    markdownHeadline(s),
     "",
     "| metric | count |",
     "| --- | --- |",
@@ -166,7 +180,7 @@ const markdownSummary = (s) => {
     `| timed out | ${s.timedOut} |`,
     `| survived | ${s.survived} |`,
     ...(s.ignored > 0 ? [`| ignored (suppressed) | ${s.ignored} |`] : []),
-    ...survivorTable,
+    ...survivorTable(s),
     "",
   ].join("\n");
 };

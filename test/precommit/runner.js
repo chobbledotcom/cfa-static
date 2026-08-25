@@ -11,14 +11,7 @@
 import { spawn } from "node:child_process";
 import { join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
-import {
-  bold,
-  dim,
-  green,
-  red,
-  write,
-  yellow,
-} from "#test/precommit/colors.js";
+import { bold, dim, green, red, write, yellow } from "#scripts/lib/colors.js";
 import { getStepEnvironment } from "#test/precommit/environment.js";
 import { getMergeConflictWarning } from "#test/precommit/merge-warning.js";
 import { promptToPushCheckedInChanges } from "#test/precommit/push.js";
@@ -71,7 +64,15 @@ const readStream = (stream, { onChunk, onLine }) =>
     stream.on("error", () => onEnd());
   });
 
-const runStep = async (step, showProgress) => {
+/**
+ * Run one precommit step, streaming progress, and report whether it
+ * passed. Exported for the unit tests; main() is the only production
+ * caller.
+ * @param {{ name: string, cmd: string[], preRun?: () => void, progress?: (chunk: string) => string }} step
+ * @param {boolean} showProgress
+ * @returns {Promise<boolean>}
+ */
+export const runStep = async (step, showProgress) => {
   const prefix = `  ${step.name} … `;
   write(prefix);
   const start = performance.now();

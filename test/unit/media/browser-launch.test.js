@@ -1,13 +1,13 @@
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   BROWSER_ARGS,
-  ensurePlaywrightBrowsers,
+  ensureBrowserInstalled,
   launchChromeHeadless,
 } from "#media/browser-utils.js";
 
 const launchMock = vi.fn(() => Promise.resolve({ port: 9222 }));
 // Points at a path that really exists (this node binary) or really
-// doesn't, so ensurePlaywrightBrowsers runs against genuine fs state.
+// doesn't, so ensureBrowserInstalled runs against genuine fs state.
 const executablePathMock = vi.fn();
 
 vi.mock("chrome-launcher", () => ({ launch: launchMock }));
@@ -27,20 +27,31 @@ describe("launchChromeHeadless", () => {
   });
 });
 
-describe("ensurePlaywrightBrowsers", () => {
-  test("returns true when the chromium executable exists", async () => {
-    executablePathMock.mockReturnValue(process.execPath);
-
-    await expect(ensurePlaywrightBrowsers()).resolves.toBe(true);
+describe("ensureBrowserInstalled", () => {
+  afterEach(() => {
+    delete process.env.CHROME_PATH;
   });
 
-  test("throws install guidance when browsers are missing", async () => {
+  test("returns the executable path when it exists", async () => {
+    executablePathMock.mockReturnValue(process.execPath);
+
+    await expect(ensureBrowserInstalled()).resolves.toBe(process.execPath);
+  });
+
+  test("prefers a CHROME_PATH override over Playwright's browser", async () => {
+    process.env.CHROME_PATH = process.execPath;
+    executablePathMock.mockReturnValue("/definitely/missing/chromium");
+
+    await expect(ensureBrowserInstalled()).resolves.toBe(process.execPath);
+  });
+
+  test("throws install guidance when the browser is missing", async () => {
     executablePathMock.mockReturnValue("/definitely/missing/chromium");
     const errorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => undefined);
 
-    await expect(ensurePlaywrightBrowsers()).rejects.toThrow(
+    await expect(ensureBrowserInstalled()).rejects.toThrow(
       "npx playwright install chromium",
     );
     errorSpy.mockRestore();

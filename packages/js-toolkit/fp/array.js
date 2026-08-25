@@ -194,15 +194,16 @@ const pick = (keys) => (obj) =>
  * Filters out null, undefined, false, 0, '', and NaN.
  * Perfect for building arrays with conditional elements.
  *
- * @param {unknown[]} arr - Array potentially containing falsy values
- * @returns {unknown[]} Array with only truthy values (falsy values filtered out)
+ * @template T
+ * @param {ReadonlyArray<T | false | null | undefined | 0 | "">} arr - Array potentially containing falsy values
+ * @returns {T[]} Array with only truthy values (falsy values filtered out)
  *
  * @example
  * compact([1, null, 2, undefined, 3])        // [1, 2, 3]
  * compact(['a', false && 'b', 'c'])          // ['a', 'c']
  * compact([condition && 'value', 'always']) // conditionally includes 'value'
  */
-const compact = (arr) => arr.filter(Boolean);
+const compact = (arr) => arr.flatMap((value) => (value ? [value] : []));
 
 /**
  * Find the first duplicate item in an array

@@ -1,5 +1,5 @@
 /**
- * Test utilities for chobble-template
+ * Test utilities for CfA Static
  *
  * Re-exports generic utilities from @chobble/js-toolkit with project-specific
  * wrappers, plus Eleventy-specific test helpers.
@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { expect } from "vitest";
+import { expect, vi } from "vitest";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
 import { omit } from "#toolkit/fp/object.js";
 
@@ -83,6 +83,40 @@ import {
   withSubDirAsync,
 } from "#toolkit/test-utils/resource.js";
 
+/** Shared no-op for mockImplementation calls. */
+const noop = () => undefined;
+
+/**
+ * Mock process.exit to throw `exit:<code>` so a test can assert both that
+ * the CLI exited and with which code, without killing the test process.
+ * Restore with `.mockRestore()`.
+ */
+const mockExitThrow = () =>
+  vi.spyOn(process, "exit").mockImplementation((code) => {
+    throw new Error(`exit:${code}`);
+  });
+
+/**
+ * Run a CLI entry point that may call process.exit, capturing what it
+ * printed to console.error. Returns the captured error lines and the
+ * `exit:<code>` message (null when the entry returned without exiting),
+ * with the spies restored either way.
+ * @param {() => unknown} run
+ * @returns {Promise<{ errors: string[], exitError: string | null }>}
+ */
+const captureCliFailure = async (run) => {
+  const errorSpy = vi.spyOn(console, "error").mockImplementation(noop);
+  const exitSpy = mockExitThrow();
+  const [outcome] = await Promise.allSettled([(async () => run())()]);
+  const errors = errorSpy.mock.calls.map(([line]) => String(line));
+  errorSpy.mockRestore();
+  exitSpy.mockRestore();
+  return {
+    errors,
+    exitError: outcome.status === "rejected" ? outcome.reason.message : null,
+  };
+};
+
 // ============================================
 // Project-specific path utilities
 // ============================================
@@ -140,11 +174,14 @@ const SRC_JS_FILES = memoizedFiles(
 const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
 const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
 const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
-// Build/dev scripts under scripts/. Not in SRC_JS_FILES because they're not
-// part of the runtime, but they're still production usage of any src/ exports
-// they import — code-quality scans treat them as a usage site.
-const SCRIPT_JS_FILES = memoizedFiles(/^scripts\/.*\.js$/);
-const ALL_JS_FILES = memoizedFiles(/^(src\/|test\/).*\.js$/);
+// Build/dev tooling under scripts/ and bin/. Not in SRC_JS_FILES because
+// they're not part of the runtime, but they're held to the same correctness
+// gates and count as production usage of any src/ exports they import.
+const SCRIPT_JS_FILES = memoizedFiles(/^(scripts\/|bin\/).*\.js$/);
+// Every first-party JS file the default code-quality gates scan. Gates that
+// deliberately exclude tooling (organisation-style rules) combine
+// SRC_JS_FILES and TEST_FILES instead.
+const ALL_JS_FILES = memoizedFiles(/^(src\/|test\/|scripts\/|bin\/).*\.js$/);
 
 /**
  * Create a pattern extractor for files.
@@ -322,6 +359,7 @@ export {
   // Resource management (from toolkit)
   bracket,
   bracketAsync,
+  captureCliFailure,
   // Mocking (from toolkit)
   captureConsole,
   captureConsoleLogAsync,
@@ -358,7 +396,9 @@ export {
   imagePopupDialogHtml,
   // Fixture factories
   item,
+  mockExitThrow,
   mockFetch,
+  noop,
   omit,
   path,
   popupSlideAlts,

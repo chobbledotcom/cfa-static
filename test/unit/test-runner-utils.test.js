@@ -9,13 +9,11 @@ import {
   extractUncoveredLines,
   formatUncovered,
   getNonCodeQualityTestFiles,
-  isMainModule,
   parseLcov,
   printSummary,
   printTruncatedList,
   reportCoverageFailures,
   runLanes,
-  runStep,
   runStepAsync,
   unitTestsStep,
 } from "#test/test-runner-utils.js";
@@ -88,46 +86,6 @@ const createBuildTestOutput = (buildConfig) => {
 };
 
 describe("test-runner-utils", () => {
-  // ============================================
-  // runStep Tests
-  // ============================================
-  describe("runStep", () => {
-    // Output is captured in both modes (for error extraction)
-    test.each([
-      true,
-      false,
-    ])("Executes command and captures output (verbose=%s)", (verbose) => {
-      const step = { name: "test-step", cmd: "echo", args: ["hello"] };
-
-      const result = runStep(step, verbose);
-
-      expect(result.status).toBe(0);
-      expect(result.stdout).toContain("hello");
-      expect(result.stderr).toBe("");
-    });
-
-    test("Captures stdout and stderr in non-verbose mode", () => {
-      const step = createNodeScriptStep(
-        "error-step",
-        "console.error('error message'); console.log('output')",
-      );
-
-      const result = runStep(step, false);
-
-      expect(result.status).toBe(0);
-      expect(result.stdout).toContain("output");
-      expect(result.stderr).toContain("error message");
-    });
-
-    test("Returns non-zero status for failed command", () => {
-      const step = createNodeScriptStep("failing-step", "process.exit(1)");
-
-      const result = runStep(step, false);
-
-      expect(result.status).toBe(1);
-    });
-  });
-
   // ============================================
   // extractErrorsFromOutput Tests
   // ============================================
@@ -767,13 +725,6 @@ Failed to compile
           expect(returned).toBe(false);
         }));
     });
-  });
-});
-
-describe("isMainModule", () => {
-  test("matches only the entry module's file URL", () => {
-    expect(isMainModule(`file://${process.argv[1]}`)).toBe(true);
-    expect(isMainModule("file:///somewhere/else.js")).toBe(false);
   });
 });
 

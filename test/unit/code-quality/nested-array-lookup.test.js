@@ -25,11 +25,12 @@
 import { describe, expect, test } from "vitest";
 import {
   assertNoViolations,
+  combineFileLists,
   isCommentLine,
   readSource,
   removeStrings,
 } from "#test/code-scanner.js";
-import { SRC_JS_FILES } from "#test/test-utils.js";
+import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 import { frozenSet } from "#toolkit/fp/set.js";
 
 // Match .find( or .filter( — the array lookup methods that suggest linear scans
@@ -85,7 +86,7 @@ const hasNestedLookupInParens = (cleaned) => {
  */
 const KNOWN_VIOLATIONS = frozenSet([
   "src/_lib/utils/block-columns.js:181",
-  "src/_lib/utils/block-schema.js:282",
+  "src/_lib/utils/block-schema.js:299",
 ]);
 
 /**
@@ -385,7 +386,7 @@ describe("nested-array-lookup", () => {
   });
 
   test("No nested array lookups in source files", () => {
-    const violations = SRC_JS_FILES()
+    const violations = combineFileLists([SRC_JS_FILES(), SCRIPT_JS_FILES()])
       .flatMap((file) =>
         findNestedLookups(readSource(file)).map(toViolation(file)),
       )

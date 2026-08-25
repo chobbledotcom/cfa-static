@@ -330,6 +330,9 @@ const htmlInJsAnalysis = withAllowlist({
     "src/_lib/utils/block-schema/split-full.js",
     "src/_lib/utils/block-schema/stats.js",
   ]),
+  // Runtime src/ only: this rule keeps site markup in templates. Tooling
+  // legitimately holds HTML-looking text (usage strings with <placeholders>,
+  // the docs generator's HTML examples), so scripts/ and bin/ are exempt.
   files: () => SRC_JS_FILES(),
 });
 
