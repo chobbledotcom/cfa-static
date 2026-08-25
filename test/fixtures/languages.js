@@ -13,6 +13,8 @@ export const EN = {
   home_url: "/",
   home_label: "Home",
   breadcrumb_label: "Breadcrumb",
+  skip_to_content_label: "Skip to main content",
+  search_label: "Search",
   is_default: true,
 };
 
@@ -25,6 +27,8 @@ export const DE = {
   home_url: "/de/",
   home_label: "Startseite",
   breadcrumb_label: "Brotkrumennavigation",
+  skip_to_content_label: "Zum Hauptinhalt springen",
+  search_label: "Suchen",
   is_default: false,
 };
 

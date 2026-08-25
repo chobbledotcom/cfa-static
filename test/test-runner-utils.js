@@ -214,6 +214,11 @@ export const COMMON_STEPS = {
     cmd: "npm",
     args: ["run", "build"],
   },
+  checkA11y: {
+    name: "check:a11y",
+    cmd: "npm",
+    args: ["run", "check:a11y"],
+  },
 };
 
 export const getNonCodeQualityTestFiles = (pattern) =>

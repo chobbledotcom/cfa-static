@@ -32,6 +32,10 @@ import {
 } from "#transforms/raw-text-guard.js";
 import { hasReadMoreMarker, processReadMore } from "#transforms/read-more.js";
 import { wrapTables } from "#transforms/responsive-tables.js";
+import {
+  hasTableOfContents,
+  processTableOfContents,
+} from "#transforms/table-of-contents.js";
 import { loadDOM, withDOMSlot } from "#utils/lazy-dom.js";
 
 /** @typedef {import("#lib/types").SiteConfig} SiteConfig */
@@ -39,7 +43,8 @@ import { loadDOM, withDOMSlot } from "#utils/lazy-dom.js";
 const getConfig = memoize(configModule);
 
 /**
- * Check if content requires DOM parsing (has tables, images, phone patterns, read-more markers, or config links)
+ * Check if content requires DOM parsing (has tables, images, phone patterns,
+ * read-more markers, a contents block, or config links)
  * @param {string} content
  * @param {number | undefined} phoneLen
  * @returns {boolean}
@@ -49,11 +54,13 @@ const needsDomParsing = (content, phoneLen) =>
   content.includes("<table") ||
   content.includes('src="/images/') ||
   hasReadMoreMarker(content) ||
+  hasTableOfContents(content) ||
   hasConfigLinks(content, linksMap) ||
   hasMailtoLinks(content);
 
 /**
- * Apply DOM-based transforms (phone links, table wrappers, image processing, read-more)
+ * Apply DOM-based transforms (phone links, table wrappers, image processing,
+ * read-more, in-page contents)
  * Skips phone linkification when FAST_INACCURATE_BUILDS is enabled.
  * @param {string} html
  * @param {SiteConfig} config
@@ -70,6 +77,10 @@ const applyDomTransforms = (html, config, processAndWrapImage) =>
     }
     wrapTables(document, config);
     processReadMore(document);
+    // After read-more, which moves nodes around, and before images, which are
+    // slow: the contents needs the page's final headings, and nothing that
+    // follows adds or renames one.
+    processTableOfContents(document);
     await processImages(document, config, processAndWrapImage);
     encryptEmails(document);
     return dom.serialize();

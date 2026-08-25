@@ -34,7 +34,9 @@ const mainLanes = [
     COMMON_STEPS.cpd,
     COMMON_STEPS.cpdRatchet,
   ],
-  [COMMON_STEPS.build],
+  // The accessibility check reads the built site, so it follows the build in
+  // the same lane rather than racing it in another.
+  [COMMON_STEPS.build, COMMON_STEPS.checkA11y],
   [unitTestsStep(verbose)],
   [integrationTestsStep],
 ];

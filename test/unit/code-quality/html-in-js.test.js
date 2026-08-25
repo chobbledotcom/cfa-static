@@ -329,6 +329,7 @@ const htmlInJsAnalysis = withAllowlist({
     "src/_lib/utils/block-schema/split-shared.js",
     "src/_lib/utils/block-schema/split-full.js",
     "src/_lib/utils/block-schema/stats.js",
+    "src/_lib/utils/block-schema/table-of-contents.js",
   ]),
   // Runtime src/ only: this rule keeps site markup in templates. Tooling
   // legitimately holds HTML-looking text (usage strings with <placeholders>,

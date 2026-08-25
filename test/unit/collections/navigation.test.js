@@ -112,18 +112,44 @@ describe("configureNavigation wiring", () => {
 });
 
 describe("toNavigation", () => {
+  // Every site that publishes a search page has to name its search field, so
+  // the tests that are about something else still supply a label.
+  const renderNav = (pages, activeKey = "") =>
+    toNavigation(pages, activeKey, "Search");
+
   test("returns empty string for empty pages", async () => {
-    expect(await toNavigation([])).toBe("");
+    expect(await renderNav([])).toBe("");
   });
 
   test("renders the search form with a search input and submit button", () =>
     withIconMock(async () => {
       // search.md exists, so toNavigation appends the search item. The form's
       // body is `searchInput + searchButton`; assert both ended up inside it.
-      const html = await toNavigation([navEntry("Home", { url: "/" })], "");
+      const html = await renderNav([navEntry("Home", { url: "/" })]);
       expect(html).toContain('class="search-box"');
       expect(html).toContain('type="search"');
       expect(html).toContain("<button");
+    }));
+
+  test("names the search field and its icon button after the language", () =>
+    withIconMock(async () => {
+      // Both are unlabelled otherwise: the button holds only an icon, and the
+      // field only a placeholder.
+      const html = await toNavigation(
+        [navEntry("Home", { url: "/" })],
+        "",
+        "Suchen",
+      );
+      expect(html).toContain('<button type="submit" aria-label="Suchen"');
+      expect(html).toContain('aria-label="Suchen"');
+      expect(html).toContain('placeholder="Suchen"');
+    }));
+
+  test("refuses to render a search field it cannot name", () =>
+    withIconMock(async () => {
+      await expect(
+        toNavigation([navEntry("Home", { url: "/" })], ""),
+      ).rejects.toThrow(/search_label/);
     }));
 
   test("throws when input is missing the eleventyNavigation pluginType", async () => {
@@ -135,14 +161,14 @@ describe("toNavigation", () => {
 
   test("marks the active entry with class='active'", () =>
     withIconMock(async () => {
-      const html = await toNavigation([navEntry("Home", { url: "/" })], "Home");
+      const html = await renderNav([navEntry("Home", { url: "/" })], "Home");
       expect(html).toContain('class="active"');
       expect(html).toContain('href="/"');
     }));
 
   test("only marks the matching entry as active, not its siblings", () =>
     withIconMock(async () => {
-      const html = await toNavigation(
+      const html = await renderNav(
         [navEntry("Home", { url: "/" }), navEntry("About")],
         "About",
       );
@@ -153,7 +179,7 @@ describe("toNavigation", () => {
 
   test("renders children inside a nested ul", () =>
     withIconMock(async () => {
-      const html = await toNavigation(
+      const html = await renderNav(
         [
           navEntry("Products", {
             children: [navEntry("Category A"), navEntry("Category B")],
@@ -168,7 +194,7 @@ describe("toNavigation", () => {
 
   test("renders entries without a href when url is missing", () =>
     withIconMock(async () => {
-      const html = await toNavigation(
+      const html = await renderNav(
         [
           {
             key: "No Link",
@@ -186,7 +212,7 @@ describe("toNavigation", () => {
 
   test("does not render a thumbnail for root-level entries", () =>
     withIconMock(async () => {
-      const html = await toNavigation(
+      const html = await renderNav(
         [
           navEntry("Products", {
             data: { thumbnail: "images/placeholders/blue.svg" },
@@ -200,7 +226,7 @@ describe("toNavigation", () => {
 
   test("renders a thumbnail for a child entry when nav_thumbnails is on", () =>
     withIconMock(async () => {
-      const html = await toNavigation(
+      const html = await renderNav(
         [
           navEntry("Products", {
             children: [

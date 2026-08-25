@@ -25,5 +25,7 @@ export type Language = {
   home_url: string;
   home_label: string;
   breadcrumb_label: string;
+  skip_to_content_label: string;
+  search_label: string;
   is_default?: boolean;
 };

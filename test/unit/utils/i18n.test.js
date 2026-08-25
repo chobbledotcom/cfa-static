@@ -12,19 +12,10 @@ import translations from "#data/translations.json" with { type: "json" };
 import { DE, DE_AT, EN } from "#test/fixtures/languages.js";
 import {
   baseLanguageErrors,
+  languageFieldErrors,
   languageForUrl,
   translationForUrl,
 } from "#utils/i18n.js";
-
-const REQUIRED_FIELDS = [
-  "code",
-  "hreflang",
-  "og_locale",
-  "label",
-  "home_url",
-  "home_label",
-  "breadcrumb_label",
-];
 
 describe("the language data the template ships", () => {
   test("declares exactly one base language", () => {
@@ -32,9 +23,7 @@ describe("the language data the template ships", () => {
   });
 
   test("gives every language the fields the templates read", () => {
-    for (const language of languages) {
-      expect(REQUIRED_FIELDS.filter((field) => !language[field])).toEqual([]);
-    }
+    expect(languageFieldErrors(languages)).toEqual([]);
   });
 
   test("pairs no pages until a site says so", () => {
@@ -63,6 +52,42 @@ describe("baseLanguageErrors", () => {
 
   test("accepts what the template ships", () => {
     expect(baseLanguageErrors(languages)).toEqual([]);
+  });
+});
+
+describe("languageFieldErrors", () => {
+  test("accepts languages that declare everything", () => {
+    expect(languageFieldErrors([EN, DE])).toEqual([]);
+  });
+
+  test("names the language and the field it is missing", () => {
+    const { skip_to_content_label: _dropped, ...noSkipLabel } = DE;
+    expect(languageFieldErrors([EN, noSkipLabel])).toEqual([
+      '_data/languages.json language "de" is missing a non-empty "skip_to_content_label".',
+    ]);
+  });
+
+  test("rejects a field declared empty as firmly as one left out", () => {
+    // An empty string reaches the template as an unnamed landmark, which is
+    // the failure this is here to stop.
+    expect(languageFieldErrors([{ ...EN, breadcrumb_label: "" }])).toEqual([
+      '_data/languages.json language "en" is missing a non-empty "breadcrumb_label".',
+    ]);
+  });
+
+  test("still says which language when the code itself is missing", () => {
+    const { code: _dropped, ...noCode } = EN;
+    expect(languageFieldErrors([noCode])).toEqual([
+      '_data/languages.json language with no code is missing a non-empty "code".',
+    ]);
+  });
+
+  test("reports every missing field of every language at once", () => {
+    // Two languages that declare nothing are reported twice over, so a second
+    // broken language is never hidden behind the first.
+    const one = languageFieldErrors([{}]);
+    expect(languageFieldErrors([{}, {}])).toEqual([...one, ...one]);
+    expect(one.length).toBeGreaterThan(1);
   });
 });
 

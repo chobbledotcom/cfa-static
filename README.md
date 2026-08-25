@@ -28,6 +28,11 @@ static pages.
   visual theme editor at `/theme-editor/` with export.
 - **Images** — responsive `srcset` via eleventy-img, base64 LQIP placeholders,
   aspect-ratio cropping, unused-image detection.
+- **Accessibility** — WCAG 2.2 AA is a build gate, not a hope: every page of
+  the built site is checked with axe-core (`npm run check:a11y`), and the
+  block gallery renders every block type, so a block cannot ship an
+  accessibility defect without failing the check. Pages get a skip link, named
+  landmarks, and per-language chrome labels out of the box.
 - **Search** — static full-text search via Pagefind.
 - **SEO** — schema.org JSON-LD (WebSite, Organization, BreadcrumbList,
   BlogPosting, FAQPage), canonical URLs, sitemap, social cards.
@@ -43,10 +48,31 @@ npm install          # install dependencies (Node.js 22+)
 npm run serve        # dev server with hot reload
 npm run build        # build to _site/ (includes internal link check)
 npm test             # full suite: lint, typecheck, build, tests, coverage
+npm run check:a11y   # WCAG 2.2 AA check over the built _site/
 ```
 
 The build needs no secrets and no network services. The deployable artifact is
 the `_site/` directory — publish it with any static host or pipeline.
+
+## Starting a site from this template
+
+Each site is a **fork of this repository**, not a dependency of it. A site's
+content, configuration, and theme live in the fork, and the template's own
+demo content is deleted or replaced there.
+
+Updates flow one way and only when a site asks for them:
+
+```bash
+git remote add upstream https://github.com/chobbledotcom/cfa-static.git
+git fetch upstream
+git merge upstream/main      # deliberate, reviewed, and never automatic
+```
+
+That is the point of the arrangement. A site that has shipped keeps building
+exactly as it built yesterday; template changes reach it when someone chooses
+to merge them, reviews what changed, and re-runs the site's own checks. The
+quality gates travel with the fork, so a site that pulls an update finds out
+immediately whether the update broke anything it publishes.
 
 ## Deploying to GitHub Pages
 

@@ -51,6 +51,7 @@ import * as splitHtml from "#utils/block-schema/split-html.js";
 import * as splitIconLinks from "#utils/block-schema/split-icon-links.js";
 import * as splitImage from "#utils/block-schema/split-image.js";
 import * as stats from "#utils/block-schema/stats.js";
+import * as tableOfContents from "#utils/block-schema/table-of-contents.js";
 
 /**
  * Iteration order determines the order that `scripts/generate-blocks-reference.js`
@@ -78,6 +79,7 @@ const BLOCK_MODULES = [
   itemsTextList,
   linkColumns,
   markdown,
+  tableOfContents,
   html,
   iframeEmbed,
   include,
