@@ -86,8 +86,11 @@ const parseSelection = (input, options, defaults) => {
   if (trimmed === "all") return map((o) => o.name)(options);
   if (trimmed === "none" || trimmed === "") return [];
 
+  /** @param {number} n */
   const isValidIndex = (n) => n >= 1 && n <= options.length;
+  /** @param {number} n */
   const toName = (n) => options[n - 1].name;
+  /** @param {string} n */
   const toNumber = (n) => Number.parseInt(n.trim(), 10);
 
   return pipe(

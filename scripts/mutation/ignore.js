@@ -26,16 +26,32 @@ import { ROOT_DIR } from "#lib/paths.js";
 import { rel } from "#scripts/mutation/summary.js";
 import { unique } from "#toolkit/fp/array.js";
 
+/** @typedef {import("#scripts/mutation/generate.js").Mutant} Mutant */
+/** @typedef {import("#scripts/mutation/summary.js").MutantResult} MutantResult */
+/** @typedef {{ entries: string[], keys: Set<string> }} IgnoreList */
+
 const IGNORE_FILE = new URL("./equivalent-mutants.txt", import.meta.url);
 
-/** Canonical key for a mutant at a project-relative path. */
+/**
+ * Canonical key for a mutant at a project-relative path.
+ * @param {string} relPath
+ * @param {Mutant} mutant
+ */
 const keyFor = (relPath, mutant) =>
   `${relPath}:${mutant.line}:${mutant.column} ${mutant.operator}→${mutant.newOperator}`;
 
-/** Canonical key for a mutant given its absolute source path. */
+/**
+ * Canonical key for a mutant given its absolute source path.
+ * @param {string} file
+ * @param {Mutant} mutant
+ */
 export const mutantKey = (file, mutant) => keyFor(rel(file), mutant);
 
-/** Parse one ignore-file line into `{ key, path }`, or null when blank/comment. */
+/**
+ * Parse one ignore-file line into `{ key, path }`, or null when blank/comment.
+ * @param {string} line
+ * @returns {{ key: string, path: string } | null}
+ */
 const parseLine = (line) => {
   const trimmed = line.trim();
   if (trimmed === "" || trimmed.startsWith("#")) return null;
@@ -58,6 +74,8 @@ const parseLine = (line) => {
  * at files which no longer exist throw immediately: the per-run validation
  * only covers the files being mutated, so a deleted file's entries would
  * otherwise rot silently forever.
+ * @param {string | URL} [file]
+ * @returns {IgnoreList}
  */
 export const loadIgnoreList = (file = IGNORE_FILE) => {
   if (!existsSync(file)) return { entries: [], keys: new Set() };
@@ -79,7 +97,12 @@ export const loadIgnoreList = (file = IGNORE_FILE) => {
   return { entries, keys: new Set(entries) };
 };
 
-/** Whether a survivor is a recorded known-equivalent mutant. */
+/**
+ * Whether a survivor is a recorded known-equivalent mutant.
+ * @param {IgnoreList} ignore
+ * @param {string} file
+ * @param {Mutant} mutant
+ */
 export const isIgnored = (ignore, file, mutant) =>
   ignore.keys.has(mutantKey(file, mutant));
 
@@ -95,7 +118,13 @@ export const isIgnored = (ignore, file, mutant) =>
  * Scoped to `mutatedFiles`: an entry for a file you are not testing right now
  * can't be checked, and doesn't matter until you do.
  */
-/** Classify one ignore entry against the run, returning a problem or null. */
+/**
+ * Classify one ignore entry against the run, returning a problem or null.
+ * @param {string} key
+ * @param {Set<string>} seen
+ * @param {Set<string>} generated
+ * @param {Set<string>} suppressed
+ */
 const entryProblem = (key, seen, generated, suppressed) => {
   if (seen.has(key)) return `duplicate entry: ${key}`;
   seen.add(key);
@@ -108,8 +137,14 @@ const entryProblem = (key, seen, generated, suppressed) => {
   return null;
 };
 
+/**
+ * @param {IgnoreList} ignore
+ * @param {MutantResult[]} results
+ * @param {string[]} mutatedFiles
+ */
 export const ignoreListProblems = (ignore, results, mutatedFiles) => {
   const relFiles = mutatedFiles.map(rel);
+  /** @param {string} key */
   const targetsMutatedFile = (key) =>
     relFiles.some((file) => key.startsWith(`${file}:`));
   const generated = new Set(results.map((r) => mutantKey(r.file, r.mutant)));

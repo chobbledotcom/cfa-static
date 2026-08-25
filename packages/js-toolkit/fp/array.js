@@ -103,9 +103,16 @@ const sort = (comparator) => (arr) => [...arr].sort(comparator);
  * pipe(sortBy(x => x.data.order))(items)
  */
 const sortBy = (key) => {
-  const getKey = typeof key === "function" ? key : (obj) => obj[key];
+  const getKey = typeof key === "function" ? key : propGetter(key);
   return sort(compareBy(getKey));
 };
+
+/**
+ * Getter for a named property - sortBy's string form.
+ * @param {string} key
+ * @returns {(obj: any) => string | number}
+ */
+const propGetter = (key) => (obj) => obj[key];
 
 /**
  * Remove duplicate values
@@ -171,22 +178,15 @@ const filterMap = (predicate, transform) => (arr) =>
  * Returns a function that extracts only the specified keys from an object.
  * This curried form works perfectly with map(): arr.map(pick(['a', 'b']))
  *
- * @template {string} K
- * @template {Record<K, unknown>} T
- * @param {K[]} keys - Keys to include
- * @returns {(obj: T) => Pick<T, K>} Function that picks specified keys from an object
+ * @param {string[]} keys - Keys to include
+ * @returns {(obj: Record<string, unknown>) => Record<string, unknown>} Function that picks the specified keys present on the object
  *
  * @example
  * pick(['a', 'c'])({ a: 1, b: 2, c: 3 })  // { a: 1, c: 3 }
  * users.map(pick(['name', 'age']))        // picks name & age from each
  */
 const pick = (keys) => (obj) =>
-  Object.fromEntries(
-    filterMap(
-      (k) => k in obj,
-      (k) => [k, obj[k]],
-    )(keys),
-  );
+  Object.fromEntries(keys.flatMap((k) => (k in obj ? [[k, obj[k]]] : [])));
 
 /**
  * Remove falsy values from an array

@@ -46,9 +46,11 @@ const eleventy = spawn(
 
 const buildState = { errorDetected: false, pagefindRanForServe: false };
 
+/** @param {string} text */
 const containsError = (text) =>
   ERROR_PATTERNS.some((pattern) => text.includes(pattern));
 
+/** @param {string} text */
 const isImageProcessingNoise = (text) => text.includes("[11ty/eleventy-img]");
 
 const BANNER_LINE = "=".repeat(60);
@@ -70,12 +72,20 @@ const triggerFailFast = () => {
   }, 100);
 };
 
+/**
+ * @param {Buffer} data
+ * @param {string} text
+ */
 const writeErrorOutput = (data, text) => {
   if (!isImageProcessingNoise(text)) {
     process.stderr.write(data);
   }
 };
 
+/**
+ * @param {Buffer} data
+ * @param {boolean} isStderr
+ */
 const writeNormalOutput = (data, isStderr) => {
   const target = isStderr ? process.stderr : process.stdout;
   target.write(data);
@@ -92,6 +102,10 @@ const runPagefind = () => {
   return true;
 };
 
+/**
+ * @param {Buffer} data
+ * @param {boolean} isStderr
+ */
 const processChunk = (data, isStderr) => {
   const text = data.toString();
   if (buildState.errorDetected) {
@@ -112,6 +126,10 @@ const processChunk = (data, isStderr) => {
   }
 };
 
+/**
+ * @param {import("node:stream").Readable} stream
+ * @param {boolean} isStderr
+ */
 const handleOutput = (stream, isStderr) => {
   stream.on("data", (data) => processChunk(data, isStderr));
 };

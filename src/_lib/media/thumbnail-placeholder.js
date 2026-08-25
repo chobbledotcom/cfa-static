@@ -9,11 +9,13 @@ const PLACEHOLDER_COLORS = [
   "orange",
 ];
 
+/** @param {string} str */
 const hashString = (str) =>
   Math.abs(
     [...str].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) | 0, 0),
   );
 
+/** @param {string} itemPath */
 const getPlaceholderForPath = (itemPath) =>
   pipe(
     hashString,

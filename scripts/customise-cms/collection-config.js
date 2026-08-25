@@ -41,16 +41,20 @@ export const getCoreFields = (collectionName, config, fields) => {
   const staticBuilder = builders[collectionName];
   if (staticBuilder) return staticBuilder();
 
-  const dynamicBuilders = {
-    news: buildNewsFields,
-    "guide-pages": buildGuidePagesFields,
-  };
-
-  const builder = dynamicBuilders[collectionName];
+  const builder = DYNAMIC_BUILDERS[collectionName];
   if (!builder) {
     throw new Error(`No field builder for collection "${collectionName}"`);
   }
   return builder(config, fields);
+};
+
+/**
+ * Field builders for collections whose fields vary with the config.
+ * @type {Record<string, (config: CmsConfig, fields: FieldContext) => CmsField[]>}
+ */
+const DYNAMIC_BUILDERS = {
+  news: buildNewsFields,
+  "guide-pages": buildGuidePagesFields,
 };
 
 /**

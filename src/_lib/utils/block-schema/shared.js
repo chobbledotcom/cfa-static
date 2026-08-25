@@ -151,6 +151,7 @@ export const REVEAL_STRING_FIELD = {
   description: "`data-reveal` value.",
 };
 
+/** @param {string} description */
 export const collectionField = (description) => ({
   ...str("Collection Name"),
   required: true,

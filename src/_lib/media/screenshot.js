@@ -32,9 +32,19 @@ const DEFAULT_OPTIONS = frozenObject({
 
 /** @typedef {import("#media/browser-utils.js").OperationContext<typeof DEFAULT_OPTIONS>} ScreenshotContext */
 
+/** @type {Record<string, { width: number, height: number, name: string }>} */
+const viewportMap = { ...VIEWPORTS };
+
+/** @param {string} viewport */
 export const buildViewportSuffix = (viewport) =>
   viewport !== "desktop" ? `-${viewport}` : "";
 
+/**
+ * @param {string} url
+ * @param {string} outputPath
+ * @param {string} viewport
+ * @param {{ timeout?: number }} options
+ */
 export const takeScreenshotWithPlaywright = async (
   url,
   outputPath,
@@ -42,7 +52,7 @@ export const takeScreenshotWithPlaywright = async (
   options,
 ) => {
   const { chromium } = await import("playwright");
-  const { width, height } = VIEWPORTS[viewport] || VIEWPORTS.desktop;
+  const { width, height } = viewportMap[viewport] || VIEWPORTS.desktop;
 
   prepareOutputDir(outputPath);
 
@@ -76,6 +86,10 @@ export const takeScreenshotWithPlaywright = async (
   return { success: true, path: outputPath, url, viewport };
 };
 
+/**
+ * @param {string} pagePath
+ * @param {object} [options]
+ */
 export const screenshot = async (pagePath, options = {}) => {
   await ensureBrowserInstalled();
 
@@ -97,6 +111,10 @@ export const screenshot = async (pagePath, options = {}) => {
 
 export const screenshotMultiple = createBatchRunner(screenshot);
 
+/**
+ * @param {string} pagePath
+ * @param {object} [options]
+ */
 export const screenshotAllViewports = (pagePath, options = {}) => {
   const viewportNames = Object.keys(VIEWPORTS);
   return runBatchOperations(

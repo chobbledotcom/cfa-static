@@ -26,7 +26,7 @@ const fieldToComponentDef = (field) => {
 /**
  * Recursively scan fields and register component definitions.
  * Descends into nested `fields` arrays and also `blocks` arrays (for block-type fields).
- * @param {CmsField[]} fields - Fields to scan
+ * @param {CmsField[] | undefined} fields - Fields to scan
  * @param {Record<string, object>} components - Accumulator for component definitions
  */
 const scanFieldsForComponents = (fields, components) => {
@@ -41,12 +41,18 @@ const scanFieldsForComponents = (fields, components) => {
 };
 
 /**
+ * Typed empty accumulator for component definitions.
+ * @returns {Record<string, object>}
+ */
+const newComponentMap = () => ({});
+
+/**
  * Collect all unique component definitions from content arrays
  * @param {CollectionConfig[]} contentArray - All content configurations
  * @returns {Record<string, object>} Map of component name to definition
  */
 export const collectComponents = (contentArray) => {
-  const components = {};
+  const components = newComponentMap();
   for (const item of contentArray) {
     scanFieldsForComponents(item.fields, components);
   }

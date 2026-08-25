@@ -236,20 +236,23 @@ const replaceMatchedTextNodes = (
 /**
  * Check if content contains a phone number pattern (consecutive digits with optional spaces)
  * @param {string} content
- * @param {number} phoneLen
+ * @param {number | undefined} phoneLen
  * @returns {boolean}
  */
 const hasPhonePattern = (content, phoneLen) =>
+  phoneLen !== undefined &&
   phoneLen > 0 &&
   new RegExp(`\\b\\d(?:\\s*\\d){${phoneLen - 1}}\\b`).test(content);
 
 /**
  * Linkify phone numbers in document
  * @param {*} document
- * @param {{ phoneNumberLength: number }} config
+ * @param {{ phoneNumberLength?: number }} config
  */
 const linkifyPhones = (document, config) => {
-  if (config.phoneNumberLength <= 0) return;
+  if (config.phoneNumberLength === undefined || config.phoneNumberLength <= 0) {
+    return;
+  }
 
   const phonePat = new RegExp(
     `\\b(\\d(?:\\s*\\d){${config.phoneNumberLength - 1}})\\b`,

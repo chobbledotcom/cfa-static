@@ -31,26 +31,41 @@ const splitAtMarker = (text) => {
 
 /** @param {Node} node */
 const collectSiblings = (node) => {
+  /** @param {any} n */
   const isDiv = (n) => n.nodeType === 1 && n.tagName === "DIV";
+  /**
+   * @param {any} cur
+   * @param {Node[]} acc
+   * @returns {Node[]}
+   */
   const walk = (cur, acc) =>
     cur && !isDiv(cur) ? walk(cur.nextSibling, [...acc, cur]) : acc;
   return walk(node.nextSibling, []);
 };
 
-/** Hidden-content container: inline span or block wrapper. */
+/**
+ * Hidden-content container: inline span or block wrapper.
+ * @param {*} document
+ * @param {string} tagName
+ */
 const createContentContainer = (document, tagName) => {
   const container = document.createElement(tagName);
   container.className = "read-more-content";
   return container;
 };
 
-/** Move an array of nodes into a parent element. */
+/**
+ * Move an array of nodes into a parent element.
+ * @param {Element} parent
+ * @param {Node[]} children
+ */
 const appendChildren = (parent, children) => {
   for (const child of children) {
     parent.appendChild(child);
   }
 };
 
+/** @param {*} document */
 const processReadMore = (document) => {
   resetIdCounter();
 
@@ -73,6 +88,7 @@ const processReadMore = (document) => {
     return { checkbox, label };
   };
 
+  /** @param {any} textNode */
   const transformMarker = (textNode) => {
     const split = splitAtMarker(textNode.textContent);
     if (!split || !textNode.parentElement?.parentElement) return false;
@@ -103,7 +119,9 @@ const processReadMore = (document) => {
 
   const findMarkerNode = () => {
     const walker = document.createTreeWalker(document.body, 4, {
-      acceptNode: (n) => (READ_MORE_PATTERN.test(n.textContent) ? 1 : 2),
+      acceptNode:
+        /** @param {any} n */
+        (n) => (READ_MORE_PATTERN.test(n.textContent) ? 1 : 2),
     });
     return walker.nextNode();
   };

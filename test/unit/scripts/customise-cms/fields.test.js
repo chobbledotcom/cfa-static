@@ -71,6 +71,12 @@ describe("createReferenceField", () => {
 
     expect(field.list).toBeUndefined();
   });
+
+  test("throws when the target collection is missing", () => {
+    expect(() => createReferenceField("author", "Author", undefined)).toThrow(
+      /missing options\.collection/,
+    );
+  });
 });
 
 describe("COMMON_FIELDS", () => {

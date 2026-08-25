@@ -70,15 +70,21 @@ const showCategories = () => {
   process.exit(0);
 };
 
+/** @param {number | null} score */
 const displayScore = (score) =>
   score === null ? "N/A" : `${Math.round(score * 100)}`;
 
+/**
+ * @param {Record<string, number | null>} scores
+ * @param {string} [indent]
+ */
 const logScores = (scores, indent = "") => {
   for (const [cat, score] of Object.entries(scores)) {
     console.log(`${indent}${cat}: ${displayScore(score)}`);
   }
 };
 
+/** @param {any[]} results */
 const logAuditResults = (results) => {
   for (const result of results) {
     console.log(`\n  ${result.url}:`);
@@ -87,12 +93,17 @@ const logAuditResults = (results) => {
   }
 };
 
+/**
+ * @param {Array<{ category: string, actual: number, expected: number }>} failures
+ * @param {string} [prefix]
+ */
 const logFailures = (failures, prefix = "") => {
   for (const f of failures) {
     console.error(`${prefix}${f.category}: ${f.actual} < ${f.expected}`);
   }
 };
 
+/** @param {any[]} results */
 const logThresholdFailures = (results) => {
   const failed = results.filter((result) => !result.thresholds.passed);
   for (const result of failed) {
@@ -102,6 +113,10 @@ const logThresholdFailures = (results) => {
   return failed.length > 0;
 };
 
+/**
+ * @param {string[]} pagePaths
+ * @param {object} options
+ */
 const auditMultiplePages = async (pagePaths, options) => {
   console.log(`\nRunning Lighthouse on ${pagePaths.length} pages...`);
   const { results, errors } = await lighthouseMultiple(pagePaths, options);
@@ -112,6 +127,10 @@ const auditMultiplePages = async (pagePaths, options) => {
   return hasErrors || hasThresholdFailures;
 };
 
+/**
+ * @param {string} pagePath
+ * @param {object} options
+ */
 const auditSinglePage = async (pagePath, options) => {
   const result = await lighthouse(pagePath, options);
   console.log(`\nLighthouse audit complete for ${result.url}:`);
@@ -155,6 +174,7 @@ export const buildOptions = optionsBuilder((values) => {
   };
 });
 
+/** @param {{ positionals: string[], isMultiple: boolean }} parsed */
 export const getInput = ({ positionals, isMultiple }) =>
   isMultiple ? positionals : positionals[0];
 

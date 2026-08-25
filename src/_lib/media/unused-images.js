@@ -16,12 +16,19 @@ const IMAGE_REF_PATTERN =
   /\/?images\/[^\s)]+|[^\s/]+\.(jpg|jpeg|png|gif|webp|svg)/gi;
 const FRONTMATTER_IMAGE_FIELDS = ["image", "thumbnail"];
 
+/** @param {unknown} imagePath */
 const extractFilename = (imagePath) =>
   typeof imagePath === "string" ? imagePath.split("/").pop() : null;
 
 // Extract used images from a markdown file's frontmatter and content (exported for testing)
+/**
+ * @param {string} inputDir
+ * @param {string[]} imageFiles
+ * @param {string} file
+ */
 export const extractUsedImages = (inputDir, imageFiles, file) => {
   const { data, content } = matter.read(path.join(inputDir, file));
+  /** @param {any} name */
   const isValidImageName = (name) => imageFiles.includes(name);
 
   const frontmatterImages = pipe(
@@ -39,6 +46,7 @@ export const extractUsedImages = (inputDir, imageFiles, file) => {
 };
 
 // Report unused images to console (exported for reuse)
+/** @param {string[]} unusedImages */
 export const reportUnusedImages = (unusedImages) => {
   if (unusedImages.length === 0) {
     log("\n✅ All images in /src/images/ are being used!");
@@ -54,29 +62,34 @@ export const reportUnusedImages = (unusedImages) => {
   log(`\nFound ${formatUnused(unusedImages.length)} in /src/images/`);
 };
 
+/** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
 export const configureUnusedImages = (eleventyConfig) => {
-  eleventyConfig.on("eleventy.after", async ({ dir }) => {
-    const imagesDir = path.join(dir.input, "images");
+  eleventyConfig.on(
+    "eleventy.after",
+    /** @param {{ dir: { input: string } }} event */
+    async ({ dir }) => {
+      const imagesDir = path.join(dir.input, "images");
 
-    if (!fs.existsSync(imagesDir)) {
-      log("No images directory found.");
-      return;
-    }
+      if (!fs.existsSync(imagesDir)) {
+        log("No images directory found.");
+        return;
+      }
 
-    const imageFiles = fs
-      .readdirSync(imagesDir)
-      .filter((file) => IMAGE_PATTERN.test(file));
+      const imageFiles = fs
+        .readdirSync(imagesDir)
+        .filter((file) => IMAGE_PATTERN.test(file));
 
-    if (imageFiles.length === 0) {
-      log("No images found in /src/images/");
-      return;
-    }
+      if (imageFiles.length === 0) {
+        log("No images found in /src/images/");
+        return;
+      }
 
-    const markdownFiles = globSync("**/*.md", { cwd: dir.input });
-    const usedImages = markdownFiles.flatMap((file) =>
-      extractUsedImages(dir.input, imageFiles, file),
-    );
+      const markdownFiles = globSync("**/*.md", { cwd: dir.input });
+      const usedImages = markdownFiles.flatMap((file) =>
+        extractUsedImages(dir.input, imageFiles, file),
+      );
 
-    reportUnusedImages(imageFiles.filter(notMemberOf(usedImages)));
-  });
+      reportUnusedImages(imageFiles.filter(notMemberOf(usedImages)));
+    },
+  );
 };

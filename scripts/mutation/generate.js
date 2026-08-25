@@ -29,12 +29,36 @@ import {
 } from "#scripts/mutation/operators.js";
 import { flatMap } from "#toolkit/fp/array.js";
 
+/**
+ * @typedef {Object} Mutant
+ * @property {number} column
+ * @property {number} end
+ * @property {number} line
+ * @property {string} newOperator
+ * @property {string} operator
+ * @property {string | undefined} replacement
+ * @property {number} start
+ */
+
+/**
+ * @param {string} content
+ * @param {number} index
+ */
 const lineColumnAt = (content, index) => {
   const lines = content.slice(0, index).split("\n");
-  return { column: lines.at(-1).length + 1, line: lines.length };
+  return { column: lines[lines.length - 1].length + 1, line: lines.length };
 };
 
-/** Build a mutant for the span [start, end), resolving its line/column. */
+/**
+ * Build a mutant for the span [start, end), resolving its line/column.
+ * @param {string} content
+ * @param {number} start
+ * @param {number} end
+ * @param {string} operator
+ * @param {string} newOperator
+ * @param {string} [replacement]
+ * @returns {Mutant}
+ */
 const spanMutant = (
   content,
   start,
@@ -49,12 +73,18 @@ const spanMutant = (
 
 // --- Binary / logical / assignment operators -----------------------------
 
+/** @type {Record<string, [Record<string, string[]>, Record<string, string[]>]>} */
 const MUTABLE_NODES = {
   AssignmentExpression: [assignmentOperators, assignmentOperatorsExhaustive],
   BinaryExpression: [binaryOperators, binaryOperatorsExhaustive],
   LogicalExpression: [logicalOperators, logicalOperatorsExhaustive],
 };
 
+/**
+ * @param {any} node
+ * @param {string} content
+ * @param {boolean} exhaustive
+ */
 const operatorMutants = (node, content, exhaustive) => {
   const tables = node.type ? MUTABLE_NODES[node.type] : undefined;
   const { left, operator, right } = node;
@@ -68,12 +98,17 @@ const operatorMutants = (node, content, exhaustive) => {
 
 // --- Unary operators: `!x → x` (drop a guard), `-x ↔ +x` -----------------
 
+/** @type {Record<string, Array<{ newOperator: string, replacement: string }>>} */
 const UNARY_MUTATIONS = {
   "-": [{ newOperator: "+", replacement: "+" }],
   "!": [{ newOperator: "∅", replacement: "" }],
   "+": [{ newOperator: "-", replacement: "-" }],
 };
 
+/**
+ * @param {any} node
+ * @param {string} content
+ */
 const unaryMutants = (node, content) => {
   const { argument, operator, start } = node;
   if (!argument || operator === undefined || start === undefined) return [];
@@ -94,6 +129,10 @@ const unaryMutants = (node, content) => {
 
 // --- Update operators: `i++ ↔ i--` ---------------------------------------
 
+/**
+ * @param {any} node
+ * @param {string} content
+ */
 const updateMutants = (node, content) => {
   const { argument, end, operator, prefix, start } = node;
   // An UpdateExpression always carries argument/operator/start/end; this guard
@@ -109,6 +148,10 @@ const updateMutants = (node, content) => {
 
 // --- Boolean literals: `true ↔ false` ------------------------------------
 
+/**
+ * @param {any} node
+ * @param {string} content
+ */
 const booleanMutants = (node, content) => {
   if (
     typeof node.value !== "boolean" ||
@@ -127,6 +170,10 @@ const booleanMutants = (node, content) => {
 
 const REMOVABLE_EXPRESSIONS = new Set(["AwaitExpression", "CallExpression"]);
 
+/**
+ * @param {any} node
+ * @param {string} content
+ */
 const statementRemovalMutants = (node, content) => {
   const { end, expression, start } = node;
   if (
@@ -147,6 +194,11 @@ const statementRemovalMutants = (node, content) => {
 
 // --- Dispatch + entry point ----------------------------------------------
 
+/**
+ * @param {string} content
+ * @param {boolean} exhaustive
+ * @returns {(node: any) => Mutant[]}
+ */
 const mutantsForNode = (content, exhaustive) => (node) => {
   switch (node.type) {
     case "AssignmentExpression":
@@ -186,6 +238,11 @@ const TYPE_FIELDS = new Set([
  * TypeScript type. A type is erased at runtime, so mutating it (e.g. the `true`
  * in `{ ok: true }`) is always an equivalent no-op — those nodes are skipped.
  */
+/**
+ * @param {unknown} value
+ * @param {boolean} inType
+ * @returns {Generator<{ inType: boolean, node: any }>}
+ */
 function* walkChild(value, inType) {
   if (Array.isArray(value)) {
     for (const child of value) yield* walk(child, inType);
@@ -194,6 +251,11 @@ function* walkChild(value, inType) {
   }
 }
 
+/**
+ * @param {any} node
+ * @param {boolean} [inType]
+ * @returns {Generator<{ inType: boolean, node: any }>}
+ */
 function* walk(node, inType = false) {
   if (!node || typeof node !== "object") return;
   if (typeof node.type === "string") yield { inType, node };
@@ -202,11 +264,21 @@ function* walk(node, inType = false) {
   }
 }
 
-/** Whether the source still parses — a mutant that breaks parsing is stillborn. */
+/**
+ * Whether the source still parses — a mutant that breaks parsing is stillborn.
+ * @param {string} fileName
+ * @param {string} source
+ */
 const parses = (fileName, source) =>
   parseSync(fileName, source).errors.length === 0;
 
-/** Generate every mutant for a source file's contents. */
+/**
+ * Generate every mutant for a source file's contents.
+ * @param {string} content
+ * @param {string} filePath
+ * @param {boolean} exhaustive
+ * @returns {Mutant[]}
+ */
 export const generateMutants = (content, filePath, exhaustive) => {
   const fileName = basename(filePath);
   const { program } = parseSync(fileName, content);
@@ -223,7 +295,11 @@ export const generateMutants = (content, filePath, exhaustive) => {
   );
 };
 
-/** Apply a mutant to the original source, returning the mutated source. */
+/**
+ * Apply a mutant to the original source, returning the mutated source.
+ * @param {string} content
+ * @param {Mutant} mutant
+ */
 export const applyMutant = (content, mutant) =>
   `${content.slice(0, mutant.start)} ${
     mutant.replacement === undefined ? mutant.newOperator : mutant.replacement

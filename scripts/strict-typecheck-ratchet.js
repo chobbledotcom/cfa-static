@@ -9,70 +9,15 @@
  *   - fewer errors than the baseline also fails, printing the corrected
  *     baseline ready to paste, so every win is locked in
  *
- * The baseline is the complete map of remaining strict debt; shrink it
- * file by file until it is empty.
+ * The baseline is the complete map of remaining strict debt. It is empty:
+ * the whole codebase is strict-clean, and every file must stay that way.
  */
 
 import { runIfMain } from "#scripts/lib/is-main-module.js";
 import { runToolCapture } from "#scripts/lib/run-tool.js";
 import { frozenObject } from "#toolkit/fp/object.js";
 
-const STRICT_ERROR_BASELINE = frozenObject({
-  ".eleventy.js": 3,
-  "bin/profile-report.js": 1,
-  "packages/js-toolkit/fp/array.js": 2,
-  "scripts/build-metrics.js": 6,
-  "scripts/cli-utils.js": 6,
-  "scripts/cpd.js": 5,
-  "scripts/customise-cms/blocks.js": 17,
-  "scripts/customise-cms/cli.js": 25,
-  "scripts/customise-cms/collection-config.js": 1,
-  "scripts/customise-cms/collections.js": 1,
-  "scripts/customise-cms/compact-yaml.js": 4,
-  "scripts/customise-cms/components.js": 4,
-  "scripts/customise-cms/prompts.js": 3,
-  "scripts/eleventy-build.js": 11,
-  "scripts/generate-blocks-reference.js": 8,
-  "scripts/generate-pages-cms-types.js": 26,
-  "scripts/internal-links.js": 24,
-  "scripts/lib/colors.js": 6,
-  "scripts/lighthouse.js": 13,
-  "scripts/mutation.js": 21,
-  "scripts/mutation/generate.js": 38,
-  "scripts/mutation/ignore.js": 20,
-  "scripts/mutation/runner.js": 31,
-  "scripts/mutation/summary.js": 12,
-  "scripts/screenshot.js": 21,
-  "src/_lib/build/scss.js": 7,
-  "src/_lib/collections/news.js": 1,
-  "src/_lib/eleventy/blocks.js": 1,
-  "src/_lib/eleventy/breadcrumbs.js": 7,
-  "src/_lib/eleventy/collection-lookup.js": 1,
-  "src/_lib/eleventy/file-utils.js": 7,
-  "src/_lib/eleventy/filters.js": 2,
-  "src/_lib/eleventy/html-transform.js": 7,
-  "src/_lib/eleventy/screenshots.js": 11,
-  "src/_lib/eleventy/style-bundle.js": 4,
-  "src/_lib/eleventy/validate-collections.js": 17,
-  "src/_lib/media/browser-utils.js": 14,
-  "src/_lib/media/iconify.js": 4,
-  "src/_lib/media/image-external.js": 9,
-  "src/_lib/media/image-lqip.js": 2,
-  "src/_lib/media/image-pipeline.js": 1,
-  "src/_lib/media/image-utils.js": 2,
-  "src/_lib/media/image.js": 2,
-  "src/_lib/media/lighthouse.js": 13,
-  "src/_lib/media/screenshot.js": 8,
-  "src/_lib/media/thumbnail-placeholder.js": 2,
-  "src/_lib/media/unused-images.js": 8,
-  "src/_lib/transforms/external-links.js": 6,
-  "src/_lib/transforms/read-more.js": 11,
-  "src/_lib/utils/block-schema/shared.js": 1,
-  "src/_lib/utils/collection-filter.js": 1,
-  "src/_lib/utils/collection-utils.js": 2,
-  "src/_lib/utils/git-dates.js": 10,
-  "src/_lib/utils/html-tokenizer.js": 3,
-});
+const STRICT_ERROR_BASELINE = frozenObject({});
 
 /** Matches one `path(line,col): error TScode: message` diagnostic line. */
 const ERROR_LINE = /^(.+?)\(\d+,\d+\): error TS\d+: /;

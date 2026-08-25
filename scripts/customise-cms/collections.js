@@ -105,6 +105,7 @@ export const getRequiredCollections = () =>
 /**
  * Get direct dependencies for a collection. Every definition carries an
  * explicit dependencies array, so an unknown name fails loudly here.
+ * @param {string} name
  */
 const getCollectionDeps = (name) => {
   const collection = getCollection(name);

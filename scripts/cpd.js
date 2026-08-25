@@ -21,6 +21,11 @@ const JSCPD_REPORT = join(ROOT_DIR, ".jscpd-report", "jscpd-report.json");
 const MAX_DUPLICATES_TO_SHOW = 5;
 const MAX_EXCERPT_LINES = 20;
 
+/**
+ * @typedef {{ name?: string, start: number, end: number }} CpdFileSpan
+ * @typedef {{ firstFile?: CpdFileSpan, secondFile?: CpdFileSpan, format?: string, lines?: number, fragment?: string }} CpdDuplicate
+ */
+
 export const buildCpdFailureMessage = () => `
 jscpd found duplicated code.
 
@@ -62,6 +67,7 @@ export const loadCpdDuplicates = (reportPath = JSCPD_REPORT) => {
   return duplicates;
 };
 
+/** @param {string | undefined} fileName */
 const resolveReportFile = (fileName) => {
   if (!fileName) return null;
 
@@ -72,6 +78,7 @@ const resolveReportFile = (fileName) => {
   return existsSync(fullPath) ? fullPath : null;
 };
 
+/** @param {CpdFileSpan} span */
 export const buildSourceExcerptLines = ({ name, start, end }) => {
   const filePath = resolveReportFile(name);
   if (!filePath) return ["    (source unavailable)"];
@@ -91,6 +98,7 @@ export const buildSourceExcerptLines = ({ name, start, end }) => {
   return lines.length > 0 ? lines : ["    (source unavailable)"];
 };
 
+/** @param {CpdDuplicate | undefined} duplicate */
 export const buildCpdDuplicateLines = (duplicate) => {
   const firstFile = duplicate?.firstFile;
   const secondFile = duplicate?.secondFile;
@@ -121,7 +129,7 @@ export const buildCpdDuplicateLines = (duplicate) => {
 };
 
 /**
- * @param {object[]} duplicates
+ * @param {CpdDuplicate[]} duplicates
  */
 export const buildCpdFailureLines = (duplicates) => {
   const lines = ["❌ jscpd found duplicated code"];

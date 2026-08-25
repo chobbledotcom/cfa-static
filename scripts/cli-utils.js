@@ -92,19 +92,30 @@ export const optionsBuilder = (extra) => (values) => ({
 export const stringListValue = (value) =>
   Array.isArray(value) ? value.map(String) : [];
 
-/** Print usage and exit 0 — the -h/--help path. */
+/**
+ * Print usage and exit 0 — the -h/--help path.
+ * @param {string} usage
+ */
 const showHelp = (usage) => {
   console.log(usage);
   process.exit(0);
 };
 
-/** Report a usage error and exit non-zero so wrappers see the failure. */
+/**
+ * Report a usage error and exit non-zero so wrappers see the failure.
+ * @param {string} message
+ * @param {string} usage
+ */
 export const usageError = (message, usage) => {
   console.error(`Error: ${message}`);
   console.error(usage);
   process.exit(1);
 };
 
+/**
+ * @param {Array<{ error: unknown }>} errors
+ * @param {(err: any) => string} getKey
+ */
 export const logErrors = (errors, getKey) => {
   if (errors.length === 0) return false;
   console.error(`\nErrors: ${errors.length}`);
@@ -132,6 +143,7 @@ const maybeStartServer = async (siteDir, port, usage) => {
   return server;
 };
 
+/** @param {{ baseUrl: string, stop: () => void } | null} server */
 const stopServerIfRunning = (server) => {
   if (server) {
     server.stop();

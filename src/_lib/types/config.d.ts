@@ -41,9 +41,15 @@ export type SiteConfig = {
   search_collections: string[];
   linkify_urls: boolean;
 
+  // Guaranteed by DEFAULTS ({} when unset; pickNonNull strips null overrides)
+  screenshots: ScreenshotConfig;
+
   // Optional (may be null)
   homepage_footer_markdown: string | null;
-  screenshots: ScreenshotConfig | null;
+
+  // Optional, no default: set per-site in config.json to enable phone
+  // linkification (digit count of a phone number to match)
+  phoneNumberLength?: number;
 
   // Derived (computed from other config values)
   internal_link_suffix: string;

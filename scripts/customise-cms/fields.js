@@ -26,6 +26,7 @@
  * @property {FieldOptions} [options] - Type-specific options
  * @property {CmsField[]} [fields] - Nested fields for object types
  * @property {CmsField[]} [blocks] - Nested block fields for block editors
+ * @property {string} [blockKey] - Discriminator key for block editors
  * @property {string} [component] - Reference to a hoisted component
  * @property {string} [_componentName] - Marker: hoist this field into `components:`
  */
@@ -132,10 +133,11 @@ export const createObjectListField = (name, label, nestedFields) => ({
 });
 
 /**
- * Create a reference field
+ * Create a reference field. A reference without a target collection is a
+ * broken schema, so an absent collection fails loudly here.
  * @param {string} name - Field name
  * @param {string} label - Display label
- * @param {string} collection - Referenced collection name
+ * @param {string | undefined} collection - Referenced collection name
  * @param {boolean} [multiple=true] - Allow multiple references (adds list: true at top level)
  * @returns {CmsField} Reference field configuration
  */
@@ -144,18 +146,23 @@ export const createReferenceField = (
   label,
   collection,
   multiple = true,
-) => ({
-  name,
-  label,
-  type: "reference",
-  ...(multiple && { list: true }),
-  options: {
-    collection,
-    search: "fields.name",
-    value: "{path}",
-    label: "{fields.name}",
-  },
-});
+) => {
+  if (collection === undefined) {
+    throw new Error(`Reference field "${name}" is missing options.collection`);
+  }
+  return {
+    name,
+    label,
+    type: "reference",
+    ...(multiple && { list: true }),
+    options: {
+      collection,
+      search: "fields.name",
+      value: "{path}",
+      label: "{fields.name}",
+    },
+  };
+};
 
 /**
  * Create an Eleventy navigation field with optional external URL support

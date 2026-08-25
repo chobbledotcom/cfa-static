@@ -15,12 +15,26 @@ import {
 import { slugToLabel } from "#scripts/customise-cms/generator-helpers.js";
 import { BLOCK_CMS_FIELDS, isBlockAllowedIn } from "#utils/block-schema.js";
 
+/** @typedef {import('./fields.js').CmsField} CmsField */
+
+/**
+ * One field's schema as declared in a block schema module.
+ * @typedef {Object} BlockFieldSchema
+ * @property {string} type
+ * @property {string} [label]
+ * @property {boolean} [required]
+ * @property {*} [default]
+ * @property {boolean} [list]
+ * @property {Record<string, BlockFieldSchema>} [fields]
+ * @property {{ collection: string, multiple?: boolean }} [options]
+ */
+
 /**
  * Convert a non-markdown schema field to a generic CMS field
  * @param {string} name - Field name
- * @param {object} fieldSchema - Field schema from JSON
+ * @param {BlockFieldSchema} fieldSchema - Field schema from JSON
  * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} CMS field configuration
+ * @returns {CmsField} CMS field configuration
  */
 const buildGenericCmsField = (name, fieldSchema, useVisualEditor) => ({
   name,
@@ -39,9 +53,9 @@ const buildGenericCmsField = (name, fieldSchema, useVisualEditor) => ({
 /**
  * Convert a page layout block schema field to a CMS field
  * @param {string} name - Field name
- * @param {object} fieldSchema - Field schema from JSON
+ * @param {BlockFieldSchema} fieldSchema - Field schema from JSON
  * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} CMS field configuration
+ * @returns {CmsField} CMS field configuration
  */
 const toCmsField = (name, fieldSchema, useVisualEditor) => {
   if (fieldSchema.type === "markdown") {
@@ -60,8 +74,8 @@ const toCmsField = (name, fieldSchema, useVisualEditor) => {
       ...createReferenceField(
         name,
         fieldSchema.label || name,
-        fieldSchema.options.collection,
-        fieldSchema.options.multiple === true,
+        fieldSchema.options?.collection,
+        fieldSchema.options?.multiple === true,
       ),
       ...(fieldSchema.required && { required: true }),
     };
@@ -83,7 +97,7 @@ const componentNameFor = (type) => `block_${type.replace(/-/g, "_")}`;
  * components map and replaced with a component reference downstream.
  * @param {string} type - Block type slug (must exist in BLOCK_CMS_FIELDS)
  * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} CMS block configuration
+ * @returns {CmsField} CMS block configuration
  */
 const buildBlockComponent = (type, useVisualEditor) => ({
   name: type,
@@ -102,7 +116,7 @@ const buildBlockComponent = (type, useVisualEditor) => ({
  * component no matter which page uses it.
  * @param {string[]} blockTypes - Block type slugs supported on this page
  * @param {boolean} useVisualEditor - Whether to use rich-text editor for markdown fields
- * @returns {object} CMS blocks field configuration using type: block
+ * @returns {CmsField} CMS blocks field configuration using type: block
  */
 export const generateBlocksField = (blockTypes, useVisualEditor) => ({
   name: "blocks",
