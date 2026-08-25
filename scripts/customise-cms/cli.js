@@ -144,7 +144,7 @@ const validateFeatures = (features) => {
 
 /**
  * Check if any CLI flags were provided (excluding help and list options)
- * @param {Object} values - Parsed CLI values
+ * @param {Record<string, any>} values - Parsed CLI values
  * @returns {boolean} True if non-interactive mode should be used
  */
 export const hasCliFlags = (values) => {
@@ -168,7 +168,7 @@ export const hasCliFlags = (values) => {
 
 /**
  * Format a collection for display with optional flags
- * @param {Object} collection - Collection definition
+ * @param {{ name: string, description: string, required?: boolean, internal?: boolean }} collection - Collection definition
  * @returns {string} Formatted collection string
  */
 const formatCollection = (collection) => {
@@ -201,7 +201,7 @@ const listFeatures = () => {
 
 /**
  * Handle list options (--list-collections, --list-features)
- * @param {Object} values - Parsed CLI values
+ * @param {Record<string, any>} values - Parsed CLI values
  * @returns {boolean} True if a list was displayed and we should exit
  */
 export const handleListOptions = (values) => {
@@ -218,12 +218,15 @@ export const handleListOptions = (values) => {
 
 /**
  * Build collections list from CLI values
- * @param {Object} values - Parsed CLI values
- * @param {Object|null} baseConfig - Base config if --all was used
+ * @param {Record<string, any>} values - Parsed CLI values
+ * @param {import('./config.js').CmsConfig | null} baseConfig - Base config if --all was used
  * @returns {string[]} List of collection names
  */
 const buildCollections = (values, baseConfig) => {
-  if (values.all) return baseConfig.collections;
+  if (values.all) {
+    if (!baseConfig) throw new Error("--all requires a base config");
+    return baseConfig.collections;
+  }
 
   const requestedCollections = parseCommaSeparated(values.collections);
   validateCollections(requestedCollections);
@@ -237,28 +240,32 @@ const buildCollections = (values, baseConfig) => {
 /**
  * Create base features object (all enabled or all disabled)
  * @param {boolean} allEnabled - Whether to enable all features
- * @param {Object|null} baseConfig - Base config if --all was used
+ * @param {import('./config.js').CmsConfig | null} baseConfig - Base config if --all was used
  * @returns {import('./config.js').CmsFeatures} Features object
  */
-const createBaseFeatures = (allEnabled, baseConfig) =>
-  allEnabled ? { ...baseConfig.features } : createEmptyConfig().features;
+const createBaseFeatures = (allEnabled, baseConfig) => {
+  if (!allEnabled) return createEmptyConfig().features;
+  if (!baseConfig) throw new Error("--all requires a base config");
+  return { ...baseConfig.features };
+};
 
 /**
- * Apply feature overrides (enables and disables) to features object
- * @param {Object} features - Features object to modify
+ * Apply feature overrides (enables and disables) to a features object,
+ * returning a new object (validateFeatures has vetted every name).
+ * @param {import('./config.js').CmsFeatures} features - Base feature flags
  * @param {string[]} enables - Features to enable
  * @param {string[]} disables - Features to disable
  * @returns {import('./config.js').CmsFeatures} Modified features object
  */
-const applyFeatureOverrides = (features, enables, disables) => {
-  for (const f of enables) features[f] = true;
-  for (const f of disables) features[f] = false;
-  return features;
-};
+const applyFeatureOverrides = (features, enables, disables) => ({
+  ...features,
+  ...Object.fromEntries(enables.map((f) => [f, true])),
+  ...Object.fromEntries(disables.map((f) => [f, false])),
+});
 
 /**
  * Resolve boolean flag pair (e.g., --src-folder / --no-src-folder)
- * @param {Object} values - Parsed CLI values
+ * @param {Record<string, any>} values - Parsed CLI values
  * @param {string} positiveFlag - Name of positive flag
  * @param {string} negativeFlag - Name of negative flag
  * @param {boolean} defaultValue - Default value if neither is set
@@ -276,13 +283,8 @@ const resolveBooleanFlag = (
 };
 
 /**
- * Build CMS config from CLI arguments
- * @param {Object} values - Parsed CLI values
- * @returns {import('./config.js').CmsConfig} CMS configuration
- */
-/**
  * Resolve the feature set from the --all/--enable/--disable flags
- * @param {Object} values - Parsed CLI values
+ * @param {Record<string, any>} values - Parsed CLI values
  * @param {import('./config.js').CmsConfig | null} baseConfig
  */
 const buildFeaturesFromCli = (values, baseConfig) => {
@@ -297,6 +299,11 @@ const buildFeaturesFromCli = (values, baseConfig) => {
   );
 };
 
+/**
+ * Build CMS config from CLI arguments
+ * @param {Record<string, any>} values - Parsed CLI values
+ * @returns {import('./config.js').CmsConfig} CMS configuration
+ */
 export const buildConfigFromCli = (values) => {
   const baseConfig = values.all ? createDefaultConfig() : null;
 
@@ -317,7 +324,7 @@ export const buildConfigFromCli = (values) => {
 
 /**
  * Get CLI options
- * @param {Object} values - Parsed CLI values
+ * @param {Record<string, any>} values - Parsed CLI values
  * @returns {{ saveConfig: boolean, dryRun: boolean, quiet: boolean }} CLI options object
  */
 export const getCliOptions = (values) => ({

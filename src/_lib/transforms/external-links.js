@@ -8,13 +8,6 @@ import { transformHtml } from "#utils/html-tokenizer.js";
 import { isExternalUrl } from "#utils/url-utils.js";
 
 /**
- * Create new attributes array with an attribute added or updated (immutable).
- * @param {Array<[string, string, boolean]>} attributes
- * @param {string} name
- * @param {string} value
- * @returns {Array<[string, string, boolean]>}
- */
-/**
  * Create attribute tuple for tokenizer.
  * @param {string} name
  * @param {string} value
@@ -22,6 +15,13 @@ import { isExternalUrl } from "#utils/url-utils.js";
  */
 const attrTuple = (name, value) => [name, value, true];
 
+/**
+ * Create new attributes array with an attribute added or updated (immutable).
+ * @param {Array<[string, string, boolean]>} attributes
+ * @param {string} name
+ * @param {string} value
+ * @returns {Array<[string, string, boolean]>}
+ */
 const withAttr = (attributes, name, value) => {
   const lowerName = name.toLowerCase();
   const idx = attributes.findIndex(([n]) => n.toLowerCase() === lowerName);

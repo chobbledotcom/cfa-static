@@ -24,6 +24,24 @@ const OUTPUT_FILE = process.env.PAGES_CMS_TYPES_OUTPUT_PATH
   ? process.env.PAGES_CMS_TYPES_OUTPUT_PATH
   : join(ROOT_DIR, "src/_lib/types/pages-cms-generated.d.ts");
 
+/**
+ * A field as parsed from .pages.yml.
+ * @typedef {Object} YmlField
+ * @property {string} name
+ * @property {string} [type]
+ * @property {string} [label]
+ * @property {boolean} [required]
+ * @property {boolean} [list]
+ * @property {YmlField[]} [fields]
+ * @property {string} [component]
+ */
+
+/** @typedef {{ interfaces: string[], generatedNames: Set<string> }} TypeOutput */
+
+/** @returns {TypeOutput} */
+const newTypeOutput = () => ({ interfaces: [], generatedNames: new Set() });
+
+/** @type {Record<string, string>} */
 const SCALAR_TYPE_MAP = {
   string: "string",
   number: "number",
@@ -44,7 +62,8 @@ const SCALAR_TYPE_MAP = {
  * @param {{ type?: string, name?: string }} field
  */
 const mapFieldType = (field) => {
-  const mapped = SCALAR_TYPE_MAP[field.type];
+  const mapped =
+    field.type === undefined ? undefined : SCALAR_TYPE_MAP[field.type];
   if (!mapped) {
     throw new Error(
       `No TypeScript mapping for field "${field.name}" of type "${field.type}" - add it to SCALAR_TYPE_MAP`,
@@ -56,6 +75,7 @@ const mapFieldType = (field) => {
 /**
  * Generate an interface name from a field name
  * e.g., "image_cards" -> "PagesCMSImageCard"
+ * @param {string} fieldName
  */
 const generateInterfaceName = (fieldName) => {
   const singular = fieldName
@@ -69,11 +89,14 @@ const generateInterfaceName = (fieldName) => {
 
 /**
  * Check if a field is a nested object type
+ * @param {YmlField} field
  */
 const isNestedObjectType = (field) => field.type === "object" && field.fields;
 
 /**
  * Generate interface name for a nested type
+ * @param {string} parentName
+ * @param {string} fieldName
  */
 const generateNestedInterfaceName = (parentName, fieldName) => {
   const capitalizedName =
@@ -83,6 +106,10 @@ const generateNestedInterfaceName = (parentName, fieldName) => {
 
 /**
  * Get the TypeScript type for a subfield, processing nested objects if needed
+ * @param {YmlField} subField
+ * @param {string} parentInterfaceName
+ * @param {TypeOutput} output
+ * @returns {string}
  */
 const getSubfieldType = (subField, parentInterfaceName, output) => {
   if (!isNestedObjectType(subField)) {
@@ -101,17 +128,26 @@ const getSubfieldType = (subField, parentInterfaceName, output) => {
 
 /**
  * Extract the properties for a single object-type field
+ * @param {YmlField} field
+ * @param {string} interfaceName
+ * @param {TypeOutput} output
  */
-const extractObjectFields = (field, interfaceName, output) =>
-  field.fields.map((subField) => ({
+const extractObjectFields = (field, interfaceName, output) => {
+  if (!field.fields) {
+    throw new Error(`Object field "${field.name}" has no fields to type`);
+  }
+  return field.fields.map((subField) => ({
     name: subField.name,
     type: getSubfieldType(subField, interfaceName, output),
     required: subField.required === true,
     label: subField.label,
   }));
+};
 
 /**
  * Generate the TypeScript source for one interface
+ * @param {string} interfaceName
+ * @param {Array<{ name: string, type: string, required: boolean, label?: string }>} properties
  */
 const generateObjectTypeCode = (interfaceName, properties) => {
   const lines = [`export interface ${interfaceName} {`];
@@ -129,6 +165,9 @@ const generateObjectTypeCode = (interfaceName, properties) => {
  * Generate an interface for an object field and record it in the output.
  * The name is claimed before descending into subfields so re-entrant
  * nesting can never recurse forever.
+ * @param {YmlField} field
+ * @param {string} interfaceName
+ * @param {TypeOutput} output
  */
 const registerType = (field, interfaceName, output) => {
   output.generatedNames.add(interfaceName);
@@ -138,6 +177,9 @@ const registerType = (field, interfaceName, output) => {
 
 /**
  * Resolve a component reference in a field using the components map
+ * @param {YmlField} field
+ * @param {Record<string, object>} components
+ * @returns {YmlField}
  */
 const resolveComponentRef = (field, components) => {
   if (!field.component) return field;
@@ -149,6 +191,9 @@ const resolveComponentRef = (field, components) => {
 
 /**
  * Resolve all component references in a fields array, recursively
+ * @param {YmlField[]} fields
+ * @param {Record<string, object>} components
+ * @returns {YmlField[]}
  */
 const resolveFields = (fields, components) =>
   fields.map((field) => {
@@ -164,6 +209,8 @@ const resolveFields = (fields, components) =>
 
 /**
  * Generate an interface for a top-level object field, once per field name
+ * @param {YmlField} field
+ * @param {TypeOutput} output
  */
 const registerTopLevelField = (field, output) => {
   if (!isNestedObjectType(field) || output.generatedNames.has(field.name)) {
@@ -175,6 +222,7 @@ const registerTopLevelField = (field, output) => {
 
 /**
  * Generate interfaces for every object-typed field across the config
+ * @param {any} config
  * @returns {string[]} TypeScript interface sources
  */
 const extractAllTypes = (config) => {
@@ -182,7 +230,7 @@ const extractAllTypes = (config) => {
     throw new Error(`${PAGES_YML} has no content section - nothing to type`);
   }
   const components = "components" in config ? config.components : {};
-  const output = { interfaces: [], generatedNames: new Set() };
+  const output = newTypeOutput();
 
   for (const item of config.content) {
     const fields = item.fields ? resolveFields(item.fields, components) : [];

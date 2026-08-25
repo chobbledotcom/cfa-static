@@ -20,9 +20,17 @@ import {
 import { dedupeAsync, jsonKey } from "#toolkit/fp/memoize.js";
 import { slugify } from "#utils/slug-utils.js";
 
+/** @param {string} str */
 const shortHash = (str) =>
   crypto.createHash("md5").update(str).digest("hex").slice(0, 8);
 
+/**
+ * @param {string} _id
+ * @param {string} _src
+ * @param {number} width
+ * @param {string} format
+ * @param {{ slug: string }} options
+ */
 const externalFilenameFormat = (_id, _src, width, format, options) =>
   `${options.slug}-${width}.${format}`;
 
@@ -35,6 +43,9 @@ const externalFilenameFormat = (_id, _src, width, format, options) =>
  * overlapping fetch/processing work without retaining every settled result in memory.
  */
 const processExternal = dedupeAsync(
+  /**
+   * @param {Omit<import("#lib/types").ComputeImageProps, "imageName" | "noLqip"> & { src: string }} props
+   */
   async ({
     src,
     alt,

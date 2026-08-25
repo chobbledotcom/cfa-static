@@ -45,6 +45,7 @@ const getIndent = (line) => {
 const isBlockKeyLine = (trimmed) =>
   trimmed.endsWith(":") && !trimmed.includes(": ");
 
+/** @param {string} trimmed */
 const shouldSkipLine = (trimmed) => {
   if (!trimmed || trimmed.startsWith("#")) return true;
   if (trimmed === "-") return true;
@@ -164,12 +165,15 @@ const tryCompactLine = (objectLines, listIndent) => {
 
 /**
  * Check if a line is a list item start (- key: value pattern)
+ * @param {string} trimmed
  */
 const isListItemStart = (trimmed) =>
   trimmed.startsWith("- ") && trimmed.includes(":");
 
 /**
  * Process a single line or list item, returning the output line(s) and next index
+ * @param {string[]} lines
+ * @param {number} i
  */
 const processLine = (lines, i) => {
   const line = lines[i];

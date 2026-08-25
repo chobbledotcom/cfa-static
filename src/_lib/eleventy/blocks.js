@@ -21,7 +21,7 @@ const BASE_LAYOUTS = ["base.html", "base"];
  * @returns {string} Content string, or empty string for base layout pages.
  */
 const validatePageBodyContent = (content, layout, inputPath) => {
-  if (!BASE_LAYOUTS.includes(layout)) return content;
+  if (!layout || !BASE_LAYOUTS.includes(layout)) return content;
   if (!content || content.trim() === "") return "";
   throw new Error(
     `${inputPath}: uses base.html but has body content. Move it into a 'markdown' block in frontmatter — base layout pages must express all content as blocks.`,

@@ -79,6 +79,7 @@ const byName = sort((a, b) => a.data.name.localeCompare(b.data.name));
 const prepareItemsTextList = (collection, currentUrl) => {
   if (!collection?.length) return [];
   const filtered = byName(collection.filter((item) => item.url !== currentUrl));
+  /** @param {number} index */
   const separator = (index) => {
     if (index === filtered.length - 1) return "";
     if (index === filtered.length - 2) return " and ";

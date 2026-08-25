@@ -15,6 +15,20 @@ if (!profilePath || !outputPath || !projectDir) {
   process.exit(1);
 }
 
+/**
+ * @typedef {Object} ProfileNode
+ * @property {number} id
+ * @property {{ functionName?: string, url?: string, lineNumber: number }} callFrame
+ * @property {number} [hitCount]
+ *
+ * @typedef {Object} CpuProfile
+ * @property {ProfileNode[]} nodes
+ * @property {number[]} [samples]
+ * @property {number} startTime
+ * @property {number} endTime
+ */
+
+/** @type {CpuProfile} */
 const profile = JSON.parse(readFileSync(profilePath, "utf8"));
 
 // Build node lookup map
@@ -40,6 +54,7 @@ const projectPrefix = `file://${projectDir}/`;
 
 for (const node of profile.nodes) {
   const info = nodes.get(node.id);
+  if (!info) throw new Error(`Profile node ${node.id} missing from lookup`);
   const url = info.url.replace(projectPrefix, "");
 
   // Skip internals and dependencies
@@ -48,15 +63,17 @@ for (const node of profile.nodes) {
   const location = `${url}:${info.lineNumber + 1}`;
   const key = `${info.functionName}|${location}`;
 
-  if (!stats.has(key)) {
+  const entry = stats.get(key);
+  if (entry) {
+    entry.hitCount += info.hitCount;
+  } else {
     stats.set(key, {
       functionName: info.functionName,
       location,
-      hitCount: 0,
+      hitCount: info.hitCount,
       selfTime: 0,
     });
   }
-  stats.get(key).hitCount += info.hitCount;
 }
 
 // Calculate self-time from samples (absent in a degenerate profile)

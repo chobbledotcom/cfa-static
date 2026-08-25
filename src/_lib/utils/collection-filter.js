@@ -47,6 +47,7 @@ const filterItems = (items, filterConfig) => {
   }
 
   // Resolves the filter's dot-notation property path on an item.
+  /** @param {any} item */
   const getNestedProperty = (item) => {
     return filterConfig.property
       .split(".")

@@ -65,6 +65,12 @@ const requireBlankLineBeforeLists = (md) => {
   const { fn: listRule, alt } = ruler.__rules__[ruler.__find__("list")];
   ruler.at(
     "list",
+    /**
+     * @param {any} state
+     * @param {number} startLine
+     * @param {number} endLine
+     * @param {boolean} silent
+     */
     (state, startLine, endLine, silent) => {
       if (silent && state.parentType === "paragraph" && state.listIndent < 0) {
         return false;
@@ -166,7 +172,7 @@ async function snippetBlocksFilter(name) {
  *
  * @param {string} name
  * @param {Record<string, unknown>} context
- * @param {(blocks: Record<string, unknown>[]) => Record<string, unknown>[]} [validate]
+ * @param {(blocks: any[]) => Record<string, unknown>[]} [validate]
  */
 const resolveSnippetBlocks = (name, context, validate = (blocks) => blocks) => {
   const data = readSnippetData(name);
@@ -216,8 +222,10 @@ const configureFileUtils = (eleventyConfig) => {
   eleventyConfig.addAsyncFilter("snippet_blocks", snippetBlocksFilter);
   eleventyConfig.addAsyncFilter("sidebar_blocks", sidebarBlocksFilter);
   eleventyConfig.addAsyncFilter("render_block_liquid", renderBlockLiquidFilter);
-  eleventyConfig.addFilter("markdown", (str) =>
-    str ? mdRenderer.render(str) : "",
+  eleventyConfig.addFilter(
+    "markdown",
+    /** @param {string | null | undefined} str */
+    (str) => (str ? mdRenderer.render(str) : ""),
   );
 
   eleventyConfig.addAsyncShortcode(

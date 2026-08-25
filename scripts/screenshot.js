@@ -70,12 +70,23 @@ const showViewports = () => {
   process.exit(0);
 };
 
+/**
+ * @param {any[]} results
+ * @param {(result: any) => string} getKey
+ */
 const logCaptureResults = (results, getKey) => {
   for (const result of results) {
     console.log(`  ${getKey(result)}: ${result.path}`);
   }
 };
 
+/**
+ * @param {(input: any, options: object) => Promise<{ results: any[], errors: any[] }>} screenshotFn
+ * @param {(input: any) => string} getDescription
+ * @param {(result: any) => string} resultKey
+ * @param {(err: any) => string} errorKey
+ * @returns {(input: any, options: object) => Promise<boolean>}
+ */
 const createBatchHandler =
   (screenshotFn, getDescription, resultKey, errorKey) =>
   async (input, options) => {
@@ -100,12 +111,17 @@ const handleMultiplePages = createBatchHandler(
   (e) => e.pagePath,
 );
 
+/**
+ * @param {string} pagePath
+ * @param {object} options
+ */
 const captureSinglePage = async (pagePath, options) => {
   const result = await screenshot(pagePath, options);
   console.log(`\nScreenshot saved: ${result.path}`);
   return false;
 };
 
+/** @param {{ isMultiple: boolean, values: Record<string, unknown> }} parsed */
 export const selectHandler = ({ isMultiple, values }) => {
   if (values["all-viewports"]) return handleAllViewports;
   if (isMultiple) return handleMultiplePages;
@@ -116,6 +132,7 @@ export const buildOptions = optionsBuilder((values) => ({
   viewport: values.viewport,
 }));
 
+/** @param {{ positionals: string[], isMultiple: boolean, values: Record<string, unknown> }} parsed */
 export const getInput = ({ positionals, isMultiple, values }) => {
   if (values["all-viewports"]) {
     // -a captures one page across every viewport; extra paths would be

@@ -1,5 +1,10 @@
 import os from "node:os";
 
+/**
+ * @typedef {{ idle: number, total: number, logicalCpuCount: number }} CpuSnapshot
+ */
+
+/** @param {import("node:os").CpuInfo["times"]} times */
 const sumTimes = (times) =>
   times.user + times.nice + times.sys + times.idle + times.irq;
 
@@ -18,6 +23,10 @@ const getCpuSnapshot = (cpus = os.cpus()) => {
   );
 };
 
+/**
+ * @param {CpuSnapshot} start
+ * @param {CpuSnapshot} end
+ */
 const calculateAverageCpuUsage = (start, end) => {
   const idle = end.idle - start.idle;
   const total = end.total - start.total;
@@ -33,6 +42,9 @@ const calculateAverageCpuUsage = (start, end) => {
   };
 };
 
+/**
+ * @param {{ percentage: number, busyCores: number, logicalCpuCount: number }} usage
+ */
 const formatAverageCpuUsage = ({ percentage, busyCores, logicalCpuCount }) =>
   `Average system CPU usage: ${percentage.toFixed(1)}% ` +
   `(${busyCores.toFixed(1)} of ${logicalCpuCount} logical CPUs)`;

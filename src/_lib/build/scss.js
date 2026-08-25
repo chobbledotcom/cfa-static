@@ -9,6 +9,11 @@ let sass = null;
 // Files that should be compiled (not just imported as partials)
 const COMPILED_BUNDLES = ["design-system-bundle.scss"];
 
+/**
+ * @param {string} inputContent
+ * @param {string} inputPath
+ * @returns {(data: unknown) => Promise<string>}
+ */
 const createScssCompiler = (inputContent, inputPath) => {
   const dir = path.dirname(inputPath);
   const isBundle = shouldCompileScss(inputPath);
@@ -32,9 +37,11 @@ const createScssCompiler = (inputContent, inputPath) => {
   };
 };
 
+/** @param {string} inputPath */
 const shouldCompileScss = (inputPath) =>
   COMPILED_BUNDLES.some((bundle) => inputPath.endsWith(bundle));
 
+/** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
 const configureScss = (eleventyConfig) => {
   // Explicitly watch CSS directory to trigger rebuilds when partials change
   eleventyConfig.addWatchTarget("./src/css/");
@@ -43,13 +50,18 @@ const configureScss = (eleventyConfig) => {
   eleventyConfig.addExtension("scss", {
     outputFileExtension: "css",
     useLayouts: false,
-    compile: (inputContent, inputPath) => {
-      // Only compile specified bundles, skip all other scss files
-      if (!shouldCompileScss(inputPath)) {
-        return () => undefined;
-      }
-      return createScssCompiler(inputContent, inputPath);
-    },
+    compile:
+      /**
+       * @param {string} inputContent
+       * @param {string} inputPath
+       */
+      (inputContent, inputPath) => {
+        // Only compile specified bundles, skip all other scss files
+        if (!shouldCompileScss(inputPath)) {
+          return () => undefined;
+        }
+        return createScssCompiler(inputContent, inputPath);
+      },
   });
 };
 

@@ -34,12 +34,14 @@ import { hasReadMoreMarker, processReadMore } from "#transforms/read-more.js";
 import { wrapTables } from "#transforms/responsive-tables.js";
 import { loadDOM, withDOMSlot } from "#utils/lazy-dom.js";
 
+/** @typedef {import("#lib/types").SiteConfig} SiteConfig */
+
 const getConfig = memoize(configModule);
 
 /**
  * Check if content requires DOM parsing (has tables, images, phone patterns, read-more markers, or config links)
  * @param {string} content
- * @param {number} phoneLen
+ * @param {number | undefined} phoneLen
  * @returns {boolean}
  */
 const needsDomParsing = (content, phoneLen) =>
@@ -54,7 +56,7 @@ const needsDomParsing = (content, phoneLen) =>
  * Apply DOM-based transforms (phone links, table wrappers, image processing, read-more)
  * Skips phone linkification when FAST_INACCURATE_BUILDS is enabled.
  * @param {string} html
- * @param {object} config
+ * @param {SiteConfig} config
  * @param {import("#lib/types").ProcessImageFn} processAndWrapImage
  * @returns {Promise<string>}
  */
@@ -79,15 +81,15 @@ const applyDomTransforms = (html, config, processAndWrapImage) =>
  * entity-escapes script/style text nodes when re-serialising, corrupting
  * inline JS and CSS. Extract those elements first and restore them after.
  * @param {string} content
- * @param {object} config
+ * @param {SiteConfig} config
  * @returns {string}
  */
 const linkifyHtml = (content, config) => {
   const { content: guarded, blocks } = extractRawTextElements(content);
   const linkified = linkifyHtmlLib(guarded, {
     ignoreTags: [...SKIP_TAGS],
-    target: config.externalLinksTargetBlank ? "_blank" : null,
-    rel: config.externalLinksTargetBlank ? "noopener noreferrer" : null,
+    target: config.externalLinksTargetBlank ? "_blank" : undefined,
+    rel: config.externalLinksTargetBlank ? "noopener noreferrer" : undefined,
     format: { url: formatUrlDisplay },
   });
   return restoreRawTextElements(linkified, blocks);
@@ -97,7 +99,7 @@ const linkifyHtml = (content, config) => {
  * Apply string-based transforms (URL/email linkification, external link attrs)
  * Skips linkification when FAST_INACCURATE_BUILDS is enabled.
  * @param {string} content
- * @param {object} config
+ * @param {SiteConfig} config
  * @returns {string}
  */
 const applyStringTransforms = (content, config) => {

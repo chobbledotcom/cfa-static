@@ -42,7 +42,10 @@ const withTitleCrumb = (crumbs, title) => [
  * @returns {string}
  */
 const getIndexUrl = (navigationParent, pageUrl, pageLanguage, translations) => {
-  const baseIndex = PARENT_URL_MAP[navigationParent];
+  const baseIndex =
+    navigationParent === undefined
+      ? undefined
+      : PARENT_URL_MAP[navigationParent];
   if (baseIndex) {
     const group = translationForUrl(baseIndex, translations);
     const translated = group ? group[pageLanguage.code] : undefined;
@@ -56,7 +59,7 @@ const getIndexUrl = (navigationParent, pageUrl, pageLanguage, translations) => {
 /**
  * Build breadcrumbs data array
  * Returns array of { label, url } objects (url is null for current page)
- * @param {Object} page - Current page object with url property
+ * @param {{ url: string }} page - Current page object with url property
  * @param {string} title - Page title
  * @param {string|undefined} navigationParent - Navigation parent name
  * @param {import("#lib/types").Language} pageLanguage - The language this page
@@ -107,11 +110,17 @@ const withSchemaBreadcrumbs = (meta, showBreadcrumbs, ...breadcrumbArgs) => {
     breadcrumbsFilter,
     null,
     breadcrumbArgs,
-  ).map((crumb, index) => ({
-    name: crumb.label,
-    url: canonicalUrl(crumb.url ? crumb.url : page.url),
-    position: index + 1,
-  }));
+  ).map(
+    /**
+     * @param {{ label: string, url: string | null }} crumb
+     * @param {number} index
+     */
+    (crumb, index) => ({
+      name: crumb.label,
+      url: canonicalUrl(crumb.url ? crumb.url : page.url),
+      position: index + 1,
+    }),
+  );
   return breadcrumbs.length > 0 ? { ...meta, breadcrumbs } : meta;
 };
 

@@ -7,6 +7,9 @@ import { createHtml } from "#utils/dom-builder.js";
 const ICONIFY_API_BASE = "https://api.iconify.design";
 const ICONS_DIR = "src/assets/icons/iconify";
 
+/** @type {Record<string, string>} Copied so lookups take arbitrary string keys */
+const socialIconMap = { ...socialIcons };
+
 /**
  * Normalize an icon name segment: trim, lowercase, convert underscores/spaces to hyphens.
  * @param {string} name
@@ -117,7 +120,7 @@ const renderIcon = async (icon) => {
  */
 const socialIcon = async (platform, baseDir) => {
   const key = String(platform).toLowerCase().trim();
-  const iconId = socialIcons[key];
+  const iconId = socialIconMap[key];
   if (!iconId) {
     throw new Error(
       `No social icon defined for "${platform}". Add an entry for "${key}" in src/_data/social-icons.json`,
@@ -138,7 +141,7 @@ const socialIcon = async (platform, baseDir) => {
  *
  * Icons are cached to src/assets/icons/iconify/ and can be committed to git.
  *
- * @param {object} eleventyConfig - Eleventy configuration object
+ * @param {import("@11ty/eleventy").UserConfig} eleventyConfig - Eleventy configuration object
  */
 export const configureIconify = (eleventyConfig) => {
   eleventyConfig.addAsyncFilter("icon", getIcon);

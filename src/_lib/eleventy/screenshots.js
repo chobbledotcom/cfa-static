@@ -9,9 +9,14 @@ import { log, error as logError } from "#utils/console.js";
 /** @returns {import("#lib/types").ScreenshotConfig} */
 const getScreenshotConfig = () => getConfig().screenshots;
 
+/** @param {any[]} collection */
 const extractPagePaths = (collection) =>
   collection.map((item) => item.url || item.data?.page?.url).filter(Boolean);
 
+/**
+ * @param {{ urls: string[] }} pageUrlsRef
+ * @returns {(collectionApi: import("@11ty/eleventy").CollectionApi) => unknown[]}
+ */
 export const buildCollectionHandler = (pageUrlsRef) => (collectionApi) => {
   const screenshotConfig = getScreenshotConfig();
 
@@ -28,6 +33,7 @@ export const buildCollectionHandler = (pageUrlsRef) => (collectionApi) => {
   return [];
 };
 
+/** @param {Array<{ pagePath: string, error: unknown }>} errors */
 export const logScreenshotErrors = (errors) => {
   if (errors.length === 0) return;
   logError(`Screenshot errors: ${errors.length}`);
@@ -36,6 +42,11 @@ export const logScreenshotErrors = (errors) => {
   }
 };
 
+/**
+ * @param {string[]} pageUrls
+ * @param {import("#lib/types").ScreenshotConfig} screenshotConfig
+ * @param {string} outputDir
+ */
 export const captureScreenshots = async (
   pageUrls,
   screenshotConfig,
@@ -67,6 +78,7 @@ export const captureScreenshots = async (
 /**
  * Eleventy wrapper for screenshot utilities.
  * Wraps #media/screenshot.js for Eleventy integration.
+ * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
  */
 export const configureScreenshots = (eleventyConfig) => {
   const pageUrlsRef = { urls: [] };
@@ -76,13 +88,17 @@ export const configureScreenshots = (eleventyConfig) => {
     buildCollectionHandler(pageUrlsRef),
   );
 
-  eleventyConfig.on("eleventy.after", async ({ dir }) => {
-    const screenshotConfig = getScreenshotConfig();
-    if (!screenshotConfig.enabled || !screenshotConfig.autoCapture) {
-      return;
-    }
+  eleventyConfig.on(
+    "eleventy.after",
+    /** @param {{ dir: { output: string } }} event */
+    async ({ dir }) => {
+      const screenshotConfig = getScreenshotConfig();
+      if (!screenshotConfig.enabled || !screenshotConfig.autoCapture) {
+        return;
+      }
 
-    log("Starting screenshot capture...");
-    await captureScreenshots(pageUrlsRef.urls, screenshotConfig, dir.output);
-  });
+      log("Starting screenshot capture...");
+      await captureScreenshots(pageUrlsRef.urls, screenshotConfig, dir.output);
+    },
+  );
 };

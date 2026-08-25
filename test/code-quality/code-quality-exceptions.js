@@ -59,7 +59,7 @@ const ALLOWED_TRY_CATCHES = frozenSet([
   "scripts/mutation/runner.js",
   // GitHub step summary is best-effort cosmetics; a write failure must not
   // fail the mutation run (covered by an explicit test)
-  "scripts/mutation/summary.js:196",
+  "scripts/mutation/summary.js:219",
 ]);
 
 // ============================================
@@ -277,7 +277,7 @@ const ALLOWED_NULLISH_COALESCING = frozenSet([
   "src/_data/eleventyComputed.js", // order, faqs, tab.body, metaComputed defaults
 
   // src/_lib/build - build-time utilities
-  "src/_lib/build/scss.js:22", // Lazy module loading pattern
+  "src/_lib/build/scss.js:27", // Lazy module loading pattern
   "src/_lib/build/theme-compiler.js:59", // Theme variables extraction fallback
 
   // src/_lib/public - frontend JavaScript (browser-side, no collections)

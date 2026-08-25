@@ -20,7 +20,7 @@ const detectRightContent = () =>
  * "/about-us/"                 -> "page--about-us"
  * "/products/example-product/" -> "page--products--example-product"
  *
- * @param {string} pageUrl
+ * @param {string | undefined} pageUrl
  * @returns {string|null}
  */
 const getPagePathClass = (pageUrl) => {
@@ -43,7 +43,7 @@ const getPagePathClass = (pageUrl) => {
  * design-system class is handled directly in the template.
  *
  * @param {string} layout
- * @param {Object} siteConfig - The site config object (snake_case keys)
+ * @param {{ sticky_mobile_nav?: boolean, horizontal_nav?: boolean }} siteConfig - The site config object (snake_case keys)
  * @param {string[]} [extraClasses] - Additional classes from theme body_classes
  * @param {boolean} [featured] - Whether the current page is featured
  * @param {string} [pageUrl] - The current page URL (page.url)
@@ -69,6 +69,7 @@ const getBodyClasses = (
   return classes.filter(Boolean).join(" ");
 };
 
+/** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
 export const configureStyleBundle = (eleventyConfig) => {
   eleventyConfig.addFilter("getBodyClasses", getBodyClasses);
   eleventyConfig.addGlobalData("has_right_content", detectRightContent);

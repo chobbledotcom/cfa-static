@@ -20,6 +20,9 @@ import {
 
 const BLOCKS_LAYOUT_PATH = join(ROOT_DIR, "BLOCKS_LAYOUT.md");
 
+/**
+ * @param {Record<string, import("#utils/block-schema.js").BlockParamDoc>} params
+ */
 const renderParamTable = (params) => {
   const entries = Object.entries(params);
   if (entries.length === 0) return "";
@@ -40,6 +43,10 @@ const renderParamTable = (params) => {
   return `${lines.join("\n")}\n`;
 };
 
+/**
+ * @param {{ scss?: string, htmlRoot?: string }} doc
+ * @param {string} type
+ */
 const renderMetaLines = (doc, type) => {
   const lines = [];
   const component = `block_${type.replaceAll("-", "_")}`;
@@ -51,6 +58,7 @@ const renderMetaLines = (doc, type) => {
   return lines;
 };
 
+/** @param {string} type */
 const renderBlock = (type) => {
   const doc = BLOCK_DOCS[type];
   if (!doc) {
@@ -132,6 +140,12 @@ const END_MARKER = "<!-- END GENERATED BLOCKS -->";
 const BEGIN_COLUMNS_MARKER = "<!-- BEGIN GENERATED BLOCK COLUMNS -->";
 const END_COLUMNS_MARKER = "<!-- END GENERATED BLOCK COLUMNS -->";
 
+/**
+ * @param {string} source
+ * @param {string} beginMarker
+ * @param {string} endMarker
+ * @param {string} generated
+ */
 const replaceBetween = (source, beginMarker, endMarker, generated) => {
   const beginIdx = source.indexOf(beginMarker);
   const endIdx = source.indexOf(endMarker);

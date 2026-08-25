@@ -33,7 +33,34 @@ import {
 const BASELINE_TIMEOUT = 120_000;
 const TIMEOUT_MULTIPLIER = 3;
 
-/** Run the test files once, returning the outcome and how long it took. */
+/** @typedef {import("#scripts/mutation/generate.js").Mutant} Mutant */
+/** @typedef {import("#scripts/mutation/summary.js").MutantResult} MutantResult */
+/** @typedef {{ entries: string[], keys: Set<string> }} IgnoreList */
+
+/**
+ * @typedef {Object} MutationRunContext
+ * @property {AbortSignal} abortSignal
+ * @property {boolean} exhaustive
+ * @property {IgnoreList} ignoreList
+ * @property {() => boolean} isAborted
+ * @property {Map<string, string>} originals
+ * @property {() => void} restoreAll
+ * @property {MutantResult[]} results
+ * @property {string[]} sourceFiles
+ * @property {string[]} testFiles
+ * @property {number} timeout
+ */
+
+/** @returns {MutantResult[]} */
+const newResults = () => [];
+
+/**
+ * Run the test files once, returning the outcome and how long it took.
+ * @param {string[]} testFiles
+ * @param {number} timeoutMs
+ * @param {AbortSignal} abortSignal
+ * @returns {Promise<{ durationMs: number, outcome: "passed" | "failed" | "timed-out" }>}
+ */
 const runTests = (testFiles, timeoutMs, abortSignal) =>
   new Promise((resolve, reject) => {
     const controller = new AbortController();
@@ -94,6 +121,7 @@ const runTests = (testFiles, timeoutMs, abortSignal) =>
     });
   });
 
+/** @param {"passed" | "failed" | "timed-out"} outcome */
 const toStatus = (outcome) =>
   outcome === "passed"
     ? "survived"
@@ -101,6 +129,7 @@ const toStatus = (outcome) =>
       ? "killed"
       : "timed-out";
 
+/** @param {string} status */
 const statusGlyph = (status) =>
   status === "killed"
     ? green(".")
@@ -110,7 +139,15 @@ const statusGlyph = (status) =>
         ? dim("i")
         : red("S");
 
-/** Mutate the file, run the tests, and always restore the original. */
+/**
+ * Mutate the file, run the tests, and always restore the original.
+ * @param {string} file
+ * @param {string} original
+ * @param {Mutant} mutant
+ * @param {string[]} testFiles
+ * @param {number} timeoutMs
+ * @param {AbortSignal} abortSignal
+ */
 const evaluateMutant = async (
   file,
   original,
@@ -135,6 +172,7 @@ const evaluateMutant = async (
  * fail rather than report a vacuous 100%). A file whose every mutant is
  * suppressed is *not* inconclusive: that is what the ignore-list is for, so it
  * passes.
+ * @param {MutantResult[]} results
  */
 const report = (results) => {
   const summary = summarize(results);
@@ -144,7 +182,12 @@ const report = (results) => {
   return summary.survived === 0 ? 0 : 1;
 };
 
-/** Run the baseline tests, returning the per-mutant timeout, or null on failure. */
+/**
+ * Run the baseline tests, returning the per-mutant timeout, or null on failure.
+ * @param {string[]} testFiles
+ * @param {number} timeout
+ * @param {AbortSignal} abortSignal
+ */
 const baselineTimeout = async (testFiles, timeout, abortSignal) => {
   console.log(dim("Running baseline (unmutated) tests…"));
   const baseline = await runTests(testFiles, BASELINE_TIMEOUT, abortSignal);
@@ -167,18 +210,32 @@ const baselineTimeout = async (testFiles, timeout, abortSignal) => {
   return perMutant;
 };
 
+/**
+ * @param {string} file
+ * @param {number} count
+ */
 const logMutantCount = (file, count) =>
   count === 0
     ? console.log(yellow(`  no mutable operators in ${rel(file)}`))
     : console.log(dim(`  ${rel(file)}: ${count} mutants`));
 
-/** Final status for a mutant: a known-equivalent survivor is suppressed. */
+/**
+ * Final status for a mutant: a known-equivalent survivor is suppressed.
+ * @param {"survived" | "killed" | "timed-out"} outcome
+ * @param {IgnoreList} ignoreList
+ * @param {string} file
+ * @param {Mutant} mutant
+ */
 const classify = (outcome, ignoreList, file, mutant) =>
   outcome === "survived" && isIgnored(ignoreList, file, mutant)
     ? "ignored"
     : outcome;
 
-/** Mutate one source file, appending each mutant's result to `results`. */
+/**
+ * Mutate one source file, appending each mutant's result to `results`.
+ * @param {string} file
+ * @param {MutationRunContext} ctx
+ */
 const mutateFile = async (file, ctx) => {
   const {
     abortSignal,
@@ -212,7 +269,10 @@ const mutateFile = async (file, ctx) => {
   originals.delete(file);
 };
 
-/** Mutate every source file in turn, always restoring the originals. */
+/**
+ * Mutate every source file in turn, always restoring the originals.
+ * @param {MutationRunContext} ctx
+ */
 const mutateAllFiles = async (ctx) => {
   const { isAborted, restoreAll, sourceFiles } = ctx;
   try {
@@ -229,6 +289,7 @@ const mutateAllFiles = async (ctx) => {
  * Print any ignore-list problems. The list is location-based, so it drifts as
  * code moves: an entry that no longer lines up with a real survivor is a
  * problem to fix, not silent rot.
+ * @param {string[]} problems
  */
 const reportIgnoreProblems = (problems) => {
   if (problems.length === 0) return;
@@ -241,7 +302,10 @@ const reportIgnoreProblems = (problems) => {
   );
 };
 
-/** Baseline check, then the per-file/per-mutant loop, then the report. */
+/**
+ * Baseline check, then the per-file/per-mutant loop, then the report.
+ * @param {MutationRunContext} opts
+ */
 const runMutants = async (opts) => {
   const {
     abortSignal,
@@ -274,8 +338,8 @@ const runMutants = async (opts) => {
 
 /**
  * Print the report, fold ignore-list problems into the exit code.
- * @param {{ file: string, mutant: object, status: string }[]} results
- * @param {{ entries: string[], keys: Set<string> }} ignoreList
+ * @param {MutantResult[]} results
+ * @param {IgnoreList} ignoreList
  * @param {string[]} sourceFiles
  * @returns {number}
  */
@@ -307,12 +371,13 @@ const reportRestoreFailure = (file, err) => {
  * On SIGINT/SIGTERM, abort the in-flight test run and let the loop fall through
  * so every `finally` runs and the source files are restored. A second signal
  * force-quits in case unwinding ever stalls.
+ * @param {{ exhaustive: boolean, sourceFiles: string[], testFiles: string[], timeout: number }} options
  */
 export const runMutationTesting = async (options) => {
   const { exhaustive, sourceFiles, testFiles, timeout } = options;
   const ignoreList = loadIgnoreList();
 
-  const results = [];
+  const results = newResults();
   const originals = new Map();
   const restoreAll = () => {
     for (const [file, content] of originals) {
@@ -355,7 +420,8 @@ export const runMutationTesting = async (options) => {
     // its result is unknown — fail the whole run loudly instead of scoring a
     // false pass. Sources are already restored by mutateAllFiles's finally.
     restoreAll();
-    console.error(red(`\nMutation run aborted: ${err.message}`));
+    const reason = err instanceof Error ? err.message : String(err);
+    console.error(red(`\nMutation run aborted: ${reason}`));
     console.error(
       dim("A test process failed to spawn, so results are incomplete."),
     );

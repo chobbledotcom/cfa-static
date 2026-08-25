@@ -38,6 +38,9 @@ const TEMPLATE_EXTENSIONS = frozenSet([".html", ".liquid"]);
 
 /**
  * Recursively collect all files matching a predicate.
+ * @param {string} dir
+ * @param {(name: string) => boolean} predicate
+ * @returns {string[]}
  */
 const collectFiles = (dir, predicate) =>
   fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -49,6 +52,10 @@ const collectFiles = (dir, predicate) =>
 /**
  * Extract collection names from files matching a predicate, using the
  * regex's group-1 matches.
+ * @param {string} srcDir
+ * @param {(name: string) => boolean} filePredicate
+ * @param {RegExp} pattern
+ * @returns {string[]}
  */
 const extractNamesFromFiles = (srcDir, filePredicate, pattern) =>
   collectFiles(srcDir, filePredicate).flatMap((file) =>
@@ -57,6 +64,7 @@ const extractNamesFromFiles = (srcDir, filePredicate, pattern) =>
 
 /**
  * Build the set of all registered collection names from source files.
+ * @param {string} srcDir
  */
 const buildRegisteredNames = (srcDir) =>
   frozenSet([
@@ -73,6 +81,8 @@ const buildRegisteredNames = (srcDir) =>
 
 /**
  * Find all template collection references that are not registered.
+ * @param {string} srcDir
+ * @param {ReadonlySet<string>} registeredNames
  */
 const findViolations = (srcDir, registeredNames) =>
   collectFiles(srcDir, (name) =>

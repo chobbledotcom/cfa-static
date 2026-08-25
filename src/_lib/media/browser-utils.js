@@ -20,18 +20,28 @@ export const BROWSER_ARGS = [
 export const DEFAULT_BASE_URL = "http://localhost:8080";
 export const DEFAULT_TIMEOUT = 10000;
 
+/** @param {string} pagePath */
 export const sanitizePagePath = (pagePath) =>
   pagePath.replace(/^\//, "").replace(/\/$/, "").replace(/\//g, "-") || "home";
 
+/** @param {string} outputPath */
 export const prepareOutputDir = (outputPath) => {
   ensureDir(dirname(outputPath));
 };
 
+/**
+ * @param {string} pagePath
+ * @param {string} baseUrl
+ */
 export const buildUrl = (pagePath, baseUrl) =>
   isExternalUrl(pagePath)
     ? pagePath
     : `${baseUrl}${pagePath.startsWith("/") ? "" : "/"}${pagePath}`;
 
+/**
+ * @param {string} pagePath
+ * @param {{ outputDir: string, suffix?: string, extension: string }} options
+ */
 export const buildOutputPath = (
   pagePath,
   { outputDir, suffix = "", extension },
@@ -150,23 +160,26 @@ export const pathErrorInfo = (pagePaths) => (i, reason) => ({
  * @param {T[]} items
  * @param {(item: T) => Promise<R>} operationFn
  * @param {(i: number, reason: Error) => E} makeErrorInfo
- * @returns {Promise<{ results: R[], errors: E[] }>}
+ * @returns {Promise<{ results: Awaited<R>[], errors: E[] }>}
  */
 export const runBatchOperations = async (items, operationFn, makeErrorInfo) => {
   const settled = await Promise.allSettled(items.map(operationFn));
   return {
-    results: settled
-      .map((r) => (r.status === "fulfilled" ? r.value : null))
-      .filter(Boolean),
-    errors: settled
-      .map((r, i) =>
-        r.status === "rejected" ? makeErrorInfo(i, r.reason) : null,
-      )
-      .filter(Boolean),
+    results: settled.flatMap((r) =>
+      r.status === "fulfilled" ? [r.value] : [],
+    ),
+    errors: settled.flatMap((r, i) =>
+      r.status === "rejected" ? [makeErrorInfo(i, r.reason)] : [],
+    ),
   };
 };
 
-/** Create a batch runner that runs an operation across multiple page paths */
+/**
+ * Create a batch runner that runs an operation across multiple page paths
+ * @template R
+ * @param {(pagePath: string, options: object) => Promise<R>} operationFn
+ * @returns {(pagePaths: string[], options?: object) => Promise<{ results: Awaited<R>[], errors: { pagePath: string, error: string }[] }>}
+ */
 export const createBatchRunner =
   (operationFn) =>
   (pagePaths, options = {}) =>
@@ -176,6 +189,11 @@ export const createBatchRunner =
       pathErrorInfo(pagePaths),
     );
 
+/**
+ * @param {string} baseUrl
+ * @param {number} [maxAttempts]
+ * @param {number} [delay]
+ */
 export const waitForServer = async (baseUrl, maxAttempts = 30, delay = 250) => {
   for (let i = 0; i < maxAttempts; i++) {
     const [result] = await Promise.allSettled([fetch(baseUrl)]);
@@ -220,6 +238,7 @@ export const startServer = async (siteDir, port = 8080) => {
   return { port, baseUrl, stop: () => server.close() };
 };
 
+/** @param {string} subdir */
 export const getDefaultOutputDir = (subdir) => join(ROOT_DIR, subdir);
 
 /**
@@ -233,6 +252,7 @@ export const getChromePath = async () => {
   return chromium.executablePath();
 };
 
+/** @param {string} chromePath */
 export const launchChromeHeadless = async (chromePath) => {
   const chromeLauncher = await import("chrome-launcher");
   return chromeLauncher.launch({

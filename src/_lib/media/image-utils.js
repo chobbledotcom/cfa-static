@@ -56,7 +56,7 @@ export const normalizeImageUrl = (imageName) => {
  * Parse widths parameter and add "auto" for original source image.
  * Handles comma-separated string "240,480,900" or array [240, 480, 900].
  * Always appends "auto" to include the original source image.
- * @param {string | number[] | null} [widths] - Widths as CSV string or array
+ * @param {string | Array<string | number> | null} [widths] - Widths as CSV string or array
  */
 export const parseWidths = (widths) => {
   const parsed =
@@ -71,11 +71,11 @@ export const parseWidths = (widths) => {
  * Build standard image attributes object.
  * @param {Object} options - Attribute options
  * @param {string | null} [options.src] - Image source (for external images)
- * @param {string} [options.alt] - Alt text
+ * @param {string | null} [options.alt] - Alt text
  * @param {string | null} [options.sizes] - Sizes attribute
  * @param {string | null} [options.loading] - Loading attribute
  * @param {string | null} [options.classes] - CSS classes
- * @returns {Record<string, string>} Image attributes
+ * @returns {Record<string, string | null>} Image attributes
  */
 const buildImgAttributes = ({
   src = null,
@@ -94,7 +94,7 @@ const buildImgAttributes = ({
 
 /**
  * Build picture element attributes.
- * @param {string | null} classes - CSS classes
+ * @param {string | null | undefined} classes - CSS classes
  * @returns {Record<string, string>} Picture attributes
  */
 const buildPictureAttributes = (classes) =>
@@ -105,7 +105,7 @@ const buildPictureAttributes = (classes) =>
  * Shared by both local and external image processing paths.
  * @param {Object} options
  * @param {string | null} options.bgImage - LQIP background image CSS value
- * @param {string | null} options.aspectRatio - Pre-computed aspect ratio string
+ * @param {string | null} [options.aspectRatio] - Pre-computed aspect ratio string
  * @param {number | null} [options.maxWidth] - Maximum width in pixels
  * @param {boolean} [options.skipMaxWidth] - Skip max-width constraint
  * @returns {string} CSS style string
@@ -186,7 +186,7 @@ export const DEFAULT_IMAGE_OPTIONS = frozenObject({
  * @param {string | null} [options.sizes] - Sizes attribute
  * @param {string | null} [options.loading] - Loading attribute
  * @param {string | null} [options.classes] - CSS classes
- * @returns {{ imgAttributes: Record<string, string>, pictureAttributes: Record<string, string> }}
+ * @returns {{ imgAttributes: Record<string, string | null>, pictureAttributes: Record<string, string> }}
  */
 export const prepareImageAttributes = ({ alt, sizes, loading, classes }) => ({
   imgAttributes: buildImgAttributes({ alt, sizes, loading }),
