@@ -8,7 +8,22 @@
 	},
 	"cms_config": {
 		"collections": [
-			"products"
-		]
+			"pages",
+			"news",
+			"guide-categories",
+			"guide-pages",
+			"snippets"
+		],
+		"features": {
+			"permalinks": true,
+			"redirects": true,
+			"faqs": true,
+			"galleries": true,
+			"external_navigation_urls": true,
+			"use_visual_editor": true,
+			"no_index": true
+		},
+		"hasSrcFolder": true,
+		"customBlocksCollections": []
 	}
 }

@@ -28,7 +28,9 @@ const ERROR_PATTERNS = [
 ];
 
 const args = process.argv.slice(2);
-const isServeMode = args.includes("--serve");
+// Recognise both the long flag and the short alias the wrapper's old
+// parser accepted, so `-s` still triggers the serve-mode Pagefind run.
+const isServeMode = args.includes("--serve") || args.includes("-s");
 
 const cpuStart = getCpuSnapshot();
 
