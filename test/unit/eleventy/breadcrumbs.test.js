@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import siteData from "#data/site.json" with { type: "json" };
 import { configureBreadcrumbs } from "#eleventy/breadcrumbs.js";
 import { DE, EN } from "#test/fixtures/languages.js";
 import { createMockEleventyConfig } from "#test/test-utils.js";
@@ -15,6 +16,7 @@ describe("configureBreadcrumbs", () => {
 });
 
 describe("withSchemaBreadcrumbs", () => {
+  const SITE_URL = siteData.url;
   const setupFilter = () => {
     const mockConfig = createMockEleventyConfig();
     configureBreadcrumbs(mockConfig);
@@ -41,15 +43,15 @@ describe("withSchemaBreadcrumbs", () => {
         [],
       ).breadcrumbs,
     ).toEqual([
-      { name: "Home", url: "https://cfa-static.example.com", position: 1 },
+      { name: "Home", url: SITE_URL, position: 1 },
       {
         name: "News",
-        url: "https://cfa-static.example.com/news/",
+        url: `${SITE_URL}/news/`,
         position: 2,
       },
       {
         name: "A Post",
-        url: "https://cfa-static.example.com/news/a-post/",
+        url: `${SITE_URL}/news/a-post/`,
         position: 3,
       },
     ]);

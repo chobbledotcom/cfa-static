@@ -233,6 +233,13 @@ const quoteJoin = (arr) => arr.map((k) => `"${k}"`).join(", ");
 const isTypeof = (t) => (v) => typeof v === t;
 
 /**
+ * @param {unknown} value
+ * @returns {value is Record<string, unknown>}
+ */
+const isObject = (value) =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+/**
  * Per-field-type runtime checks. `image` stores a path string;
  * `reference` stores a collection item slug; `markdown` stores markdown
  * source text passed to markdown-it — all plain strings at runtime.
@@ -247,7 +254,7 @@ const FIELD_TYPE_CHECKS = {
   boolean: { label: "a boolean", check: isTypeof("boolean") },
   object: {
     label: "an object",
-    check: (v) => typeof v === "object" && v !== null && !Array.isArray(v),
+    check: isObject,
   },
 };
 
@@ -289,20 +296,125 @@ const BLOCK_FIELD_SPECS = Object.fromEntries(
 );
 
 /**
- * Pre-computed map of block type → field names that are object-lists
- * whose sub-schema requires `name`. Built once at module load.
- * @type {Record<string, string[]>}
+ * @param {string} blockType
+ * @param {unknown} child
+ * @param {any} field
+ * @param {string} path
+ * @param {string} key
+ * @param {string} ctx
  */
-const NAMED_LIST_FIELDS = Object.fromEntries(
-  Object.entries(BLOCK_SCHEMAS)
-    .map(([type, fields]) => [
-      type,
-      Object.entries(fields)
-        .filter(([, f]) => f.type === "object" && f.list && f.fields?.name)
-        .map(([fieldName]) => fieldName),
-    ])
-    .filter(([, names]) => names.length > 0),
-);
+const collectNestedRequiredErrors = (
+  blockType,
+  child,
+  field,
+  path,
+  key,
+  ctx,
+) => {
+  if (field.type !== "object" || !field.fields) return [];
+  const childPath = path ? `${path}.${key}` : key;
+  const children = field.list ? child : [child];
+  if (!Array.isArray(children)) return [];
+
+  /** @param {number} index */
+  const nestedPathFor = (index) =>
+    field.list ? `${childPath}[${index}]` : childPath;
+
+  /** @param {unknown} item */
+  const allowsPipeDelimitedItem = (item) => {
+    if (!field.allowPipeDelimitedItems || typeof item !== "string") {
+      return false;
+    }
+    const parts = item.split("|");
+    return parts.length === 2 && parts.every((part) => part.trim().length > 0);
+  };
+
+  const expectedItemType = () =>
+    field.allowPipeDelimitedItems
+      ? "an object or pipe-delimited string"
+      : "an object";
+
+  /** @param {unknown} item @param {number} index */
+  const collectItemErrors = (item, index) => {
+    const nestedPath = nestedPathFor(index);
+    if (isObject(item)) {
+      return collectRequiredFieldErrors(
+        blockType,
+        item,
+        field.fields,
+        nestedPath,
+        ctx,
+      );
+    }
+    if (!field.list) return [];
+    if (allowsPipeDelimitedItem(item)) return [];
+
+    return [
+      `Block "${blockType}" field "${nestedPath}" must be ${expectedItemType()}${ctx}`,
+    ];
+  };
+
+  return children.flatMap(collectItemErrors);
+};
+
+/**
+ * Recursively checks required fields declared by a block schema. Optional
+ * object parents only impose their child requirements when the parent exists.
+ * @param {string} blockType
+ * @param {Record<string, unknown>} value
+ * @param {Record<string, any>} fields
+ * @param {string} path
+ * @param {string} ctx
+ * @returns {string[]}
+ */
+const collectRequiredFieldErrors = (blockType, value, fields, path, ctx) =>
+  Object.entries(fields).flatMap(([key, field]) => {
+    const child = value[key];
+    const location = path ? ` "${path}"` : "";
+    const isMissing =
+      child === undefined ||
+      child === null ||
+      (typeof child === "string" && child.trim() === "");
+    if (field.required && isMissing) {
+      return [
+        `Block "${blockType}"${location} is missing required "${key}" field${ctx}`,
+        ...collectNestedRequiredErrors(blockType, child, field, path, key, ctx),
+      ];
+    }
+    return collectNestedRequiredErrors(blockType, child, field, path, key, ctx);
+  });
+
+/** @type {Array<(block: Block, specs: Record<string, { label: string, check: (value: unknown) => boolean }>, ctx: string) => string[]>} */
+const BLOCK_ERROR_COLLECTORS = [
+  (block, specs, ctx) => {
+    const unknown = Object.keys(block).filter(
+      (key) => key !== "type" && !(key in specs),
+    );
+    return unknown.length > 0
+      ? [
+          `Block type "${block.type}" has unknown keys: ${quoteJoin(unknown)}${ctx}. Allowed keys: ${quoteJoin(Object.keys(specs))}`,
+        ]
+      : [];
+  },
+  (block, specs, ctx) =>
+    Object.entries(block).flatMap(([key, value]) => {
+      const spec = specs[key];
+      if (!spec || value === undefined || value === null || spec.check(value)) {
+        return [];
+      }
+      return [
+        `Block "${block.type}" field "${key}" must be ${spec.label} but got ${Array.isArray(value) ? "array" : typeof value}${ctx}`,
+      ];
+    }),
+  (block, _specs, ctx) =>
+    collectRequiredFieldErrors(
+      String(block.type),
+      block,
+      BLOCK_SCHEMAS[String(block.type)],
+      "",
+      ctx,
+    ),
+];
 
 /**
  * Validates a single block against its schema.
@@ -322,28 +434,9 @@ const validateBlock = (block, ctx) => {
       `Unknown block type "${block.type}"${ctx}. Valid types: ${Object.keys(BLOCK_FIELD_SPECS).join(", ")}`,
     ];
   }
-
-  const allowedKeys = [...Object.keys(specs), "type"];
-  const unknown = Object.keys(block).filter((k) => !allowedKeys.includes(k));
-  const unknownErrors =
-    unknown.length > 0
-      ? [
-          `Block type "${block.type}" has unknown keys: ${quoteJoin(unknown)}${ctx}. Allowed keys: ${quoteJoin(Object.keys(specs))}`,
-        ]
-      : [];
-
-  const fieldErrors = Object.entries(block).flatMap(([key, value]) => {
-    const spec = specs[key];
-    const skip =
-      !spec || value === undefined || value === null || spec.check(value);
-    if (skip) return [];
-    const actual = Array.isArray(value) ? "array" : typeof value;
-    return [
-      `Block "${block.type}" field "${key}" must be ${spec.label} but got ${actual}${ctx}`,
-    ];
-  });
-
-  return [...unknownErrors, ...fieldErrors];
+  return BLOCK_ERROR_COLLECTORS.flatMap((collect) =>
+    collect(block, specs, ctx),
+  );
 };
 
 /**
@@ -397,6 +490,5 @@ export {
   getBlockContainerWidth,
   getBlockTemplate,
   isBlockAllowedIn,
-  NAMED_LIST_FIELDS,
   validateBlocks,
 };

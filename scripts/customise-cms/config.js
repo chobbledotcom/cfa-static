@@ -130,9 +130,7 @@ export const saveCmsConfig = async (config, baseDir = ROOT_DIR) => {
 
 /**
  * Create default config with all collections and features enabled.
- * The single source of truth for "everything on": generate-full.js, the
- * --all flag, and interactive defaults all start from this shape, so the
- * committed .pages.yml can be reproduced from any entry point.
+ * This is the implementation of the CLI's `--all` option.
  * use_visual_editor follows config.json so the CMS matches the site.
  * @returns {CmsConfig} Default configuration with all options enabled
  */

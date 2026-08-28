@@ -19,6 +19,7 @@ import {
   getCpuSnapshot,
 } from "#scripts/build-metrics.js";
 import { runTool } from "#scripts/lib/run-tool.js";
+import { validateSiteData } from "#scripts/site-data.js";
 
 const ERROR_PATTERNS = [
   "[11ty] Problem writing Eleventy templates:",
@@ -33,6 +34,8 @@ const args = process.argv.slice(2);
 const isServeMode = args.includes("--serve") || args.includes("-s");
 
 const cpuStart = getCpuSnapshot();
+
+validateSiteData();
 
 const eleventy = spawn(
   process.execPath,

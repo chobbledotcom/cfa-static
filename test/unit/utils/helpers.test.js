@@ -19,6 +19,11 @@ describe("DEFAULTS", () => {
   });
 
   test("has search_collections covering the kept content types", () => {
-    expect(DEFAULTS.search_collections).toEqual(["news", "pages", "guides"]);
+    expect(DEFAULTS.search_collections).toEqual([
+      "news",
+      "pages",
+      "guide-pages",
+      "guide-categories",
+    ]);
   });
 });

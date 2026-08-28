@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import siteData from "#data/site.json" with { type: "json" };
 import { expectObjectProps } from "#test/test-utils.js";
 import {
   createPostSchemaData,
@@ -87,6 +88,15 @@ describe("buildBaseMeta", () => {
     expect(baseMeta({ image: "/images/photo.jpg" }).image.src).toBe(
       "https://example.com/images/photo.jpg",
     );
+  });
+
+  test("preserves the site path when resolving local metadata images", () => {
+    expect(
+      baseMeta({
+        image: "/images/photo.jpg",
+        siteUrl: "https://example.com/project",
+      }).image.src,
+    ).toBe("https://example.com/project/images/photo.jpg");
   });
 
   test("prepends /images/ for plain image filenames", () => {
@@ -178,7 +188,7 @@ describe("buildSocialMeta", () => {
     ).toEqual({
       title: "SEO title",
       description: "Description",
-      url: "https://cfa-static.example.com/page/",
+      url: `${siteData.url}/page/`,
       image: "https://example.com/images/social.jpg",
       type: "article",
     });
@@ -192,7 +202,7 @@ describe("buildSocialMeta", () => {
     ).toEqual({
       title: "Legacy title",
       description: undefined,
-      url: "https://cfa-static.example.com/page/",
+      url: `${siteData.url}/page/`,
       type: "website",
     });
   });

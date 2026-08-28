@@ -60,6 +60,10 @@ Each site is a **fork of this repository**, not a dependency of it. A site's
 content, configuration, and theme live in the fork, and the template's own
 demo content is deleted or replaced there.
 
+After cloning the fork, replace the `name`, `url`, and `description` in
+`src/_data/site.json` before building. Missing or obvious placeholder identity
+data fails the build rather than being published.
+
 Updates flow one way and only when a site asks for them:
 
 ```bash
@@ -84,8 +88,8 @@ The workflow handles both hosting shapes automatically: on a project site
 (`https://<owner>.github.io/<repo>/`) it builds with the `/<repo>/` path
 prefix and rewrites internal URLs to match; with a custom domain or a
 user/organization site it builds with no prefix. Canonical URLs, the sitemap,
-and feeds pick up the deployed origin via `SITE_URL`, so `site.json`'s `url`
-does not need to change per fork.
+and feeds pick up the deployed origin via `SITE_URL`. Keep `site.json`'s `url`
+set to the site's public URL as the fallback for local and non-workflow builds.
 
 ## Configuration
 

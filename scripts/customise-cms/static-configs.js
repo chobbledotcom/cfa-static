@@ -24,8 +24,14 @@ export const getSiteConfig = (dataPath) => ({
   type: "file",
   path: `${dataPath}/site.json`,
   fields: [
-    { name: "name", type: "string", label: "Site Name" },
-    { name: "url", type: "string", label: "Site URL" },
+    { name: "name", type: "string", label: "Site Name", required: true },
+    { name: "url", type: "string", label: "Site URL", required: true },
+    {
+      name: "description",
+      type: "string",
+      label: "Site Description",
+      required: true,
+    },
     {
       name: "socials",
       label: "Social Media Links",

@@ -52,10 +52,9 @@ import { compact } from "#toolkit/fp/array.js";
  * Custom blocks collections are page-like collections that use the blocks layout.
  * @param {string} name - Collection name slug (e.g., "clients")
  * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fieldContext - Precomputed fields
  * @returns {CollectionConfig} Collection configuration
  */
-const customCollectionConfig = (name, config, fieldContext) => {
+const customCollectionConfig = (name, config) => {
   const path = config.hasSrcFolder ? `src/${name}` : name;
 
   return {
@@ -69,7 +68,6 @@ const customCollectionConfig = (name, config, fieldContext) => {
       COMMON_FIELDS.subtitle,
       COMMON_FIELDS.thumbnail,
       COMMON_FIELDS.order,
-      fieldContext.body,
       ...META_FIELDS,
       createEleventyNavigationField(config.features.external_navigation_urls),
       ...getFeatureFields(config.features),
@@ -92,7 +90,7 @@ const buildContentArray = (config, fieldContext) => {
   );
 
   const customBlocksConfigs = config.customBlocksCollections.map((name) =>
-    customCollectionConfig(name, config, fieldContext),
+    customCollectionConfig(name, config),
   );
 
   const dataPath = getDataPath(config.hasSrcFolder);

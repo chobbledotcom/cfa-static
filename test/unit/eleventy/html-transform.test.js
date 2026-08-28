@@ -144,12 +144,29 @@ describe("html-transform", () => {
   });
 
   describe("configureHtmlTransform", () => {
-    test("registers htmlTransform transform", () => {
+    test("registers before Eleventy's final URL rewriting", () => {
       const mockConfig = createMockEleventyConfig();
       configureHtmlTransform(mockConfig, mockImageProcessor);
 
-      expect("htmlTransform" in mockConfig.transforms).toBe(true);
-      expect(typeof mockConfig.transforms.htmlTransform).toBe("function");
+      const registration = mockConfig.htmlTransformer.plugins.html;
+      expect(registration.options.name).toBe("cfa/html-transform");
+      expect(typeof registration.plugin).toBe("function");
+    });
+
+    test("adapts the HTML transform to a PostHTML tree", async () => {
+      const mockConfig = createMockEleventyConfig();
+      configureHtmlTransform(mockConfig, mockImageProcessor);
+      const plugin = mockConfig.htmlTransformer.plugins.html.plugin({
+        outputPath: "index.html",
+      });
+      const tree = {
+        render: () => "<html><body><p>Content</p></body></html>",
+        parser: (html) => ({ html }),
+      };
+
+      await expect(plugin(tree)).resolves.toEqual({
+        html: "<html><body><p>Content</p></body></html>",
+      });
     });
   });
 });

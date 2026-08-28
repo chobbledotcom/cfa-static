@@ -316,6 +316,7 @@ const createTestSite = async (options = {}) => {
             stdio: ["ignore", "pipe", "pipe"],
             env: {
               ...process.env,
+              ...options.env,
               PLACEHOLDER_IMAGES: options.processImages ? "0" : "1",
             },
           },
@@ -327,7 +328,7 @@ const createTestSite = async (options = {}) => {
         ]);
 
         if (status !== 0) {
-          const error = new Error(`Eleventy build failed: ${stderr || stdout}`);
+          const error = new Error(`Eleventy build failed:\n${stdout}${stderr}`);
           error.stdout = stdout;
           error.stderr = stderr;
           throw error;

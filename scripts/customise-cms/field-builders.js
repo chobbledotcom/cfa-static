@@ -31,7 +31,6 @@ export const getCollectionFieldBuilders = (config, fields) => ({
     compact([
       COMMON_FIELDS.name,
       COMMON_FIELDS.subtitle,
-      fields.body,
       COMMON_FIELDS.meta_title,
       COMMON_FIELDS.meta_description,
       createEleventyNavigationField(config.features.external_navigation_urls),
@@ -46,7 +45,6 @@ export const getCollectionFieldBuilders = (config, fields) => ({
       COMMON_FIELDS.subtitle,
       COMMON_FIELDS.order,
       { name: "icon", type: "image", label: "Icon" },
-      fields.body,
     ]),
 
   snippets: () => [COMMON_FIELDS.name, fields.body],

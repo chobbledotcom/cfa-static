@@ -8,11 +8,13 @@
  */
 
 import { describe, expect, test } from "vitest";
+import siteData from "#data/site.json" with { type: "json" };
 import { ABOUT_GROUP, DE, EN } from "#test/fixtures/languages.js";
 import { useSharedSite } from "#test/test-site-factory.js";
 
 const LANGUAGES = [EN, DE];
 const TRANSLATIONS = [ABOUT_GROUP];
+const SITE_URL = siteData.url;
 
 const alternatesOf = (doc) =>
   [...doc.querySelectorAll('link[rel="alternate"]')].map((link) => [
@@ -79,9 +81,9 @@ describe("a site publishing two languages", () => {
 
   test("gives both pages the same reciprocal hreflang set", async () => {
     const expected = [
-      ["en-GB", "https://cfa-static.example.com/about/"],
-      ["x-default", "https://cfa-static.example.com/about/"],
-      ["de", "https://cfa-static.example.com/de/ueber-uns/"],
+      ["en-GB", `${SITE_URL}/about/`],
+      ["x-default", `${SITE_URL}/about/`],
+      ["de", `${SITE_URL}/de/ueber-uns/`],
     ];
     expect(alternatesOf(await getSite().getDoc("/about/index.html"))).toEqual(
       expected,
@@ -153,8 +155,8 @@ describe("a site publishing two languages", () => {
     expect(
       list.itemListElement.map((entry) => [entry.item.name, entry.item["@id"]]),
     ).toEqual([
-      ["Startseite", "https://cfa-static.example.com/de/"],
-      ["Über uns", "https://cfa-static.example.com/de/ueber-uns/"],
+      ["Startseite", `${SITE_URL}/de/`],
+      ["Über uns", `${SITE_URL}/de/ueber-uns/`],
     ]);
   });
 });

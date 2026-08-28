@@ -11,12 +11,9 @@ blocks:
     content: |
       ## Get in Touch
 
-      This template ships without contact forms - informational sites link
-      straight to an email address or phone number instead, so there is no
-      form backend to run and no user data to handle.
-
-      - Email: [hello@example.com](mailto:hello@example.com)
-      - Phone: 0161 000 0000
+      This template ships without contact forms, so there is no form backend
+      to run and no user data to handle. For questions or problems with CfA
+      Static, [open an issue on GitHub](https://github.com/chobbledotcom/cfa-static/issues).
   - type: include
     file: faq.html
 ---

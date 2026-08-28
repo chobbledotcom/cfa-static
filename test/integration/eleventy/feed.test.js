@@ -30,7 +30,7 @@ describe("feed", () => {
           filename: "site.json",
           data: {
             name: "Test Blog Name",
-            url: "https://test.example.com",
+            url: "https://test.invalid",
             description: "Test site",
           },
         },

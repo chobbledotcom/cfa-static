@@ -27,25 +27,23 @@ import { compact } from "#toolkit/fp/array.js";
 /**
  * Build fields for the news collection
  * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} News collection fields
  */
-export const buildNewsFields = (config, fields) =>
+export const buildNewsFields = (config) =>
   compact([
     COMMON_FIELDS.name,
     { name: "date", label: "Date", type: "date" },
     { name: "author", type: "string", label: "Author" },
-    ...getContentFields(fields),
+    ...getContentFields(),
     config.features.no_index && COMMON_FIELDS.no_index,
   ]);
 
 /**
  * Build fields for the guide-pages collection
  * @param {CmsConfig} config - CMS configuration
- * @param {FieldContext} fields - Precomputed fields
  * @returns {CmsField[]} Guide pages collection fields
  */
-export const buildGuidePagesFields = (config, fields) =>
+export const buildGuidePagesFields = (config) =>
   withEnabled((enabled) => [
     COMMON_FIELDS.name,
     COMMON_FIELDS.subtitle,
@@ -57,5 +55,4 @@ export const buildGuidePagesFields = (config, fields) =>
         false,
       ),
     COMMON_FIELDS.order,
-    fields.body,
   ])(config);

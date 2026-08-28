@@ -18,6 +18,10 @@ describe("search", () => {
         redirect_from: ["/old-widget/"],
       }),
       contentFile("pages", "about", "About Us", { permalink: "/about/" }),
+      contentFile("guide-categories", "getting-started", "Getting Started"),
+      contentFile("guide-pages", "introduction", "Introduction", {
+        "guide-category": "getting-started",
+      }),
       contentFile("pages", "internal", "Internal", {
         permalink: "/internal/",
         no_index: true,
@@ -54,6 +58,20 @@ describe("search", () => {
 
       const aboutDoc = await site.getDoc("about/index.html");
       expect(aboutDoc.querySelector("[data-pagefind-body]") !== null).toBe(
+        true,
+      );
+
+      const guideCategoryDoc = await site.getDoc(
+        "guide/getting-started/index.html",
+      );
+      expect(
+        guideCategoryDoc.querySelector("[data-pagefind-body]") !== null,
+      ).toBe(true);
+
+      const guidePageDoc = await site.getDoc(
+        "guide/getting-started/introduction/index.html",
+      );
+      expect(guidePageDoc.querySelector("[data-pagefind-body]") !== null).toBe(
         true,
       );
 

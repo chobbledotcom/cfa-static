@@ -17,6 +17,30 @@ describe("generateCollectionConfig", () => {
       ),
     ).toThrow('Unknown collection "bogus" in cms_config');
   });
+
+  test.each([
+    "pages",
+    "news",
+    "guide-categories",
+    "guide-pages",
+  ])("%s omits body because its content is block-only", (collectionName) => {
+    const config = createDefaultConfig();
+    const collection = generateCollectionConfig(
+      collectionName,
+      config,
+      createFieldContext(false),
+    );
+    expect(collection.fields.map((field) => field.name)).not.toContain("body");
+  });
+
+  test("snippets retain body content", () => {
+    const collection = generateCollectionConfig(
+      "snippets",
+      createDefaultConfig(),
+      createFieldContext(false),
+    );
+    expect(collection.fields.map((field) => field.name)).toContain("body");
+  });
 });
 
 describe("getCoreFields", () => {

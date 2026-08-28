@@ -48,6 +48,7 @@ const pathPrefix = () =>
 const loadPagefind = async () => {
   if (window.pagefind) return window.pagefind;
   const pagefind = await import(`${pathPrefix()}pagefind/pagefind.js`);
+  await pagefind.options({ baseUrl: pathPrefix() });
   await pagefind.init();
   return pagefind;
 };

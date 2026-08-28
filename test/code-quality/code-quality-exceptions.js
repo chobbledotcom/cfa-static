@@ -153,7 +153,6 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
   "src/_lib/transforms/linkify.js", // Text processing helpers kept separate for clarity
   "src/_lib/utils/dom-builder.js", // Kept separate to manage complexity
   "src/_lib/utils/block-columns.js", // Validation and distribution helpers kept separate for complexity
-  "src/_lib/utils/validate-item.js", // collectNestedNameErrors kept separate for clarity
   "src/_data/eleventyComputed.js", // applyBlockDefaults extracted for function length
   "src/_lib/public/ui/gallery.js",
   "src/_lib/public/ui/image-popup.js", // Popup state updaters split to stay under complexity limit
@@ -217,6 +216,8 @@ const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
 
   // Build utilities - tested directly for build pipeline verification
   "src/_lib/build/scss.js:createScssCompiler",
+  // Registered through the PostHTML plugin wrapper so URL rewriting runs last.
+  "src/_lib/eleventy/html-transform.js:createHtmlTransform",
 
   // Media processing - tested for image handling
   "src/_lib/media/image-frontmatter.js:isValidImage", // Used by getFirstValidImage, tested directly for edge cases

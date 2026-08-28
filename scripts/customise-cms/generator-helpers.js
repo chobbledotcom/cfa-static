@@ -73,15 +73,10 @@ export const createFieldContext = (useVisualEditor) => {
 };
 
 /**
- * Get common trailing content fields (subtitle, body, meta)
- * @param {FieldContext} fields - Precomputed fields
+ * Get common trailing content fields for block-only collections.
  * @returns {CmsField[]} Content fields
  */
-export const getContentFields = (fields) => [
-  COMMON_FIELDS.subtitle,
-  fields.body,
-  ...META_FIELDS,
-];
+export const getContentFields = () => [COMMON_FIELDS.subtitle, ...META_FIELDS];
 
 /**
  * Build fields with an "enabled" helper that checks if a collection is enabled

@@ -16,7 +16,7 @@ const DEFAULTS = frozenObject({
   screenshots: {},
   use_visual_editor: false,
   default_image_widths: [240, 480, 900, 1300],
-  search_collections: ["news", "pages", "guides"],
+  search_collections: ["news", "pages", "guide-pages", "guide-categories"],
   linkify_urls: true,
 });
 

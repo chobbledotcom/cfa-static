@@ -63,6 +63,12 @@ describe("scss", () => {
     ).toBe(true);
   });
 
+  test("emits font URLs relative to the compiled stylesheet", async () => {
+    const css = await compileDesignSystemBundle();
+    expect(css).toContain('url("../assets/fonts/');
+    expect(css).not.toContain('url("/assets/fonts/');
+  });
+
   test("Handles nested SCSS rules", async () => {
     const inputContent = ".nav { ul { margin: 0; li { list-style: none; } } }";
     const inputPath = "/test/nested.scss";
