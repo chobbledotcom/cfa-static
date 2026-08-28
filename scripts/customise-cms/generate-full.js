@@ -14,7 +14,7 @@ import { loadCmsConfig } from "#scripts/customise-cms/config.js";
 import {
   generateCompactYaml,
   runWithErrorHandling,
-  writePagesYaml,
+  writeCmsArtifacts,
 } from "#scripts/customise-cms/writer.js";
 
 // Freshness tests set PAGES_YML_OUTPUT_PATH to compare regenerated output
@@ -38,7 +38,7 @@ const main = async () => {
   if (outputOverride) {
     await writeFile(outputOverride, generateCompactYaml(config), "utf-8");
   } else {
-    await writePagesYaml(generateCompactYaml(config));
+    await writeCmsArtifacts(config);
   }
 
   console.log(".pages.yml has been regenerated with:");
