@@ -1,21 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * Generate Full .pages.yml Script
+ * Generate Configured .pages.yml Script
  *
- * Non-interactive script that generates the most complete .pages.yml
- * with all collections and all features enabled.
- * Respects use_visual_editor setting from config.json.
+ * Non-interactive script that regenerates .pages.yml from the cms_config
+ * saved in site.json.
  *
  * Usage: npm run generate-pages-yml
  */
 
 import { writeFile } from "node:fs/promises";
-import { createDefaultConfig } from "#scripts/customise-cms/config.js";
+import { loadCmsConfig } from "#scripts/customise-cms/config.js";
 import {
   generateCompactYaml,
   runWithErrorHandling,
-  writePagesYaml,
+  writeCmsArtifacts,
 } from "#scripts/customise-cms/writer.js";
 
 // Freshness tests set PAGES_YML_OUTPUT_PATH to compare regenerated output
@@ -27,22 +26,25 @@ const outputOverride = process.env.PAGES_YML_OUTPUT_PATH;
  * @returns {Promise<void>}
  */
 const main = async () => {
-  console.log(
-    "Generating complete .pages.yml with all collections and features...\n",
-  );
+  console.log("Regenerating .pages.yml from saved CMS configuration...\n");
 
-  const config = createDefaultConfig();
+  const config = await loadCmsConfig();
+  if (!config) {
+    throw new Error(
+      "No saved cms_config found in site.json. Run npm run customise-cms first.",
+    );
+  }
 
   if (outputOverride) {
     await writeFile(outputOverride, generateCompactYaml(config), "utf-8");
   } else {
-    await writePagesYaml(generateCompactYaml(config));
+    await writeCmsArtifacts(config);
   }
 
-  console.log(".pages.yml has been generated with:");
+  console.log(".pages.yml has been regenerated with:");
   console.log(`  - ${config.collections.length} collections`);
   console.log(
-    "  - All features enabled (permalinks, redirects, faqs, galleries, navigation URLs, blocks)",
+    `  - ${Object.values(config.features).filter(Boolean).length} enabled features`,
   );
   if (config.features.use_visual_editor) {
     console.log("  - Visual rich-text editor enabled");

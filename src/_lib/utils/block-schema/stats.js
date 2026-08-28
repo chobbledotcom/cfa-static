@@ -13,6 +13,7 @@ export const fields = {
       value: str("Value", { required: true }),
       label: str("Label", { required: true }),
     }),
+    allowPipeDelimitedItems: true,
     required: true,
     description:
       'Stat objects: `{value, label}` or pipe-delimited strings `"value|label"`.',

@@ -27,7 +27,7 @@ import { askQuestions } from "#scripts/customise-cms/prompts.js";
 import {
   generateCompactYaml,
   runWithErrorHandling,
-  writePagesYaml,
+  writeCmsArtifacts,
 } from "#scripts/customise-cms/writer.js";
 
 /**
@@ -101,7 +101,7 @@ const runInteractive = async () => {
   const config = await askQuestions(existingConfig);
 
   await saveCmsConfig(config);
-  await writePagesYaml(generateCompactYaml(config));
+  await writeCmsArtifacts(config);
 
   console.log("\n.pages.yml has been updated!");
   console.log("Your configuration has been saved to src/_data/site.json");
@@ -127,7 +127,7 @@ const runRegenerate = async (values) => {
     return;
   }
 
-  await writePagesYaml(generateCompactYaml(config));
+  await writeCmsArtifacts(config);
   logConfigSummary(
     config,
     ".pages.yml has been regenerated from saved config!",
@@ -154,7 +154,7 @@ const runNonInteractive = async (values) => {
     log("Configuration saved to site.json", options.quiet);
   }
 
-  await writePagesYaml(generateCompactYaml(config));
+  await writeCmsArtifacts(config);
   logConfigSummary(config, "\n.pages.yml has been updated!", options.quiet);
 };
 

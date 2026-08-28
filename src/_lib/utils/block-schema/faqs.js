@@ -13,7 +13,6 @@ export const fields = {
       question: str("Question", { required: true }),
       answer: md("Answer (Markdown)"),
     }),
-    required: true,
     description:
       "FAQ question/answer pairs. Answers support markdown formatting. Falls back to page-level `faqs` array if omitted.",
   },

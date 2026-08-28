@@ -526,7 +526,7 @@ Renders question/answer pairs as a definition list. Available on all page types.
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `items` | array | **required** | FAQ question/answer pairs. Answers support markdown formatting. Falls back to page-level `faqs` array if omitted. |
+| `items` | array | — | FAQ question/answer pairs. Answers support markdown formatting. Falls back to page-level `faqs` array if omitted. |
 | `intro_content` | string | — | Markdown content rendered above the block in `.prose`. |
 
 Define FAQs inline via `items`, or omit to fall back to the page-level `faqs` array (useful for pages and guide pages that declare FAQs in frontmatter). Answers are rendered as markdown.

@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
+import siteData from "#data/site.json" with { type: "json" };
 import { useSharedSite } from "#test/test-site-factory.js";
 
-const SITE_URL = "https://cfa-static.example.com";
+const SITE_URL = siteData.url;
 
 const getSchema = async (site, outputPath) => {
   const doc = await site.getDoc(outputPath);

@@ -29,7 +29,7 @@ describe("eleventyComputed.blocks", () => {
 
   test("throws when a block contains unknown keys", async () => {
     await expect(
-      runSingle({ type: "markdown", video_url: "bad" }),
+      runSingle({ type: "markdown", content: "Valid", video_url: "bad" }),
     ).rejects.toThrow('unknown keys: "video_url"');
   });
 
@@ -64,10 +64,15 @@ describe("eleventyComputed.blocks", () => {
 
   test("applies split-image defaults including reveal_content 'left'", async () => {
     expect(
-      await runSingle({ type: "split-image", content: "## Section Heading" }),
+      await runSingle({
+        type: "split-image",
+        content: "## Section Heading",
+        figure_src: "/images/example.jpg",
+      }),
     ).toEqual({
       type: "split-image",
       content: "## Section Heading",
+      figure_src: "/images/example.jpg",
       reveal_figure: "scale",
       reveal_content: "left",
       dark: false,
@@ -78,6 +83,7 @@ describe("eleventyComputed.blocks", () => {
     const block = await runSingle({
       type: "split-html",
       content: "## Section Heading",
+      figure_html: "<p>Figure</p>",
       reverse: true,
     });
     expect(block.reveal_content).toBe("right");
@@ -87,6 +93,7 @@ describe("eleventyComputed.blocks", () => {
     const block = await runSingle({
       type: "split-code",
       content: "## Section Heading",
+      figure_code: "const example = true;",
       reveal_content: "left",
     });
     expect(block.reveal_content).toBe("left");
@@ -131,6 +138,7 @@ describe("eleventyComputed.blocks", () => {
   test("allows user values to override default values", async () => {
     const block = await runSingle({
       type: "features",
+      items: [],
       reveal: false,
       center: true,
     });

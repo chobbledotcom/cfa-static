@@ -146,14 +146,30 @@ const createHtmlTransform =
   };
 
 /**
+ * Run the project transforms inside Eleventy's PostHTML pipeline, before its
+ * built-in URL rewriter adds PATH_PREFIX to the final attributes.
+ * @param {import("#lib/types").ProcessImageFn} processAndWrapImage
+ */
+const createPosthtmlPlugin = (processAndWrapImage) => {
+  const transform = createHtmlTransform(processAndWrapImage);
+  return (/** @type {{ outputPath: string }} */ context) =>
+    /** @param {{ render: (tree: unknown) => string, parser: (html: string) => unknown }} tree */
+    async (tree) => {
+      const result = await transform(tree.render(tree), context.outputPath);
+      return tree.parser(result);
+    };
+};
+
+/**
  * Configure the unified HTML transform for Eleventy
  * @param {import("@11ty/eleventy").UserConfig} eleventyConfig
  * @param {import("#lib/types").ProcessImageFn} processAndWrapImage - Image processing function
  */
 const configureHtmlTransform = (eleventyConfig, processAndWrapImage) => {
-  eleventyConfig.addTransform(
-    "htmlTransform",
-    createHtmlTransform(processAndWrapImage),
+  eleventyConfig.htmlTransformer.addPosthtmlPlugin(
+    "html",
+    createPosthtmlPlugin(processAndWrapImage),
+    { name: "cfa/html-transform" },
   );
 };
 

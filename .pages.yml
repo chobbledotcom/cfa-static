@@ -87,7 +87,6 @@ components:
       - name: items
         type: object
         label: FAQs
-        required: true
         list: true
         fields:
           - { name: question, type: string, label: Question, required: true }
@@ -630,7 +629,6 @@ content:
     fields:
       - { name: name, type: string, label: Name, required: true }
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: body, type: rich-text, label: Body }
       - { name: meta_title, component: meta_title }
       - { name: meta_description, component: meta_description }
       - name: eleventyNavigation
@@ -702,7 +700,6 @@ content:
       - { name: date, label: Date, type: date }
       - { name: author, type: string, label: Author }
       - { name: subtitle, type: string, label: Subtitle }
-      - { name: body, type: rich-text, label: Body }
       - { name: meta_title, component: meta_title }
       - { name: meta_description, component: meta_description }
       - { name: no_index, type: boolean, label: Hide from listings }
@@ -760,7 +757,6 @@ content:
       - { name: subtitle, type: string, label: Subtitle }
       - { name: order, type: number, label: Order }
       - { name: icon, type: image, label: Icon }
-      - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
@@ -823,7 +819,6 @@ content:
           value: "{path}"
           label: "{fields.name}"
       - { name: order, type: number, label: Order }
-      - { name: body, type: rich-text, label: Body }
       - { name: permalink, type: string, label: Permalink }
       - { name: redirect_from, type: string, label: Redirect From, list: true }
       - { name: faqs, component: faqs }
@@ -884,8 +879,12 @@ content:
     type: file
     path: src/_data/site.json
     fields:
-      - { name: name, type: string, label: Site Name }
-      - { name: url, type: string, label: Site URL }
+      - { name: name, type: string, label: Site Name, required: true }
+      - { name: url, type: string, label: Site URL, required: true }
+      - name: description
+        type: string
+        label: Site Description
+        required: true
       - name: socials
         label: Social Media Links
         type: object

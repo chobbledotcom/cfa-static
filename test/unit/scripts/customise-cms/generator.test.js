@@ -126,6 +126,7 @@ describe("generatePagesYaml collections", () => {
     expect(yaml).toContain("name: snippets");
     expect(yaml).toContain("path: src/snippets");
     expect(getSection("snippets")(yaml)).toContain("- README.md");
+    expect(getSection("snippets")(yaml)).toContain("name: body");
   });
 
   test("excludes snippets when not in collections list", () => {
@@ -140,6 +141,17 @@ describe("generatePagesYaml collections", () => {
     expect(yaml).toContain("name: site");
     expect(yaml).toContain("name: meta");
     expect(yaml).toContain("name: alt-tags");
+  });
+
+  test("requires the complete site identity", () => {
+    const parsed = YAML.parse(generatePagesYaml(createTestConfig()));
+    const site = parsed.content.find((entry) => entry.name === "site");
+
+    for (const name of ["name", "url", "description"]) {
+      expect(site.fields).toContainEqual(
+        expect.objectContaining({ name, required: true }),
+      );
+    }
   });
 });
 
@@ -328,7 +340,7 @@ describe("generatePagesYaml custom blocks collections", () => {
 
     expect(section).toContain("name: blocks");
     expect(section).toContain("name: name");
-    expect(section).toContain("name: body");
+    expect(section).not.toContain("name: body");
   });
 
   test("custom blocks collections respect hasSrcFolder", () => {

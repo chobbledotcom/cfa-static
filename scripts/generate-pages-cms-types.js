@@ -15,6 +15,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import YAML from "yaml";
 import { ROOT_DIR } from "#lib/paths.js";
+import { runIfMain } from "#scripts/lib/is-main-module.js";
 
 const PAGES_YML = join(ROOT_DIR, ".pages.yml");
 
@@ -257,17 +258,25 @@ const FILE_HEADER = [
 ];
 
 /**
- * Parse .pages.yml and generate type definitions
+ * Generate type declarations from PagesCMS YAML.
+ * @param {string} pagesYaml
+ * @returns {string}
  */
-const generateTypes = () => {
-  const config = YAML.parse(readFileSync(PAGES_YML, "utf-8"));
+export const generateTypeDefinitions = (pagesYaml) => {
+  const config = YAML.parse(pagesYaml);
   const interfaces = extractAllTypes(config);
-
   const output = [...FILE_HEADER, ...interfaces.flatMap((code) => [code, ""])];
-
-  writeFileSync(OUTPUT_FILE, `${output.join("\n")}\n`);
-  console.log(`✓ Generated types to ${OUTPUT_FILE}`);
-  console.log(`✓ Generated ${interfaces.length} type interfaces`);
+  return `${output.join("\n")}\n`;
 };
 
-generateTypes();
+/** Parse .pages.yml and write its generated type definitions. */
+const generateTypes = () => {
+  const pagesYaml = readFileSync(PAGES_YML, "utf-8");
+  const output = generateTypeDefinitions(pagesYaml);
+  const interfaceCount = [...output.matchAll(/^export interface /gm)].length;
+  writeFileSync(OUTPUT_FILE, output);
+  console.log(`✓ Generated types to ${OUTPUT_FILE}`);
+  console.log(`✓ Generated ${interfaceCount} type interfaces`);
+};
+
+await runIfMain(import.meta.url, generateTypes);

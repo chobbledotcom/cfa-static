@@ -15,9 +15,11 @@ blocks:
 
       ## Set up
 
-      1. Create your repository from this template (or clone it directly)
-      2. Run `npm install` to install dependencies
-      3. Run `npm run serve` to start the development server at `http://localhost:8080`
+      1. Fork this repository into the account or organization that will own the site
+      2. Clone that fork
+      3. Set the site's real `name`, `url`, and `description` in `src/_data/site.json`
+      4. Run `npm install` to install dependencies
+      5. Run `npm run serve` to start the development server at `http://localhost:8080`
 
       The dev server rebuilds and reloads as you edit. When you want a
       production build, `npm run build` writes the whole site to `_site/`
@@ -39,6 +41,6 @@ faqs:
     answer: A couple of minutes - one `npm install` and you're running.
     order: 2
   - question: Do I need to configure anything before it runs?
-    answer: No. The template runs as-is with demo content; configuration comes later, in `src/_data/`.
+    answer: Set the real site identity in `src/_data/site.json` first. The build rejects missing or obvious placeholder values so they cannot be published accidentally.
     order: 3
 ---

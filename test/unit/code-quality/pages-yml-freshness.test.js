@@ -10,11 +10,9 @@ const GENERATOR_SCRIPT = join(
   "scripts/customise-cms/generate-full.js",
 );
 
-/** Mirrors the BLOCKS_LAYOUT.md freshness test in block-docs.test.js: the
- *  committed .pages.yml must match what the full-config generator produces,
- *  so any change to BLOCK_CMS_FIELDS or the generator output shape forces a
- *  regeneration rather than silently drifting. Regenerates to a temp path so
- *  the committed file is never written mid-run. */
+/** The committed .pages.yml must match the cms_config saved in site.json, so
+ *  per-site customization and schema changes cannot silently drift. Generates
+ *  to a temp path so the committed file is never written mid-run. */
 describe("pages-yml-freshness", () => {
   test(".pages.yml matches generator output", () =>
     withTempDir("pages-yml-freshness", (tempDir) => {

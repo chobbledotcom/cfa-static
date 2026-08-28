@@ -82,7 +82,12 @@ const getPageImageUrl = (data) => {
   if (!image) return null;
   const src = typeof image === "string" ? image : image.src;
   if (src.startsWith("data:")) return null;
-  return new URL(normalizeImageUrl(src), `${data.site.url}/`).href;
+  const imageUrl = normalizeImageUrl(src);
+  const relativeImageUrl =
+    imageUrl.startsWith("/") && !imageUrl.startsWith("//")
+      ? imageUrl.slice(1)
+      : imageUrl;
+  return new URL(relativeImageUrl, `${data.site.url}/`).href;
 };
 
 /** @param {BasePageData} data */

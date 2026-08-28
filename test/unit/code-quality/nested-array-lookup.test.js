@@ -84,10 +84,7 @@ const hasNestedLookupInParens = (cleaned) => {
  * These are genuine O(n*m) patterns or sub-collection filters in code that
  * predates the scanner improvement. Each should be fixed and removed.
  */
-const KNOWN_VIOLATIONS = frozenSet([
-  "src/_lib/utils/block-columns.js:181",
-  "src/_lib/utils/block-schema.js:301",
-]);
+const KNOWN_VIOLATIONS = frozenSet(["src/_lib/utils/block-columns.js:181"]);
 
 /**
  * Scan source code for .find()/.filter() calls nested inside iteration

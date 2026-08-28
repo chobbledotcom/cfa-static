@@ -1,14 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { collectItemErrors, validateItem } from "#utils/validate-item.js";
 
-/** Run collectItemErrors on a tagged page with a single block and return errors */
-const errorsForBlock = (blockType, blockData) =>
-  collectItemErrors({
-    name: "My Page",
-    tags: ["pages"],
-    blocks: [{ type: blockType, ...blockData }],
-  });
-
 describe("collectItemErrors", () => {
   test("returns empty array when name is present", () => {
     expect(
@@ -55,59 +47,14 @@ describe("collectItemErrors", () => {
     ).toEqual([]);
   });
 
-  test("returns empty array for block types without named object-list fields", () => {
+  test("leaves block validation to the shared block-schema validator", () => {
     expect(
       collectItemErrors({
         name: "My Item",
         tags: ["pages"],
-        blocks: [{ type: "markdown", content: "Hello" }],
+        blocks: [{ type: "markdown" }],
       }),
     ).toEqual([]);
-  });
-
-  test("returns error for features block item missing name", () => {
-    const errors = errorsForBlock("features", {
-      items: [
-        { icon: "star", name: "Good Feature", description: "Works" },
-        { icon: "heart", description: "Missing name" },
-      ],
-    });
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('"features"');
-    expect(errors[0]).toContain('"items[1]"');
-    expect(errors[0]).toContain('"name"');
-  });
-
-  test("returns error for features block item missing multiple fields", () => {
-    const errors = errorsForBlock("features", {
-      items: [{ name: "Good", icon: "star", description: "Desc" }, {}],
-    });
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('"name"');
-  });
-
-  test("returns error for image-cards block item missing name", () => {
-    const errors = errorsForBlock("image-cards", {
-      items: [{ image: "/a.jpg", name: "Good Card" }, { image: "/b.jpg" }],
-    });
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('"image-cards"');
-    expect(errors[0]).toContain('"items[1]"');
-  });
-
-  test("aggregates multiple missing name errors across blocks", () => {
-    const data = {
-      name: "My Page",
-      tags: ["pages"],
-      blocks: [
-        {
-          type: "features",
-          items: [{ description: "no name 1" }, { description: "no name 2" }],
-        },
-        { type: "image-cards", items: [{ image: "/img.jpg" }] },
-      ],
-    };
-    expect(collectItemErrors(data)).toHaveLength(3);
   });
 });
 
@@ -140,6 +87,16 @@ describe("validateItem", () => {
         blocks: [{ type: "features", items: [{ icon: "star" }] }],
       }),
     ).toThrow('"features"');
+  });
+
+  test("throws every missing nested field from the shared schema", () => {
+    expect(() =>
+      validateItem({
+        name: "My Page",
+        tags: ["pages"],
+        blocks: [{ type: "downloads", items: [{}] }],
+      }),
+    ).toThrow(/required "file"[\s\S]*required "label"/);
   });
 
   test("throws all errors at once when multiple names are missing", () => {

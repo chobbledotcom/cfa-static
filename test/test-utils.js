@@ -261,6 +261,12 @@ const createArrayMethod = (propName) =>
   };
 
 const createMockEleventyConfig = () => ({
+  htmlTransformer: {
+    addPosthtmlPlugin(extensions, plugin, options) {
+      this.plugins = this.plugins || {};
+      this.plugins[extensions] = { plugin, options };
+    },
+  },
   addPlugin: function (plugin, config) {
     this.pluginCalls = this.pluginCalls || [];
     this.pluginCalls.push({ plugin, config });

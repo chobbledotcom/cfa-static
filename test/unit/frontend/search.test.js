@@ -155,6 +155,9 @@ describe("loadPagefind", () => {
           "export const init = () => {",
           "  globalThis.__pagefindInits = (globalThis.__pagefindInits || 0) + 1;",
           "};",
+          "export const options = (value) => {",
+          "  globalThis.__pagefindOptions = value;",
+          "};",
           "",
         ].join("\n"),
       );
@@ -167,10 +170,12 @@ describe("loadPagefind", () => {
         const pagefind = await loadPagefind();
 
         expect(globalThis.__pagefindInits).toBe(1);
+        expect(globalThis.__pagefindOptions).toEqual({ baseUrl: `${dir}/` });
         expect(typeof pagefind.init).toBe("function");
       } finally {
         tag.remove();
         delete globalThis.__pagefindInits;
+        delete globalThis.__pagefindOptions;
       }
     });
   });
