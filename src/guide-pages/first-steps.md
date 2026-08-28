@@ -20,10 +20,12 @@ blocks:
 
       ## Finding the right block
 
-      The [blocks page](/blocks/) shows every block type rendered live,
-      each with the exact YAML that produces it - copy a section from
-      there and adjust. If you mistype a block name or a field, the build
-      stops and tells you the file and block number.
+      The [blocks page](/blocks/) renders standalone-previewable block types
+      beside schema-backed YAML examples; collection-restricted contextual
+      blocks show usage guidance instead. Copy a relevant example, confirm
+      consequential fields in the repository's `BLOCKS_LAYOUT.md`, and adjust
+      it. Invalid block names and top-level fields fail the build with the file
+      and block number.
 
       ## Structure worth knowing
 

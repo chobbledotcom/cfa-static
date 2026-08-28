@@ -1,6 +1,6 @@
 ---
 name: Configuration
-subtitle: The three data files that shape a site
+subtitle: Site identity, features, labels, and languages
 guide-category: advanced-topics
 order: 1
 blocks:
@@ -8,17 +8,17 @@ blocks:
   - type: guide-navigation
   - type: markdown
     content: |
-      Site-wide settings live in `src/_data/` as three JSON files. Change
-      them and the whole site follows - a bad value fails the build with
-      a message naming the field.
+      Site-wide settings live in JSON files under `src/_data/`. Required
+      identity and language fields are validated at build time; after other
+      changes, build and inspect the affected output.
 
       ## site.json
 
       Identity: the site's name, canonical `url`, and social links. The
       `url` feeds canonical tags, the sitemap, and the feed. Deployments
       can override it with the `SITE_URL` environment variable, which is
-      how the GitHub Pages workflow serves the same site from any origin
-      without edits.
+      how the GitHub Pages workflow serves the same site from any public
+      base URL without edits.
 
       ## config.json
 
@@ -27,8 +27,10 @@ blocks:
 
       ## strings.json
 
-      Every label and permalink the templates emit, in one place - rename
-      "News" or move it to another path without touching a template.
+      Supported News and Guide labels and permalink directories - rename
+      "News" or move that collection to another path without touching a
+      template. Per-language chrome labels such as Home, search, breadcrumbs,
+      and the skip link live in `languages.json`.
 
       ## Theming
 

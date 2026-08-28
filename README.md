@@ -16,9 +16,10 @@ static pages.
 - **Content blocks** — ~35 block types (hero, FAQs, callouts, image cards,
   split layouts, galleries, stats…) declared in frontmatter and validated at
   build time with loud, file-specific errors. See [BLOCKS_LAYOUT.md](BLOCKS_LAYOUT.md)
-  for the full reference (generated from the block schemas, so it can't drift),
-  or the deployed site's `/blocks/` page, where every type renders live next
-  to the YAML that produces it — from the same tested fixtures.
+  for the generated schema reference, or the deployed site's `/blocks/` page,
+  where standalone-previewable types render next to YAML from the same tested
+  fixtures. Collection-restricted contextual blocks show usage guidance
+  instead.
 - **Content types** — Pages, News (with Atom feed), Guides (categorised
   documentation pages), and reusable Snippets.
 - **Multi-language** — publish the same page in more than one language with
@@ -28,11 +29,12 @@ static pages.
   visual theme editor at `/theme-editor/` with export.
 - **Images** — responsive `srcset` via eleventy-img, base64 LQIP placeholders,
   aspect-ratio cropping, unused-image detection.
-- **Accessibility** — WCAG 2.2 AA is a build gate, not a hope: every page of
-  the built site is checked with axe-core (`npm run check:a11y`), and the
-  block gallery renders every block type, so a block cannot ship an
-  accessibility defect without failing the check. Pages get a skip link, named
-  landmarks, and per-language chrome labels out of the box.
+- **Accessibility** — `npm test` checks every built page with axe-core's
+  automated WCAG 2.2 AA rules, including gallery coverage for blocks that
+  support standalone previews. Pages get a skip link, named landmarks, and
+  per-language chrome labels out of the box. Manual review is still required
+  for context, visual contrast, keyboard flow, and other qualities automation
+  cannot settle.
 - **Search** — static full-text search via Pagefind.
 - **SEO** — schema.org JSON-LD (WebSite, Organization, BreadcrumbList,
   BlogPosting, FAQPage), canonical URLs, sitemap, social cards.
@@ -51,8 +53,19 @@ npm test             # full suite: lint, typecheck, build, tests, coverage
 npm run check:a11y   # WCAG 2.2 AA check over the built _site/
 ```
 
-The build needs no secrets and no network services. The deployable artifact is
-the `_site/` directory — publish it with any static host or pipeline.
+The build needs no application secrets or server-side services. Dependency
+installation, uncached Iconify icons, and configured remote source images may
+require network access. The deployable artifact is the `_site/` directory —
+publish it with any static host or pipeline.
+
+## Agent Skill
+
+[`skills/cfa-static-site-builder/`](skills/cfa-static-site-builder/) is a
+portable [Agent Skill](https://agentskills.io/) for building and maintaining a
+site from this template. Configure a compatible agent client to load that
+directory according to the client's skill-discovery instructions. The package
+travels with each fork and points agents back to the fork's live schemas,
+generators, and checks rather than duplicating them.
 
 ## Starting a site from this template
 
@@ -83,20 +96,24 @@ immediately whether the update broke anything it publishes.
 The repo ships a workflow (`.github/workflows/pages.yml`) that builds and
 deploys to GitHub Pages on every push to `main`. One-time setup: under the
 repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
+The workflow uses Ubicloud runners, so a new fork must also configure the
+Ubicloud GitHub integration and billing, or deliberately change both jobs to an
+available runner such as `ubuntu-latest`.
 
 The workflow handles both hosting shapes automatically: on a project site
 (`https://<owner>.github.io/<repo>/`) it builds with the `/<repo>/` path
 prefix and rewrites internal URLs to match; with a custom domain or a
 user/organization site it builds with no prefix. Canonical URLs, the sitemap,
-and feeds pick up the deployed origin via `SITE_URL`. Keep `site.json`'s `url`
-set to the site's public URL as the fallback for local and non-workflow builds.
+and feeds pick up the public site base URL via `SITE_URL`. Keep `site.json`'s
+`url` set to the site's public base URL as the fallback for local and
+non-workflow builds.
 
 ## Configuration
 
 - `src/_data/site.json` — site name, URL, social links
 - `src/_data/config.json` — feature toggles (breadcrumbs, theme switcher,
   navigation style, search collections)
-- `src/_data/strings.json` — label and permalink overrides
+- `src/_data/strings.json` — news/guide label and permalink overrides
 - `src/_data/languages.json` / `translations.json` — languages the site
   publishes and which pages say the same thing in each
 
@@ -106,8 +123,9 @@ A site is written in one language until it says otherwise, and nothing in the
 template names a language.
 
 - `_data/languages.json` lists every language the site publishes, each with a
-  `code`, `hreflang`, `og_locale`, `label`, `home_url` prefix, `home_label` and
-  `breadcrumb_label`. Exactly one entry has `is_default: true`.
+  `code`, `hreflang`, `og_locale`, `label`, `home_url` prefix, `home_label`,
+  `breadcrumb_label`, `skip_to_content_label`, and `search_label`. Exactly one
+  entry has `is_default: true`.
 - `_data/translations.json` pairs the pages that say the same thing, keyed by
   language code, e.g. `[{ "en": "/about/", "de": "/de/ueber-uns/" }]`.
 

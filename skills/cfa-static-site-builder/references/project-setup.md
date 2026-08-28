@@ -1,0 +1,168 @@
+# Project Setup And Configuration
+
+Read this reference when starting a site, changing its editable collections,
+setting brand or language data, or preparing deployment.
+
+## Confirm Or Establish The Fork
+
+A valid project root contains:
+
+- `package.json` with `"name": "cfa-static"`
+- `src/_data/site.json`
+- `src/pages/`
+- `BLOCKS_LAYOUT.md`
+- `package-lock.json`
+
+Use Node.js 22 or newer, npm, and a POSIX-compatible shell. Do not substitute
+Bun, Yarn, or pnpm. Installing dependencies normally requires network access.
+
+For a new site, the durable model is a GitHub fork of
+`chobbledotcom/cfa-static`. Confirm the destination owner and repository name
+before creating anything. If GitHub CLI is authenticated and the user approves,
+`gh repo fork chobbledotcom/cfa-static --clone` is the default starting point.
+Otherwise ask the user to create and clone the fork. Do not silently create a
+plain upstream clone as the site's long-term repository.
+
+After cloning:
+
+```bash
+npm install
+```
+
+Keep the template repository as an `upstream` remote only if the site owner
+wants to pull reviewed template updates later.
+
+## Capture The Site Decisions
+
+Before replacing content, establish:
+
+| Decision | Destination |
+|---|---|
+| Name, canonical URL, description, socials | `src/_data/site.json` |
+| Navigation/search/theme behavior | `src/_data/config.json` |
+| News/guide labels and permalink segments | `src/_data/strings.json` |
+| Chrome labels such as home, breadcrumbs, and skip links | `src/_data/languages.json` |
+| Organization/schema metadata | `src/_data/meta.json` |
+| Published languages and chrome labels | `src/_data/languages.json` |
+| Equivalent pages across languages | `src/_data/translations.json` |
+| Site-wide block columns | `src/_data/blockLayouts.json` |
+| Colors, fonts, spacing, radii | `src/css/theme.scss` |
+
+Use exact user-supplied values. `site.json` requires a real `name`, `url`, and
+`description`. The URL must be an HTTP(S) base URL without trailing slash,
+query, fragment, surrounding whitespace, or an example hostname.
+
+Organization metadata is optional. Omit facts that are not known instead of
+inventing founders, addresses, phone numbers, or dates.
+
+Inspect `src/_data/strings-base.json` before adding a string override; arbitrary
+keys do not make templates consume a new label.
+
+## Choose Collections And CMS Features
+
+The CMS customizer controls what editors see; it also regenerates `.pages.yml`
+and the matching TypeScript declarations. Inspect the live choices rather than
+copying a stale list:
+
+```bash
+npm run customise-cms -- --list-collections
+npm run customise-cms -- --list-features
+```
+
+Useful non-interactive patterns:
+
+```bash
+# Preview a simple pages + news setup
+npm run customise-cms -- --collections news --dry-run
+
+# Enable news and guides with page-level FAQs and galleries
+npm run customise-cms -- --collections news,guide-categories,guide-pages --enable faqs,galleries --quiet
+
+# Enable everything except the visual editor
+npm run customise-cms -- --all --disable use_visual_editor --quiet
+
+# Rebuild artifacts from the saved cms_config
+npm run customise-cms -- --regenerate --quiet
+```
+
+`pages` and `snippets` are always included. Selecting `guide-pages` also pulls
+in `guide-categories`. Use a dry run when the requested editing surface is
+ambiguous, inspect the output, then run the writing command. The writing path
+saves `cms_config` in `site.json` and regenerates both CMS artifacts.
+
+Do not enable collections merely because they exist. A brochure site may need
+only pages. Enable news only for dated publishing and feeds; enable guides only
+for categorized documentation. These choices change PagesCMS, not Eleventy
+publication. To remove news or guides from a site, also remove their demo
+content, listing pages, navigation entries, and related links such as RSS where
+the brief does not require them. Confirm the resulting routes after building.
+
+## Navigation And Information Architecture
+
+Page navigation is declared in frontmatter:
+
+```yaml
+eleventyNavigation:
+  key: About
+  order: 2
+```
+
+Use short, unique labels and deliberate ordering. Avoid putting utility pages
+such as search, accessibility statements, or privacy details in primary
+navigation unless the brief calls for them.
+
+Internal links should be site-relative (`/about/`), never hardcoded deployment
+origins. The build rewrites them for `PATH_PREFIX` deployments.
+
+## Theme And Brand
+
+Start with `src/css/theme.scss`. The repository also includes prebuilt
+`src/css/theme-*.scss` files and a live `/theme-editor/` that exports a complete
+theme file.
+
+For a new visual direction:
+
+1. derive color, type, density, and image treatment from the brief
+2. choose the closest existing theme or use the theme editor
+3. replace `theme.scss` with the exported tokens
+4. add component CSS only for requirements tokens cannot express
+5. check desktop and mobile output, focus states, contrast, and long text
+
+Do not mix multiple prebuilt themes or add arbitrary one-off values throughout
+block styles. Preserve the token system.
+
+## Languages
+
+Each entry in `languages.json` must provide every chrome label required by the
+current schema. Copy the shape of the existing default-language entry, then use
+real translated labels. Set one and only one default language.
+
+Place translated pages under their language URL prefix and pair equivalent
+routes in `translations.json`. Read nearby multilingual tests and content before
+editing. Language declarations are validated, but malformed translation groups
+can silently omit or misdirect hreflang links, so inspect every language pair in
+the built output.
+
+Do not machine-translate publishable copy unless the user explicitly accepts
+that workflow and arranges human review.
+
+## Deployment
+
+The bundled GitHub Pages workflow supports project sites and custom domains.
+The user must enable **Settings > Pages > Source: GitHub Actions** once. The
+workflow currently uses Ubicloud runners, which are not automatically available
+to a new fork. Before deployment, ask the owner either to configure the Ubicloud
+GitHub integration and billing or to approve changing both workflow jobs to an
+available runner such as `ubuntu-latest`.
+
+The workflow provides:
+
+- `PATH_PREFIX` for project-site subpaths
+- `SITE_URL` for canonical URLs, sitemap entries, feeds, and schema metadata
+
+For another static host, publish the generated `_site/` directory. There is no
+application server and no build-time secret requirement.
+
+Do not change runners, permissions, domains, or repository settings without a
+specific request. Report an unconfigured runner as a deployment prerequisite,
+not as a successful setup.

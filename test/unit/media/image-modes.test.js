@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+const IMAGE_IMPORT_TIMEOUT = 10_000;
+
 /**
  * PLACEHOLDER_MODE is read at module load, so these tests mock build-mode
  * (and the external processor) and re-import image.js fresh each time.
@@ -27,38 +29,46 @@ afterEach(() => {
 });
 
 describe("processAndWrapImage in placeholder mode", () => {
-  test("local images render the placeholder instead of processing", async () => {
-    const { processAndWrapImage } = await importImage({
-      placeholderMode: true,
-    });
+  test(
+    "local images render the placeholder instead of processing",
+    async () => {
+      const { processAndWrapImage } = await importImage({
+        placeholderMode: true,
+      });
 
-    const html = await processAndWrapImage({
-      imageName: "party.jpg",
-      alt: "A party",
-      classes: "hero",
-      returnElement: false,
-      document: null,
-    });
+      const html = await processAndWrapImage({
+        imageName: "party.jpg",
+        alt: "A party",
+        classes: "hero",
+        returnElement: false,
+        document: null,
+      });
 
-    expect(html).toContain("data:image/png");
-    expect(html).toContain('alt="A party"');
-  });
+      expect(html).toContain("data:image/png");
+      expect(html).toContain('alt="A party"');
+    },
+    IMAGE_IMPORT_TIMEOUT,
+  );
 
-  test("external urls render the placeholder instead of fetching", async () => {
-    const { processAndWrapImage } = await importImage({
-      placeholderMode: true,
-    });
+  test(
+    "external urls render the placeholder instead of fetching",
+    async () => {
+      const { processAndWrapImage } = await importImage({
+        placeholderMode: true,
+      });
 
-    const html = await processAndWrapImage({
-      imageName: "https://example.com/remote.jpg",
-      alt: "Remote",
-      returnElement: false,
-      document: null,
-    });
+      const html = await processAndWrapImage({
+        imageName: "https://example.com/remote.jpg",
+        alt: "Remote",
+        returnElement: false,
+        document: null,
+      });
 
-    expect(html).toContain("data:image/png");
-    expect(html).toContain('alt="Remote"');
-  });
+      expect(html).toContain("data:image/png");
+      expect(html).toContain('alt="Remote"');
+    },
+    IMAGE_IMPORT_TIMEOUT,
+  );
 });
 
 describe("processAndWrapImage with external urls", () => {

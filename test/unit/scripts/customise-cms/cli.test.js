@@ -190,7 +190,7 @@ describe("generateHelp", () => {
   test("includes usage, options, collections, features, and examples", () => {
     const help = generateHelp();
 
-    expect(help).toContain("Usage:");
+    expect(help).toContain("Usage: npm run customise-cms -- [options]");
     expect(help).toContain("--collections");
     expect(help).toContain("pages");
     expect(help).toContain("permalinks");

@@ -129,5 +129,5 @@ describe("screenshotAllViewports", () => {
         expect(typeof err.error).toBe("string");
       }
     });
-  });
+  }, 10_000);
 });

@@ -13,7 +13,7 @@ const GALLERY_HEADER = {
   type: "hero",
   badge: "Reference",
   content:
-    "# Every block, live\n\nEach section below is one block type: what it's for, the YAML you write, and the same block rendered right underneath. These are the canonical examples the test suite validates - if it's on this page, it works.",
+    "# Every block, documented\n\nEach section below is one block type: what it's for, the schema-backed YAML you write, and a live preview when a meaningful standalone preview is possible. The test suite validates every example.",
 };
 
 export const buildGalleryBlocks = () => [
@@ -32,7 +32,7 @@ export const buildGalleryBlocks = () => [
           variant: "info",
           icon: "hugeicons:information-circle",
           name: "Rendered in context",
-          content: `This block only renders on ${collections.join(" and ")} pages, so there is no live preview here - the YAML above is still its complete usage.`,
+          content: `This block is intended for ${collections.join(" and ")} pages and depends on that page context, so there is no standalone preview here - the YAML above is still its complete usage.`,
         }
       : example,
   ]),
