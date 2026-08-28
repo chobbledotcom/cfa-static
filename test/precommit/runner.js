@@ -9,7 +9,6 @@
  *   failures. `--ci` (or CI env) disables progress spinners and prompts.
  */
 import { spawn } from "node:child_process";
-import { join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
 import { bold, dim, green, red, write, yellow } from "#scripts/lib/colors.js";
 import { getStepEnvironment } from "#test/precommit/environment.js";
@@ -24,7 +23,6 @@ import {
 import {
   extractErrorsFromOutput,
   printTruncatedList,
-  reportCoverageFailures,
 } from "#test/test-runner-utils.js";
 
 const isVerbose = () => process.argv.includes("--verbose");
@@ -126,20 +124,16 @@ export const runStep = async (step, showProgress) => {
   if (errors.length > 0) {
     printTruncatedList({ moreLabel: "errors" })(errors);
   } else {
-    const lcovPath = join(ROOT_DIR, "coverage/lcov.info");
-    if (reportCoverageFailures(lcovPath)) {
-      console.log(
-        "  Thresholds are defined in vitest.config.js (coverage.thresholds).",
-      );
-    } else {
-      const allOutput = stderr || stdout || "";
-      console.log("  No specific errors extracted. Last 15 lines of output:");
-      const lastLines = allOutput
-        .split("\n")
-        .slice(-15)
-        .filter((l) => l.trim());
-      for (const line of lastLines) console.log(`  ${line}`);
-    }
+    // No precommit step runs with --coverage, so a leftover lcov.info can
+    // never explain this failure; show the raw tail instead of stale
+    // coverage gaps.
+    const allOutput = stderr || stdout || "";
+    console.log("  No specific errors extracted. Last 15 lines of output:");
+    const lastLines = allOutput
+      .split("\n")
+      .slice(-15)
+      .filter((l) => l.trim());
+    for (const line of lastLines) console.log(`  ${line}`);
   }
   return false;
 };
