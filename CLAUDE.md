@@ -181,6 +181,7 @@ const expensiveComputation = memoize(
 ```
 
 ### Available Array Utilities (`#utils/fp/array.js`)
+
 - `pipe(...fns)` - Left-to-right function composition
 - `filter(predicate)`, `map(fn)`, `flatMap(fn)`, `reduce(fn, initial)` - Curried array methods
 - `sort(comparator)` - Non-mutating sort

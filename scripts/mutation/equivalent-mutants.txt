@@ -33,7 +33,8 @@ scripts/mutation/generate.js:193:12  || → &&   # walkChild already filters non
 scripts/mutation/generate.js:206:45  ?? → ||   # a real file path's basename is never "", so the fallback is unreachable
 
 # --- core libraries (src/_lib/utils/fp) ---
-src/_lib/utils/fp/memoize.js:167:32  ?? → ||   # a pending entry is always a Promise (truthy) or undefined, so ?? and || agree
+src/_lib/utils/fp/memoize.js:168:32  ?? → ||   # a pending entry is always a Promise (truthy) or undefined, so ?? and || agree
+src/_lib/utils/fp/set.js:81:5  methodCache.set(prop, bound); → (removed)   # cache population is a perf-only optimization: skipping it rebinds per access with identical observable behaviour
 
 # --- collections: indexer/Map lookups that return an array or undefined, so
 #     `x ?? []` and `x || []` agree; plus a couple of other safe defaults ---

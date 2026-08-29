@@ -52,6 +52,20 @@ describe("memoizeByRef", () => {
     assertBothCached(2);
   });
 
+  test("caches falsy results by key presence", () => {
+    const counter = createCounter();
+    const firstFalsy = memoizeByRef((obj) => {
+      counter.count++;
+      return obj.value ? "yes" : "";
+    });
+
+    const input = { value: 0 };
+
+    expect(firstFalsy(input)).toBe("");
+    expect(firstFalsy(input)).toBe("");
+    expect(counter.count).toBe(1);
+  });
+
   test("works with complex return values", () => {
     const counter = createCounter();
     const buildData = memoizeByRef((api) => {

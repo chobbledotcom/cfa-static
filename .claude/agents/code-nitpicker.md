@@ -23,7 +23,7 @@ This project enforces strict functional programming patterns and code quality ru
 
 ### Prohibited Patterns (Fix Automatically)
 
-1. **Array mutation with .push()** - Replace with spread operator, concat, or accumulate helper
+1. **Array mutation with .push()** - Replace with spread operator, concat, or flatMap
    ```javascript
    // BAD
    const items = [];
@@ -31,7 +31,7 @@ This project enforces strict functional programming patterns and code quality ru
 
    // GOOD
    const items = [...existingItems, newItem];
-   // OR in reduce: accumulate((acc, item) => [...acc, item])
+   // OR build in one pass: items.flatMap(item => keep(item) ? [item] : [])
    ```
 
 2. **Mutable variables (let)** - Replace with const and functional patterns
@@ -103,7 +103,7 @@ The file `test/code-quality/code-quality-exceptions.js` contains ONLY grandfathe
 
 ### 3. Mutable const (empty [], {})
 - Convert forEach loops to map/filter
-- Use reduce with spread (or accumulate helper for performance)
+- Use `flatMap()` or `concat()` when an operation must create a new array
 - Build objects with Object.fromEntries or direct literals
 
 ### 4. HTML in JS

@@ -45,8 +45,9 @@ const memoize = (fn, options = {}) => {
 const memoizeByRef = (buildFn) => {
   const cache = new WeakMap();
   return (arr) => {
-    const cached = cache.get(arr);
-    if (cached) return cached;
+    // Check key presence, not truthiness: a falsy buildFn result
+    // (0, null, false, ...) is still a cached value
+    if (cache.has(arr)) return cache.get(arr);
     const result = buildFn(arr);
     cache.set(arr, result);
     return result;

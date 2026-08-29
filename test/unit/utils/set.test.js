@@ -83,6 +83,24 @@ describe("frozenSet", () => {
 
     expect([...set]).toEqual([1, 2, 3]);
   });
+
+  test("forEach callbacks receive the frozen proxy as the set argument", () => {
+    const set = frozenSet(["a", "b"]);
+    const seen = [];
+    let setArg = null;
+
+    set.forEach((value, _valueAgain, arg) => {
+      seen.push(value);
+      setArg = arg;
+    });
+
+    expect(seen).toEqual(["a", "b"]);
+    // The third argument must be the frozen proxy itself, not the raw
+    // Set, so callbacks cannot mutate the underlying Set through it
+    expect(setArg).toBe(set);
+    expect(() => setArg.add("c")).toThrow("Cannot call add() on a frozen set");
+    expect(set.has("c")).toBe(false);
+  });
 });
 
 describe("frozenSetFrom", () => {
