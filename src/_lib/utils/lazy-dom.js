@@ -1,7 +1,7 @@
 // Happy-dom with DOM manipulation API
 // Provides a lightweight DOM implementation for server-side rendering
 
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoize } from "#utils/fp/memoize.js";
 
 /**
  * @typedef {import('happy-dom').Window} HappyDOMWindow

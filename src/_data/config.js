@@ -3,7 +3,7 @@
 // Import validated-config to trigger validation at startup
 import "#config/validated-config.js";
 import { DEFAULTS } from "#config/helpers.js";
-import { pickNonNull } from "#toolkit/fp/object.js";
+import { pickNonNull } from "#utils/fp/object.js";
 import configData from "./config.json" with { type: "json" };
 
 const userConfig = pickNonNull(configData);

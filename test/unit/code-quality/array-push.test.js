@@ -5,7 +5,7 @@ import {
   createCodeChecker,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 // Pattern to detect .push() calls - array mutation
 const ARRAY_PUSH_PATTERN = /\.push\s*\(/;

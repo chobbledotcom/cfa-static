@@ -7,7 +7,7 @@ import {
   withAllowlist,
 } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
-import { groupBy } from "#toolkit/fp/grouping.js";
+import { groupBy } from "#utils/fp/grouping.js";
 
 /**
  * Find all try/catch blocks in a file (excludes try/finally without catch)

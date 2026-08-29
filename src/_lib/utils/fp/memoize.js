@@ -4,7 +4,7 @@
  * For collection lookups, prefer indexBy or groupByWithCache which use WeakMap
  * caching for automatic garbage collection.
  */
-import { buildReverseIndex } from "./grouping.js";
+import { buildReverseIndex } from "#utils/fp/grouping.js";
 
 /** @param {unknown[]} args @returns {string | number} */
 const DEFAULT_KEY_FN = (args) => /** @type {string | number} */ (args[0]);

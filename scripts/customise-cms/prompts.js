@@ -9,7 +9,7 @@ import {
   resolveDependencies,
 } from "#scripts/customise-cms/collections.js";
 import { createEmptyConfig } from "#scripts/customise-cms/config.js";
-import { filter, map, notMemberOf, pipe, unique } from "#toolkit/fp/array.js";
+import { filter, map, notMemberOf, pipe, unique } from "#utils/fp/array.js";
 
 /**
  * @typedef {import('./config.js').CmsConfig} CmsConfig

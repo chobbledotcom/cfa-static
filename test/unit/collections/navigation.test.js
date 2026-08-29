@@ -5,7 +5,7 @@ import {
   item,
   withMockFetch,
 } from "#test/test-utils.js";
-import { map } from "#toolkit/fp/array.js";
+import { map } from "#utils/fp/array.js";
 
 vi.mock("#data/config.js", async () => {
   const { DEFAULTS } = await import("#config/helpers.js");

@@ -14,8 +14,8 @@
  * {% assign author = collections.team | getBySlug: authorSlug %}
  */
 
-import { unique } from "#toolkit/fp/array.js";
-import { indexBy } from "#toolkit/fp/memoize.js";
+import { unique } from "#utils/fp/array.js";
+import { indexBy } from "#utils/fp/memoize.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */

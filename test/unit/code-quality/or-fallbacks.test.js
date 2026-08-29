@@ -31,7 +31,7 @@ const ALLOWED_DIRS = [
   "src/_lib/public/", // Browser code - can't validate server data
   "src/_lib/build/", // Build utilities
   "src/_data/", // Computed data layer
-  "packages/", // Shared utilities
+  "src/_lib/utils/fp/", // Generic fp utilities
 ];
 
 // File patterns where defaults are appropriate

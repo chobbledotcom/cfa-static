@@ -1,29 +1,24 @@
 /**
- * Tests for js-toolkit array utilities
+ * Tests for the generic fp array helpers: pipe, the curried
+ * Array-method wrappers, and the sequence utilities.
+ *
+ * The data-factory, picking, membership, and pluralization helpers are
+ * covered in array-utils.test.js.
  */
 import { describe, expect, test } from "vitest";
 import {
-  compact,
   exclude,
   filter,
-  filterMap,
-  findDuplicate,
   flatMap,
   join,
   map,
   mapAsync,
-  memberOf,
-  notMemberOf,
-  pick,
   pipe,
-  pluralize,
   reduce,
   sort,
-  sortBy,
   split,
   unique,
-  uniqueBy,
-} from "#toolkit/fp/array.js";
+} from "#utils/fp/array.js";
 
 describe("mapAsync", () => {
   test("maps async function over array and awaits all results", async () => {
@@ -73,51 +68,6 @@ describe("mapAsync", () => {
     // If run sequentially, would take 30ms+. With concurrency, ~10ms.
     expect(elapsed).toBeLessThan(100);
   });
-
-  test("filters and picks unique objects by key", () => {
-    const items = [
-      { id: 1, name: "first" },
-      { id: 1, name: "duplicate" },
-      { id: 2, name: "second" },
-    ];
-    const result = uniqueBy((item) => item.id)(items);
-
-    expect(result).toEqual([
-      { id: 1, name: "duplicate" },
-      { id: 2, name: "second" },
-    ]);
-  });
-
-  test("picks an object subset and ignores missing keys", () => {
-    const pickMeta = pick(["id", "name", "missing"]);
-    expect(pickMeta({ id: 1, name: "Widget", sku: "X" })).toEqual({
-      id: 1,
-      name: "Widget",
-    });
-  });
-
-  test("membership helpers include and exclude values", () => {
-    const isWeekend = memberOf(["sat", "sun"]);
-    const isNotWeekend = notMemberOf(["sat", "sun"]);
-
-    expect(isWeekend("sat")).toBe(true);
-    expect(isNotWeekend("sat")).toBe(false);
-    expect(exclude(["blocked", "forbidden"])(["allowed", "blocked"])).toEqual([
-      "allowed",
-    ]);
-  });
-
-  test("pluralize handles singular/plural and custom endings", () => {
-    const format = pluralize("class");
-    expect(format(1)).toBe("1 class");
-    expect(format(3)).toBe("3 classes");
-  });
-
-  test("pluralize uses custom form when provided", () => {
-    const format = pluralize("item in basket", "items in basket");
-    expect(format(1)).toBe("1 item in basket");
-    expect(format(2)).toBe("2 items in basket");
-  });
 });
 
 describe("pipe", () => {
@@ -160,19 +110,9 @@ describe("curried array helpers", () => {
     expect(split("-")("x-y-z")).toEqual(["x", "y", "z"]);
   });
 
-  test("filterMap filters and transforms in one pass", () => {
-    const doublePositives = filterMap(
-      (n) => n > 0,
-      (n) => n * 2,
-    );
-    expect(doublePositives([-1, 1, 2])).toEqual([2, 4]);
-  });
-
-  test("compact removes falsy values", () => {
-    expect(compact([0, 1, "", "a", null, undefined, false, 2])).toEqual([
-      1,
-      "a",
-      2,
+  test("exclude filters out values in the exclusion list", () => {
+    expect(exclude(["blocked", "forbidden"])(["allowed", "blocked"])).toEqual([
+      "allowed",
     ]);
   });
 });
@@ -185,34 +125,10 @@ describe("sort helpers", () => {
     expect(sorted).toEqual([1, 2, 3]);
     expect(input).toEqual([3, 1, 2]);
   });
-
-  test("sortBy sorts by property name for string values", () => {
-    const items = [{ name: "banana" }, { name: "apple" }, { name: "cherry" }];
-    const names = sortBy("name")(items).map((i) => i.name);
-
-    expect(names).toEqual(["apple", "banana", "cherry"]);
-  });
-
-  test("sortBy sorts numerically with a getter function", () => {
-    const items = [{ n: 10 }, { n: 2 }];
-
-    expect(sortBy((i) => i.n)(items).map((i) => i.n)).toEqual([2, 10]);
-  });
 });
 
-describe("unique and duplicates", () => {
-  test("unique removes duplicates preserving first-seen order", () => {
+describe("unique", () => {
+  test("removes duplicates preserving first-seen order", () => {
     expect(unique([3, 1, 3, 2, 1])).toEqual([3, 1, 2]);
-  });
-
-  test("findDuplicate returns the item that repeats an earlier key", () => {
-    expect(findDuplicate([1, 2, 1, 2])).toBe(1);
-
-    const items = [{ id: 1 }, { id: 2 }, { id: 1 }];
-    expect(findDuplicate(items, (x) => x.id)).toBe(items[2]);
-  });
-
-  test("findDuplicate returns undefined when all items are distinct", () => {
-    expect(findDuplicate([1, 2, 3])).toBeUndefined();
   });
 });

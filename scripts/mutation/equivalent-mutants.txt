@@ -32,8 +32,8 @@ scripts/mutation/generate.js:187:19  && → ||   # walk() ignores non-objects, s
 scripts/mutation/generate.js:193:12  || → &&   # walkChild already filters non-objects, so node is never null/non-object here
 scripts/mutation/generate.js:206:45  ?? → ||   # a real file path's basename is never "", so the fallback is unreachable
 
-# --- core libraries (packages/js-toolkit/fp) ---
-packages/js-toolkit/fp/memoize.js:167:32  ?? → ||   # a pending entry is always a Promise (truthy) or undefined, so ?? and || agree
+# --- core libraries (src/_lib/utils/fp) ---
+src/_lib/utils/fp/memoize.js:167:32  ?? → ||   # a pending entry is always a Promise (truthy) or undefined, so ?? and || agree
 
 # --- collections: indexer/Map lookups that return an array or undefined, so
 #     `x ?? []` and `x || []` agree; plus a couple of other safe defaults ---

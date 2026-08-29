@@ -18,7 +18,7 @@ import {
   buildGuidePagesFields,
   buildNewsFields,
 } from "#scripts/customise-cms/item-builders.js";
-import { compact, memberOf, notMemberOf, unique } from "#toolkit/fp/array.js";
+import { compact, memberOf, notMemberOf, unique } from "#utils/fp/array.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig

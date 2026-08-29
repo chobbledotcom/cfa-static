@@ -1,4 +1,4 @@
-import { frozenObject } from "#toolkit/fp/object.js";
+import { frozenObject } from "#utils/fp/object.js";
 
 const DEFAULTS = frozenObject({
   sticky_mobile_nav: true,

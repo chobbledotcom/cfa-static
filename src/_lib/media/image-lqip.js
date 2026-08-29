@@ -11,7 +11,7 @@ import { readFileSync, statSync } from "node:fs";
  * - Small images under 5KB (overhead not worth it)
  */
 import { getSharp } from "#media/image-crop.js";
-import { mapObject } from "#toolkit/fp/object.js";
+import { mapObject } from "#utils/fp/object.js";
 
 // Node.js caches dynamic imports, no memoization needed
 const getEleventyImg = () => import("@11ty/eleventy-img");

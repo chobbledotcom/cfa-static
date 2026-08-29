@@ -6,7 +6,7 @@
  * just the filename minus extension for simpler URLs.
  */
 import slugify from "@sindresorhus/slugify";
-import { pipe, split } from "#toolkit/fp/array.js";
+import { pipe, split } from "#utils/fp/array.js";
 
 /**
  * @typedef {Object} PageData

@@ -4,7 +4,7 @@
 
 import { describe, expect, test } from "vitest";
 import { fs, getFiles, path, rootDir } from "#test/test-utils.js";
-import { filter, flatMap, notMemberOf, pipe } from "#toolkit/fp/array.js";
+import { filter, flatMap, notMemberOf, pipe } from "#utils/fp/array.js";
 
 const { readFileSync } = fs;
 const { join, basename } = path;

@@ -1,9 +1,9 @@
 /**
- * Tests for js-toolkit code-analysis utilities
+ * Tests for code-analysis utilities
  */
 import { describe, expect, test } from "vitest";
+import { createExtractor } from "#test/test-utils/code-analysis.js";
 import { createTempFile, withTempDir } from "#test/test-utils.js";
-import { createExtractor } from "#toolkit/test-utils/code-analysis.js";
 
 describe("createExtractor", () => {
   test("extracts matches from a single file", () => {

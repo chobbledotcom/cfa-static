@@ -15,7 +15,7 @@ import {
   scanFilesForViolations,
 } from "#test/code-scanner.js";
 import { createExtractor, getFiles, SRC_HTML_FILES } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 const DOT_ACCESS_SINGLE = /collections\.([a-zA-Z_][\w-]*)/;
 const BRACKET_ACCESS_SINGLE = /collections\["([^"]+)"\]/;

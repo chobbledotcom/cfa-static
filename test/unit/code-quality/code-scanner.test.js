@@ -17,7 +17,7 @@ import {
   validateFunctionAllowlist,
 } from "#test/code-scanner.js";
 import { captureConsole, SRC_JS_FILES } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 describe("code-scanner", () => {
   describe("isCommentLine", () => {

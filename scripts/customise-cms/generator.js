@@ -38,7 +38,7 @@ import {
   getMetaConfig,
   getSiteConfig,
 } from "#scripts/customise-cms/static-configs.js";
-import { compact } from "#toolkit/fp/array.js";
+import { compact } from "#utils/fp/array.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig

@@ -15,7 +15,7 @@ import {
   createDefaultConfig,
   createEmptyConfig,
 } from "#scripts/customise-cms/config.js";
-import { map, unique } from "#toolkit/fp/array.js";
+import { map, unique } from "#utils/fp/array.js";
 
 // Re-export I/O functions from cli-io.js
 export { parseCliArguments, showHelp };

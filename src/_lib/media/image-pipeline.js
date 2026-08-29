@@ -13,8 +13,8 @@ import {
   removeLqip,
 } from "#media/image-lqip.js";
 import { JPEG_FALLBACK_WIDTH } from "#media/image-utils.js";
-import { join } from "#toolkit/fp/array.js";
 import { createHtml, parseHtml } from "#utils/dom-builder.js";
+import { join } from "#utils/fp/array.js";
 
 /**
  * Wrap image HTML in the standard image wrapper.

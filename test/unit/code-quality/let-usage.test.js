@@ -29,10 +29,11 @@ const MUTABLE_CONST_PATTERNS = [
 ];
 
 // Organisation-style rule: kept to runtime src/ and test/ code — the
-// toolkit's internal caches and the imperative CLI tooling are exempt.
+// generic fp utilities and the shared test infrastructure are exempt.
+const EXEMPT_DIRS = ["src/_lib/utils/fp/", "test/test-utils/"];
 const LET_GATE_FILES = () =>
   combineFileLists([SRC_JS_FILES(), TEST_FILES()]).filter(
-    (file) => !file.startsWith("packages/"),
+    (file) => !EXEMPT_DIRS.some((dir) => file.startsWith(dir)),
   );
 
 // Complete checker for let declarations - find + analyze in one definition

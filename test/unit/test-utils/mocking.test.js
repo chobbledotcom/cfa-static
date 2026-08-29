@@ -1,8 +1,8 @@
 /**
- * Tests for js-toolkit mocking utilities
+ * Tests for mocking utilities
  */
 import { describe, expect, test } from "vitest";
-import { mockFetch } from "#toolkit/test-utils/mocking.js";
+import { mockFetch } from "#test/test-utils/mocking.js";
 
 describe("mockFetch", () => {
   test("mocks fetch with object response and restores correctly", async () => {

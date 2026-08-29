@@ -1,7 +1,7 @@
 /**
  * Functional array utilities
  */
-import { compareBy } from "./sorting.js";
+import { compareBy } from "#utils/fp/sorting.js";
 
 /**
  * @template T

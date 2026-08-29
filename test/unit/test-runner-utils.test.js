@@ -23,7 +23,7 @@ import {
   withMockedProcessExit,
   withTempDir,
 } from "#test/test-utils.js";
-import { mapObject } from "#toolkit/fp/object.js";
+import { mapObject } from "#utils/fp/object.js";
 
 // ============================================
 // Test Helpers

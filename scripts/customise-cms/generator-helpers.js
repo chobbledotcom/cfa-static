@@ -13,7 +13,7 @@ import {
   GALLERY_FIELD,
   getBodyField,
 } from "#scripts/customise-cms/fields.js";
-import { compact, memberOf, pipe } from "#toolkit/fp/array.js";
+import { compact, memberOf, pipe } from "#utils/fp/array.js";
 
 /**
  * @typedef {import('./config.js').CmsConfig} CmsConfig

@@ -6,7 +6,7 @@ import {
   createCodeChecker,
 } from "#test/code-scanner.js";
 import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoize } from "#utils/fp/memoize.js";
 
 // Build hardcoded URL patterns dynamically from strings-base.json
 // Any key ending in _dir defines a collection directory that shouldn't be hardcoded

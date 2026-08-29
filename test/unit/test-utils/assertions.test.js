@@ -1,8 +1,8 @@
 /**
- * Tests for js-toolkit assertion helpers
+ * Tests for assertion helpers
  */
 import { describe, test } from "vitest";
-import { expectArrayProp } from "#toolkit/test-utils/assertions.js";
+import { expectArrayProp } from "#test/test-utils/assertions.js";
 
 describe("expectArrayProp", () => {
   test("compares extracted values in order", () => {

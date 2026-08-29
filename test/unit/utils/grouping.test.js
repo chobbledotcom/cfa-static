@@ -5,7 +5,7 @@ import {
   buildReverseIndex,
   groupBy,
   groupValuesBy,
-} from "#toolkit/fp/grouping.js";
+} from "#utils/fp/grouping.js";
 
 describe("grouping", () => {
   // ============================================

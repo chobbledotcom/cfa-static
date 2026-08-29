@@ -16,7 +16,7 @@ import {
   createMockEleventyConfig,
   getFiles,
 } from "#test/test-utils.js";
-import { unique } from "#toolkit/fp/array.js";
+import { unique } from "#utils/fp/array.js";
 
 const REGISTRATION_PATTERN =
   /\.add(?:Async)?(?:Filter|Shortcode)\(\s*\n?\s*"([^"]+)"/g;

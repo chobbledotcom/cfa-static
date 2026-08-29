@@ -4,8 +4,8 @@
  */
 import { expect } from "vitest";
 import { fs, omit, path, rootDir } from "#test/test-utils.js";
-import { notMemberOf, pluralize } from "#toolkit/fp/array.js";
-import { frozenObject } from "#toolkit/fp/object.js";
+import { notMemberOf, pluralize } from "#utils/fp/array.js";
+import { frozenObject } from "#utils/fp/object.js";
 
 // Standard fields returned by find functions (everything else is extra data)
 const STANDARD_HIT_FIELDS = ["lineNumber", "line"];

@@ -14,7 +14,6 @@ import linkifyHtmlLib from "linkify-html";
 import { FAST_INACCURATE_BUILDS } from "#build/build-mode.js";
 import configModule from "#data/config.js";
 import linksMap from "#data/links.json" with { type: "json" };
-import { memoize } from "#toolkit/fp/memoize.js";
 import { encryptEmails, hasMailtoLinks } from "#transforms/encrypt-emails.js";
 import { addExternalLinkAttrs } from "#transforms/external-links.js";
 import { processImages } from "#transforms/images.js";
@@ -36,6 +35,7 @@ import {
   hasTableOfContents,
   processTableOfContents,
 } from "#transforms/table-of-contents.js";
+import { memoize } from "#utils/fp/memoize.js";
 import { loadDOM, withDOMSlot } from "#utils/lazy-dom.js";
 
 /** @typedef {import("#lib/types").SiteConfig} SiteConfig */

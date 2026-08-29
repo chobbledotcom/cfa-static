@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { startServer } from "#media/browser-utils.js";
 import { runIfMain } from "#scripts/lib/is-main-module.js";
-import { frozenObject } from "#toolkit/fp/object.js";
+import { frozenObject } from "#utils/fp/object.js";
 
 /**
  * @typedef {{ [key: string]: string | boolean | (string | boolean)[] | undefined }} CliValues

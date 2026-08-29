@@ -21,8 +21,8 @@ import {
   pipe,
   sortBy,
   split,
-} from "#toolkit/fp/array.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+} from "#utils/fp/array.js";
+import { memoize } from "#utils/fp/memoize.js";
 
 /** @typedef {{ name: string, file: string, content: string }} ThemeFile */
 

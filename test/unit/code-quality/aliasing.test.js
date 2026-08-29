@@ -6,7 +6,7 @@ import {
   scanLines,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 /**
  * Detect variable aliasing patterns that add noise without value:
