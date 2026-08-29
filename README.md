@@ -82,7 +82,9 @@ template misleads everyone who lands on the repository and hides the choices
 the site made. Say what the site is, how it departs from the template's
 defaults, and where its schemas and checks live — while keeping the pointers to
 [BLOCKS_LAYOUT.md](BLOCKS_LAYOUT.md), `CLAUDE.md`, and the `/blocks/` gallery
-that anyone editing the site will need.
+that anyone editing the site will need. The skill's
+[project setup reference](skills/cfa-static-site-builder/references/project-setup.md#site-readme)
+lists what to cover, including provenance and how the site deploys.
 
 Updates flow one way and only when a site asks for them:
 

@@ -11,7 +11,7 @@
         "The saved CMS configuration contains required pages and snippets but no news or guide collections",
         "Site identity, copy, navigation, links, and theme values come from the brief without invented facts",
         "The reported build and WCAG 2.2 AA results are backed by executed project commands",
-        "README.md describes the Northbank Advice site and the choices it made rather than the CfA Static template, and still points to the block reference and the project checks"
+        "README.md describes the Northbank Advice site rather than the CfA Static template, recording its provenance, the choices it made, and how it deploys to GitHub Pages, while still pointing to the block reference and the project checks"
       ],
       "files": ["evals/files/new-site-brief.md"]
     },
@@ -42,7 +42,7 @@
         "The supplied illustration is stored under src/images and rendered through a responsive image block",
         "The requested colors and typography are implemented through theme tokens",
         "The agent reports executed link, build, and accessibility checks",
-        "README.md describes the migrated Riverside Rooms site, records how it departs from template defaults, and keeps the pointers to the block reference and project checks"
+        "README.md replaces the inherited template README with one describing the Riverside Rooms site, recording its provenance and how it departs from template defaults, while keeping the pointers to the block reference and project checks"
       ],
       "files": [
         "evals/files/legacy-site-inventory.md",
