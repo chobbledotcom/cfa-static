@@ -77,6 +77,13 @@ After cloning the fork, replace the `name`, `url`, and `description` in
 `src/_data/site.json` before building. Missing or obvious placeholder identity
 data fails the build rather than being published.
 
+Replace this README too. Once the fork is the site, a README describing the
+template misleads everyone who lands on the repository and hides the choices
+the site made. Say what the site is, how it departs from the template's
+defaults, and where its schemas and checks live — while keeping the pointers to
+[BLOCKS_LAYOUT.md](BLOCKS_LAYOUT.md), `CLAUDE.md`, and the `/blocks/` gallery
+that anyone editing the site will need.
+
 Updates flow one way and only when a site asks for them:
 
 ```bash

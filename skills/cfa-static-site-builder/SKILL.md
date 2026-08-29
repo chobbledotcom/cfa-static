@@ -58,6 +58,7 @@ and do not skip validation:
 - [ ] Plan collections, sitemap, navigation, and block outlines
 - [ ] Configure site data and CMS editing
 - [ ] Author content, assets, and theme changes
+- [ ] Rewrite `README.md` to describe the site rather than the template
 - [ ] Build, inspect, and validate the finished site
 
 For a localized correction, use the proportional path: establish context,
@@ -130,6 +131,12 @@ migrating content files.
 6. Use existing themes and tokens before adding custom CSS. Use raw HTML,
    includes, or new block types only when the existing vocabulary cannot meet
    the requirement cleanly.
+7. Rewrite `README.md` so it describes this site. A fork that keeps the
+   template's README tells the next reader it is a template, hides the
+   decisions this site actually made, and leaves them guessing which
+   deviations are deliberate. Record what the site is, how it departs from
+   template defaults, and where its schemas and checks live, following
+   [project setup](references/project-setup.md).
 
 ### 5. Validate the Result
 
@@ -152,6 +159,8 @@ Report:
 - pages, content collections, data, and theme files changed
 - routes added or redirected
 - commands and checks that passed
+- whether `README.md` now describes the site, and which customisations it
+  records
 - factual, visual, accessibility, or deployment decisions still needing human
   review
 

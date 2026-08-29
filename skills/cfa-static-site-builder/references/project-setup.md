@@ -166,3 +166,39 @@ application server and no build-time secret requirement.
 Do not change runners, permissions, domains, or repository settings without a
 specific request. Report an unconfigured runner as a deployment prerequisite,
 not as a successful setup.
+
+## Site README
+
+A fork inherits a `README.md` describing CfA Static itself, including a
+"Starting a site from this template" section that stops making sense once the
+fork *is* the site. Replace it. Left alone it tells every later reader and
+agent they are looking at the template, and it hides every decision this site
+made.
+
+Rewrite it to cover:
+
+| Section | Content |
+|---|---|
+| What this site is | Real name, public URL, and a one-line purpose |
+| Provenance | Built from CfA Static, linked, and the fact that template updates arrive only through a reviewed `upstream` merge |
+| Customisations | How the site departs from template defaults: collections and CMS features enabled or removed, theme and brand changes, config toggles, and any custom blocks, includes, or snippets |
+| Working on it | `CLAUDE.md`, `BLOCKS_LAYOUT.md`, the `/blocks/` gallery, `src/_data/`, and the bundled skill |
+| Checks | The commands that gate this site, plus any that are known to fail and why |
+| Deployment | Where the site publishes, and what a deploy needs |
+
+Keep the pointers a later agent depends on. `BLOCKS_LAYOUT.md`, the schema
+modules, and the block gallery stay the authority on block fields, so link
+them instead of summarising them. A field list copied into the README goes
+stale silently the next time a schema changes, and a stale copy is consulted
+just as confidently as a fresh one.
+
+Describe only what the site actually does. A README promising news, guides,
+search, or languages the fork deleted is worse than the template's, because it
+reads as deliberate rather than as leftovers. Where a template default was
+reversed on purpose, give the reason in one line — that is the part a later
+reader cannot reconstruct from the diff. The same applies to a check the site
+cannot pass: record which one and why, so nobody rediscovers it as a mystery
+failure.
+
+Update the README in the same pass as the change that dates it, and treat a
+site whose README still describes the template as unfinished.
