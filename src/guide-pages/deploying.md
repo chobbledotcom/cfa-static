@@ -13,9 +13,8 @@ blocks:
       The repository ships a workflow that builds and deploys to GitHub
       Pages on every push to `main`. Under your repository's
       **Settings → Pages**, set **Source** to **GitHub Actions**. The bundled
-      jobs use Ubicloud runners, so a new fork must also configure the
-      Ubicloud GitHub integration and billing, or deliberately change both
-      jobs to an available runner such as `ubuntu-latest`.
+      jobs run on standard `ubuntu-latest` runners, so a new fork needs no
+      extra integration or billing.
 
       The workflow works out where the site will be served and passes two
       environment variables into the build:
@@ -37,7 +36,7 @@ blocks:
       application server and no application-secret requirement.
 faqs:
   - question: Why does the first deploy fail?
-    answer: Confirm **Settings → Pages → Source** is **GitHub Actions** and that the Ubicloud integration used by the bundled runners is configured. If the site does not use Ubicloud, change both jobs to an approved available runner before re-running the workflow.
+    answer: Confirm **Settings → Pages → Source** is **GitHub Actions**, then re-run the workflow and read its logs for the failing step. The bundled jobs run on standard `ubuntu-latest` runners, so no extra integration should be required.
     order: 1
   - question: Can I use a custom domain?
     answer: Yes - configure it in the Pages settings. The workflow detects it and builds with no path prefix automatically.

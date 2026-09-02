@@ -69,7 +69,7 @@ request an appointment through the approved external booking service.
   content, and RSS social link. The generated feed may remain as infrastructure
   but must not be promoted in the site interface.
 - Keep the GitHub Pages workflow. Do not deploy or change its runner without
-  approval; report any Ubicloud setup requirement.
+  approval.
 
 ## Visual Direction
 

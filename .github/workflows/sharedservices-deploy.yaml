@@ -1,0 +1,98 @@
+name: Deploy to SharedServices
+
+# Internal deployment of the same site unchanged: CfA Okta SSO at the edge,
+# S3 + CloudFront delivery. Mirrors the public GitHub Pages deployment from
+# the same commit, differing only in PATH_PREFIX and SITE_URL.
+#
+# Manual-only while piloted: run from Actions → Deploy to SharedServices.
+#
+# Required configuration on the `sharedservices` environment (set by DevOps):
+#   vars:   AWS_REGION, STATIC_BUCKET, STATIC_PREFIX, CLOUDFRONT_DISTRIBUTION_ID,
+#           SITE_URL (internal base URL including the prefix, no trailing slash)
+#   secret: AWS_ROLE_ARN (per-app deploy role, OIDC)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+# Let an in-flight deploy finish rather than cancelling it mid-sync.
+concurrency:
+  group: sharedservices-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy internal site
+    runs-on: ubuntu-latest
+    environment: sharedservices
+    steps:
+      - name: Check deployment configuration
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          STATIC_BUCKET: ${{ vars.STATIC_BUCKET }}
+          STATIC_PREFIX: ${{ vars.STATIC_PREFIX }}
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+        run: |
+          missing=0
+          for var in SITE_URL STATIC_BUCKET STATIC_PREFIX CLOUDFRONT_DISTRIBUTION_ID AWS_REGION AWS_ROLE_ARN; do
+            if [ -z "$(eval "echo \$$var")" ]; then
+              echo "MISSING: '$var' is not set on the 'sharedservices' environment"
+              missing=1
+            fi
+          done
+          test "$missing" -eq 0
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Restore image cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .image-cache
+          key: images-${{ hashFiles('src/images/**/*') }}
+          restore-keys: |
+            images-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        env:
+          PATH_PREFIX: /${{ vars.STATIC_PREFIX }}/
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: npm run build
+
+      - name: Upload site artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sharedservices-site
+          path: _site
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Sync site to S3
+        run: |
+          aws s3 sync _site/ "s3://${{ vars.STATIC_BUCKET }}/${{ vars.STATIC_PREFIX }}/" \
+            --delete \
+            --cache-control "public, max-age=300"
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"
