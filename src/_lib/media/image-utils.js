@@ -4,8 +4,8 @@
  * Helpers for image path normalization, URL detection, and attribute building.
  * Extracted to reduce complexity in image.js and provide reusable utilities.
  */
-import { compact } from "#toolkit/fp/array.js";
-import { frozenObject } from "#toolkit/fp/object.js";
+import { compact } from "#utils/fp/array.js";
+import { frozenObject } from "#utils/fp/object.js";
 import { isExternalUrl } from "#utils/url-utils.js";
 
 const DEFAULT_WIDTHS = [240, 480, 900, 1300];

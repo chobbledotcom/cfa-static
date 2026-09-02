@@ -18,8 +18,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { rootDir } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
 import { BLOCK_CMS_FIELDS, BLOCK_DOCS } from "#utils/block-schema.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 /**
  * Allowlist for fields whose CMS type is `markdown` (→ `rich-text` in

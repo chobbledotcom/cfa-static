@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { compact } from "#toolkit/fp/array.js";
+import { compact } from "#utils/fp/array.js";
 
 /**
  * @param {string} repo

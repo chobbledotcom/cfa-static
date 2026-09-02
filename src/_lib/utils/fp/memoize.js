@@ -4,7 +4,7 @@
  * For collection lookups, prefer indexBy or groupByWithCache which use WeakMap
  * caching for automatic garbage collection.
  */
-import { buildReverseIndex } from "./grouping.js";
+import { buildReverseIndex } from "#utils/fp/grouping.js";
 
 /** @param {unknown[]} args @returns {string | number} */
 const DEFAULT_KEY_FN = (args) => /** @type {string | number} */ (args[0]);
@@ -45,8 +45,9 @@ const memoize = (fn, options = {}) => {
 const memoizeByRef = (buildFn) => {
   const cache = new WeakMap();
   return (arr) => {
-    const cached = cache.get(arr);
-    if (cached) return cached;
+    // Check key presence, not truthiness: a falsy buildFn result
+    // (0, null, false, ...) is still a cached value
+    if (cache.has(arr)) return cache.get(arr);
     const result = buildFn(arr);
     cache.set(arr, result);
     return result;

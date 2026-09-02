@@ -2,7 +2,7 @@
  * Shared collection utilities for common patterns across collection types.
  */
 
-import { groupByWithCache } from "#toolkit/fp/memoize.js";
+import { groupByWithCache } from "#utils/fp/memoize.js";
 import { normaliseSlug } from "#utils/slug-utils.js";
 
 /** @typedef {import("#lib/types").EleventyCollectionItem} EleventyCollectionItem */

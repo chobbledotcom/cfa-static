@@ -1,10 +1,10 @@
 /**
- * Tests for js-toolkit resource utilities
+ * Tests for resource utilities
  */
 
 import fs from "node:fs";
 import { describe, expect, test } from "vitest";
-import { withTempFile } from "#toolkit/test-utils/resource.js";
+import { withTempFile } from "#test/test-utils/resource.js";
 
 describe("withTempFile", () => {
   test("creates a temp file with content and cleans up after callback", () => {

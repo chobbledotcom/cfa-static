@@ -14,7 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { SRC_DIR } from "#lib/paths.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 /** Liquid properties that look like collection names but are not */
 const IGNORED_PROPERTIES = frozenSet(["size", "length"]);

@@ -14,10 +14,10 @@ import {
   getNewestCollectionItemDate,
 } from "@11ty/eleventy-plugin-rss";
 import { fileInfo } from "#eleventy/file-info.js";
-import { sort } from "#toolkit/fp/array.js";
-import { frozenObject } from "#toolkit/fp/object.js";
 import { canonicalUrl } from "#utils/canonical-url.js";
 import { filterItems } from "#utils/collection-filter.js";
+import { sort } from "#utils/fp/array.js";
+import { frozenObject } from "#utils/fp/object.js";
 import { datesFor, formatIso } from "#utils/git-dates.js";
 import { sortItems } from "#utils/sorting.js";
 

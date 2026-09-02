@@ -7,7 +7,7 @@ import {
   expectObjectProps,
   srcDir,
 } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 // File extensions to ignore (from imports like "./strings.js")
 const IGNORE_KEYS = frozenSet(["js", "json", "test", "mjs"]);

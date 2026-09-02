@@ -59,9 +59,6 @@
       ],
       "#bin/*": [
         "./bin/*"
-      ],
-      "#toolkit/*": [
-        "./packages/js-toolkit/*"
       ]
     }
   },

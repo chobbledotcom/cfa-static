@@ -38,6 +38,23 @@ const getSetProperty = (target, prop) =>
   /** @type {Record<string | symbol, unknown>} */ (
     /** @type {unknown} */ (target)
   )[prop];
+/**
+ * Create a forEach wrapper that hands callbacks the frozen proxy.
+ *
+ * Set.prototype.forEach passes the underlying Set to its callback as the
+ * third argument. Bound straight to the target, that would expose the raw,
+ * mutable Set and bypass the mutation blocks. The wrapper re-invokes the
+ * callback with the frozen proxy in that position instead.
+ *
+ * @template T
+ * @param {Set<T>} target - The underlying Set
+ * @param {ReadonlySet<T>} proxy - The frozen proxy (the get trap's receiver)
+ * @returns {(callback: (value: T, valueAgain: T, set: ReadonlySet<T>) => void, thisArg?: unknown) => void} Wrapped forEach
+ */
+const createForEachWrapper = (target, proxy) => (callback, thisArg) =>
+  target.forEach((value, valueAgain) => {
+    callback.call(thisArg, value, valueAgain, proxy);
+  });
 
 /**
  * Create a proxy handler with cached bound methods for performance
@@ -48,8 +65,25 @@ const getSetProperty = (target, prop) =>
 const createFrozenSetHandler = (target) => {
   const methodCache = createMethodCache();
 
+  /**
+   * Bind a method to the target (or wrap forEach) and cache it.
+   * @param {string | symbol} prop - The accessed property
+   * @param {Function} value - The raw Set method
+   * @param {any} receiver - The object the property was accessed on (the
+   *   frozen proxy for direct access), handed to forEach callbacks
+   * @returns {Function} The bound or wrapped method
+   */
+  const bindMethod = (prop, value, receiver) => {
+    const bound =
+      prop === "forEach"
+        ? createForEachWrapper(target, receiver)
+        : value.bind(target);
+    methodCache.set(prop, bound);
+    return bound;
+  };
+
   return {
-    get(_, prop) {
+    get(_, prop, receiver) {
       // Only block string method names (not symbols like Symbol.iterator)
       if (typeof prop === "string" && MUTATION_METHODS.has(prop)) {
         return blockedMethod(prop);
@@ -62,12 +96,9 @@ const createFrozenSetHandler = (target) => {
       }
 
       const value = getSetProperty(target, prop);
-      if (typeof value === "function") {
-        const bound = value.bind(target);
-        methodCache.set(prop, bound);
-        return bound;
-      }
-      return value;
+      return typeof value === "function"
+        ? bindMethod(prop, value, receiver)
+        : value;
     },
   };
 };
@@ -80,7 +111,6 @@ const createFrozenSetHandler = (target) => {
  */
 const createFrozenSetProxy = (set) =>
   new Proxy(set, createFrozenSetHandler(set));
-
 /**
  * Create a frozen Set from any iterable
  *

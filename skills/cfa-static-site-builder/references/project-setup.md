@@ -17,9 +17,9 @@ Use Node.js 22 or newer, npm, and a POSIX-compatible shell. Do not substitute
 Bun, Yarn, or pnpm. Installing dependencies normally requires network access.
 
 For a new site, the durable model is a GitHub fork of
-`chobbledotcom/cfa-static`. Confirm the destination owner and repository name
+`codeforamerica/cfa-static`. Confirm the destination owner and repository name
 before creating anything. If GitHub CLI is authenticated and the user approves,
-`gh repo fork chobbledotcom/cfa-static --clone` is the default starting point.
+`gh repo fork codeforamerica/cfa-static --clone` is the default starting point.
 Otherwise ask the user to create and clone the fork. Do not silently create a
 plain upstream clone as the site's long-term repository.
 
@@ -150,10 +150,8 @@ that workflow and arranges human review.
 
 The bundled GitHub Pages workflow supports project sites and custom domains.
 The user must enable **Settings > Pages > Source: GitHub Actions** once. The
-workflow currently uses Ubicloud runners, which are not automatically available
-to a new fork. Before deployment, ask the owner either to configure the Ubicloud
-GitHub integration and billing or to approve changing both workflow jobs to an
-available runner such as `ubuntu-latest`.
+workflow jobs run on standard `ubuntu-latest` runners, so a new fork needs no
+extra integration or billing.
 
 The workflow provides:
 

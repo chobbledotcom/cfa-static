@@ -10,7 +10,7 @@ import { join } from "node:path";
 import siteConfig from "#data/config.json" with { type: "json" };
 import { ROOT_DIR } from "#lib/paths.js";
 import { getRequiredCollections } from "#scripts/customise-cms/collections.js";
-import { map, unique } from "#toolkit/fp/array.js";
+import { map, unique } from "#utils/fp/array.js";
 
 /**
  * @typedef {Object} CmsFeatures

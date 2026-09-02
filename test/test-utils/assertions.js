@@ -44,14 +44,14 @@ const expectObjectProps = (propMap) => (obj) => {
  */
 const expectArrayProp = (getter) => (result, expectedValues) => {
   expect(result.length).toBe(expectedValues.length);
-  expectedValues.forEach((value, i) => {
+  for (const [i, value] of expectedValues.entries()) {
     const actual = getter(result[i]);
     if (value === undefined) {
       expect(actual).toBe(undefined);
     } else {
       expect(actual).toEqual(value);
     }
-  });
+  }
 };
 
 /**

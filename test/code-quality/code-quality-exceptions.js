@@ -24,7 +24,7 @@
  * ╚═══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 // ============================================
 // try/catch exceptions
@@ -60,6 +60,10 @@ const ALLOWED_TRY_CATCHES = frozenSet([
   // GitHub step summary is best-effort cosmetics; a write failure must not
   // fail the mutation run (covered by an explicit test)
   "scripts/mutation/summary.js:219",
+
+  // test/test-utils/assertions.js - expectAsyncThrows is the sanctioned
+  // try/catch replacement for asserting async errors in tests
+  "test/test-utils/assertions.js",
 ]);
 
 // ============================================
@@ -74,6 +78,9 @@ const ALLOWED_PROCESS_CWD = frozenSet([
 
   // git-dates tests need to chdir into temp git repos to test git log commands
   "test/unit/utils/git-dates.test.js",
+
+  // withChdirAsync must save and restore the real process.cwd()
+  "test/test-utils/resource.js",
 ]);
 
 // ============================================
@@ -85,7 +92,6 @@ const ALLOWED_PROCESS_CWD = frozenSet([
 // Prefer functional patterns: map, filter, reduce, spread, etc.
 const ALLOWED_MUTABLE_CONST = frozenSet([
   // Test utilities - entire files allowed for imperative test patterns
-  "test/test-utils.js:195", // createExtractor accumulates results in a Set
   "test/test-runner-utils.js",
   "test/code-scanner.js",
 
@@ -105,7 +111,7 @@ const ALLOWED_MUTABLE_CONST = frozenSet([
   "test/unit/eleventy/layout-aliases.test.js",
   "test/unit/utils/object-entries.test.js",
   "test/unit/transforms/images.test.js",
-  "test/unit/toolkit/set.test.js",
+  "test/unit/utils/set.test.js",
   "test/unit/utils/block-docs.test.js",
 
   // Frontend - Set used to track visible parallax elements for scroll updates
@@ -182,25 +188,25 @@ const ALLOWED_SINGLE_USE_FUNCTIONS = frozenSet([
 // NOTE: The scanner now detects Eleventy registrations (addFilter, addShortcode, etc.)
 // so exports registered with Eleventy no longer need to be listed here.
 const ALLOWED_TEST_ONLY_EXPORTS = frozenSet([
-  // FP toolkit utilities - part of the toolkit's public API, currently
-  // exercised only from test code
-  "packages/js-toolkit/fp/object.js:omit",
-  "packages/js-toolkit/fp/set.js:frozenSetFrom", // Available for iterable sources
-  "packages/js-toolkit/fp/set.js:setHas", // Curried predicate for filter/some/every
-  "packages/js-toolkit/fp/set.js:setLacks", // Negated predicate for exclusion
-  "packages/js-toolkit/fp/grouping.js:groupBy", // Used by memoize.js and scripts/ via relative imports
-  "packages/js-toolkit/fp/grouping.js:buildReverseIndex", // Used by memoize.js via relative import
-  "packages/js-toolkit/fp/grouping.js:buildFirstOccurrenceLookup", // Toolkit API surface
-  "packages/js-toolkit/fp/grouping.js:groupValuesBy", // Toolkit API surface
-  "packages/js-toolkit/fp/memoize.js:memoizeByRef", // Toolkit API surface
-  "packages/js-toolkit/fp/object.js:mapBoth", // Toolkit API surface
-  "packages/js-toolkit/fp/object.js:pickTruthy", // Toolkit API surface
-  "packages/js-toolkit/fp/array.js:reduce", // Used by fp/grouping.js via relative import
-  "packages/js-toolkit/fp/array.js:findDuplicate", // Toolkit API surface
-  "packages/js-toolkit/fp/array.js:pick", // Toolkit API surface
-  "packages/js-toolkit/fp/array.js:uniqueBy", // Toolkit API surface
-  "packages/js-toolkit/fp/sorting.js:compareBy", // Toolkit API surface
-  "packages/js-toolkit/fp/sorting.js:descending", // Toolkit API surface
+  // Generic fp utilities kept as a small standard library; some
+  // functions are currently exercised only from test code
+  "src/_lib/utils/fp/object.js:omit",
+  "src/_lib/utils/fp/set.js:frozenSetFrom", // Available for iterable sources
+  "src/_lib/utils/fp/set.js:setHas", // Curried predicate for filter/some/every
+  "src/_lib/utils/fp/set.js:setLacks", // Negated predicate for exclusion
+  "src/_lib/utils/fp/grouping.js:groupBy", // Used by memoize.js and scripts/ via relative imports
+  "src/_lib/utils/fp/grouping.js:buildReverseIndex", // Used by memoize.js via relative import
+  "src/_lib/utils/fp/grouping.js:buildFirstOccurrenceLookup", // Toolkit API surface
+  "src/_lib/utils/fp/grouping.js:groupValuesBy", // Toolkit API surface
+  "src/_lib/utils/fp/memoize.js:memoizeByRef", // Toolkit API surface
+  "src/_lib/utils/fp/object.js:mapBoth", // Toolkit API surface
+  "src/_lib/utils/fp/object.js:pickTruthy", // Toolkit API surface
+  "src/_lib/utils/fp/array.js:reduce", // Used by fp/grouping.js via relative import
+  "src/_lib/utils/fp/array.js:findDuplicate", // Toolkit API surface
+  "src/_lib/utils/fp/array.js:pick", // Toolkit API surface
+  "src/_lib/utils/fp/array.js:uniqueBy", // Toolkit API surface
+  "src/_lib/utils/fp/sorting.js:compareBy", // Toolkit API surface
+  "src/_lib/utils/fp/sorting.js:descending", // Toolkit API surface
 
   // Browser-automation internals: consumed inside their own modules by the
   // exported orchestrators (startServer, screenshot, configureScreenshots),

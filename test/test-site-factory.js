@@ -23,8 +23,8 @@ import matter from "gray-matter";
 import { afterAll, beforeAll } from "vitest";
 import { ensureDir } from "#eleventy/file-utils.js";
 import { ROOT_DIR } from "#lib/paths.js";
-import { filter, flatMap, map, pipe, unique } from "#toolkit/fp/array.js";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { filter, flatMap, map, pipe, unique } from "#utils/fp/array.js";
+import { memoize } from "#utils/fp/memoize.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
 const rootDir = ROOT_DIR;

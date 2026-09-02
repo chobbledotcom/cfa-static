@@ -12,7 +12,7 @@ import {
   COMMON_FIELDS,
   createEleventyNavigationField,
 } from "#scripts/customise-cms/fields.js";
-import { compact } from "#toolkit/fp/array.js";
+import { compact } from "#utils/fp/array.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig

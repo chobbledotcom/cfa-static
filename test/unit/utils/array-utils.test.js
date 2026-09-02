@@ -14,7 +14,7 @@ import {
   sort,
   sortBy,
   uniqueBy,
-} from "#toolkit/fp/array.js";
+} from "#utils/fp/array.js";
 
 describe("array-utils", () => {
   // ============================================

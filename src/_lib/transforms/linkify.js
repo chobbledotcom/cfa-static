@@ -6,8 +6,8 @@
  * linkification is handled by the linkify-html library in html-transform.js;
  * this module only supplies its SKIP_TAGS and display formatting.
  */
-import { flatMap } from "#toolkit/fp/array.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { flatMap } from "#utils/fp/array.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 /** @typedef {{ type: "text" | "phone" | "configLink", value: string }} TextPart */
 /** @typedef {{ parts: TextPart[], lastIndex: number }} TextPartsAccumulator */

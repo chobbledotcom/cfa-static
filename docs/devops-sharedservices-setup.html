@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Putting the CfA Static site on SharedServices — one-time setup guide</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0 auto; max-width: 46rem; padding: 2rem 1.25rem 4rem;
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #1f2937; background: #fafafa;
+  }
+  h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 .5rem; }
+  h2 { font-size: 1.15rem; margin: 0 0 .75rem; }
+  h3 { font-size: 1rem; margin: 1.25rem 0 .4rem; }
+  a { color: #2563eb; }
+  a:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  code {
+    background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px;
+    padding: .05em .35em; font-size: .88em;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  .lede { color: #6b7280; margin: 0 0 1.5rem; }
+  .step {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 1.25rem 1.4rem; margin: 1.5rem 0;
+  }
+  .step > h2 { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+  .who {
+    font-size: .72rem; font-weight: 600; letter-spacing: .03em;
+    text-transform: uppercase; border-radius: 999px; padding: .2rem .6rem;
+    white-space: nowrap;
+  }
+  .who-devops { background: #fef3c7; color: #92400e; }
+  .who-admin { background: #ede9fe; color: #5b21b6; }
+  .who-you { background: #dcfce7; color: #166534; }
+  .who a { color: inherit; text-decoration: none; }
+  table { border-collapse: collapse; width: 100%; margin: .75rem 0; }
+  th, td {
+    border: 1px solid #e5e7eb; padding: .45rem .6rem; text-align: left;
+    vertical-align: top; font-size: .92rem;
+  }
+  th { background: #f9fafb; }
+  .callout {
+    border-left: 3px solid #2563eb; background: #eff6ff;
+    padding: .75rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0;
+  }
+  .callout-warn { border-left-color: #d97706; background: #fffbeb; }
+  ul.checklist { list-style: none; padding-left: 0; }
+  ul.checklist li { padding-left: 1.6rem; position: relative; margin: .35rem 0; }
+  ul.checklist li::before { content: "☐"; position: absolute; left: 0; color: #2563eb; }
+  footer { margin-top: 2.5rem; color: #6b7280; font-size: .9rem; }
+  hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+</style>
+</head>
+<body>
+
+<h1>Putting the CfA Static site on SharedServices</h1>
+<p class="lede">
+  One-time setup for the internal deployment of
+  <a href="https://github.com/codeforamerica/cfa-static">codeforamerica/cfa-static</a>.
+  The site (unchanged) also keeps deploying publicly to
+  <a href="https://codeforamerica.github.io/cfa-static/">GitHub&nbsp;Pages</a>
+  — both build from the same commit and only differ in the URL they are stamped with.
+  Everything for the internal side already lives in the repo; what's left is
+  platform registration and configuration, in this order. Each step explains
+  what's going on in plain terms and links where you need to go.
+</p>
+
+<h2>What's already in place (nothing to do here)</h2>
+<div class="step">
+  <ul>
+    <li>
+      <a href="https://github.com/codeforamerica/cfa-static/blob/main/.github/workflows/sharedservices-deploy.yaml"><code>sharedservices-deploy.yaml</code></a>
+      — the deploy workflow. Builds the site with the internal URL settings,
+      uploads the result to the platform's S3 bucket, and flushes the edge
+      cache. Runs manually (Actions → <em>Deploy to SharedServices</em>), not
+      on every push, while this is being piloted.
+    </li>
+    <li>
+      <a href="https://github.com/codeforamerica/cfa-static/blob/main/app.yaml"><code>app.yaml</code></a>
+      — the platform registration file declaring this a static app whose
+      build output is <code>_site</code>.
+    </li>
+    <li>
+      A <a href="https://github.com/codeforamerica/cfa-static#deploying-to-sharedservices-internal">README section</a>
+      summarising all of this, and this walkthrough.
+    </li>
+  </ul>
+</div>
+
+<h2>Who does what</h2>
+<div class="step">
+  <table>
+    <tr><th>Step</th><th>Needs</th><th>That&rsquo;s</th></tr>
+    <tr><td>1. Register the app in infra</td><td>Access to <code>shared-services-infra</code></td><td>Platform DevOps (<code>#eng-team</code>)</td></tr>
+    <tr><td>2. Configure the GitHub environment</td><td>Admin on <code>cfa-static</code></td><td>Whoever granted your repo access</td></tr>
+    <tr><td>3. Run the first deploy</td><td>Write access to the repo</td><td><strong>You</strong></td></tr>
+    <tr><td>4. Verify it works</td><td>A browser</td><td><strong>You</strong></td></tr>
+  </table>
+  <p>
+    If you don't have <em>t</em>ofu or infra access — normal! — step 1 happens
+    entirely in a different repo by someone who does, and step 2's config
+    screen may also be admin-only. Steps 3 and 4 are yours.
+  </p>
+</div>
+
+<div class="step">
+  <h2>Step 1 — Register the app in the platform <span class="who who-devops">Platform DevOps</span></h2>
+  <p>
+    SharedServices doesn't know this site exists yet. The platform's rule is
+    that everything it hosts is declared in one central infrastructure repo —
+    <a href="https://github.com/codeforamerica/shared-services-infra"><code>shared-services-infra</code></a>
+    (likely requires a DevOps login to view). A declaration is a small YAML
+    file called a static app spec:
+    add a <code>cfa-static</code> spec to
+    <a href="https://github.com/codeforamerica/shared-services-infra/tree/main/tofu/configs/static-app/specs"><code>tofu/configs/static-app/specs/</code></a>
+    (<a href="https://github.com/codeforamerica/shared-services-infra/compare">open a PR there</a>),
+    then apply it with <code>tofu apply</code> — the tool that reads the
+    declaration and creates the real AWS resources.
+  </p>
+  <p>Values for the spec (mirroring the repo's <a href="https://github.com/codeforamerica/cfa-static/blob/main/app.yaml"><code>app.yaml</code></a>):</p>
+  <table>
+    <tr><th>Field</th><th>Value</th><th>Note</th></tr>
+    <tr><td><code>name</code></td><td><code>cfa-static</code></td><td>Matches the GitHub repo</td></tr>
+    <tr><td><code>name_short</code></td><td><code>cfa-static</code></td><td>10 chars — within the 12-char limit</td></tr>
+    <tr><td><code>type</code></td><td><code>static</code></td><td>No server — Okta gates it at the edge</td></tr>
+    <tr><td><code>description</code></td><td>CfA Static site template — self-documenting reference deployment</td><td>Free text</td></tr>
+  </table>
+  <p>
+    Worth a comment in the PR: this repo intentionally doesn't follow the
+    <code>sharedservices-*</code> naming convention, because it's the template's
+    own canonical repo rather than an app scaffolded from the platform template.
+  </p>
+  <p>
+    Ask DevOps to hand back three values from the apply — the next step needs
+    them exactly:
+  </p>
+  <ul>
+    <li>the <strong>deploy role ARN</strong> (the layer's <code>deploy_role_arn</code> output) — what lets GitHub upload to this app's corner of the bucket</li>
+    <li>the <strong>bucket name</strong> of the shared static-hosting bucket</li>
+    <li>the <strong>CloudFront distribution ID</strong> of the shared distribution</li>
+  </ul>
+  <div class="callout">
+    <strong>What applying actually does:</strong> provisions a per-app deploy
+    role and grants that role permission to write to the shared static bucket
+    under this app's prefix and to invalidate the shared CloudFront
+    distribution. Nothing else — the app is static, so there's no container,
+    no database, no network config to make.
+  </div>
+</div>
+
+<div class="step">
+  <h2>Step 2 — Configure the GitHub environment <span class="who who-admin">Repo admin</span></h2>
+  <p>
+    The deploy workflow reads its settings from a GitHub
+    <em>environment</em> — a named bag of variables and one secret attached to
+    the repo, so none of it lives in the code. Create one called
+    <code>sharedservices</code>:
+    <a href="https://github.com/codeforamerica/cfa-static/settings/environments">Settings → Environments → New environment</a>
+    (if you can't see that screen, hand this step to whoever granted your repo
+    access — it's admin-only).
+  </p>
+  <p>Add these <strong>environment variables</strong> (exact names — the workflow looks these up):</p>
+  <table>
+    <tr><th>Name</th><th>Value</th><th>What it's for</th></tr>
+    <tr>
+      <td><code>AWS_REGION</code></td>
+      <td><code>us-east-1</code></td>
+      <td>Where the bucket lives</td>
+    </tr>
+    <tr>
+      <td><code>STATIC_BUCKET</code></td>
+      <td><em>bucket name from step 1</em></td>
+      <td>Where the files get uploaded</td>
+    </tr>
+    <tr>
+      <td><code>STATIC_PREFIX</code></td>
+      <td><code>cfa-static</code></td>
+      <td>
+        The app's slot in the shared bucket — also the site's path in the URL.
+        The build receives it as <code>PATH_PREFIX</code> so every internal
+        link, image, and search asset points under <code>/cfa-static/</code>
+      </td>
+    </tr>
+    <tr>
+      <td><code>CLOUDFRONT_DISTRIBUTION_ID</code></td>
+      <td><em>distribution ID from step 1</em></td>
+      <td>Flushed after each deploy so changes show immediately</td>
+    </tr>
+    <tr>
+      <td><code>SITE_URL</code></td>
+      <td><em>internal base URL</em>, e.g. <code>https://internal.example.org/cfa-static</code></td>
+      <td>
+        The address the site stamps into its canonical URLs, sitemap, and
+        social cards. Get the real value from DevOps after step 1 — it's the
+        shared static host's address plus <code>/cfa-static</code>.
+        <strong>No trailing slash</strong> — the build validates this and
+        fails loudly rather than publishing odd URLs
+      </td>
+    </tr>
+  </table>
+  <p>And one <strong>secret</strong>:</p>
+  <table>
+    <tr><th>Name</th><th>Value</th><th>What it's for</th></tr>
+    <tr>
+      <td><code>AWS_ROLE_ARN</code></td>
+      <td><em>deploy role ARN from step 1</em></td>
+      <td>
+        The AWS identity the workflow borrows during a run (kept as a secret
+        to match the platform convention)
+      </td>
+    </tr>
+  </table>
+  <div class="callout">
+    <strong>No AWS keys exist anywhere in this setup.</strong> When the
+    workflow runs, GitHub and AWS exchange short-lived tokens: GitHub says
+    "I'm this repo's deploy job", AWS checks that a role trusts exactly that
+    repo, and hands out credentials that die when the run ends. That's OIDC —
+    and it's why the deploy can be triggered by anyone with write access
+    without them ever holding an AWS credential.
+  </div>
+</div>
+
+<div class="step">
+  <h2>Step 3 — Run the first deploy <span class="who who-you">You</span></h2>
+  <p>
+    Go to the workflow's page —
+    <a href="https://github.com/codeforamerica/cfa-static/actions/workflows/sharedservices-deploy.yaml">Actions → Deploy to SharedServices</a>
+    — pick <code>main</code>, and hit <em>Run workflow</em>.
+  </p>
+  <p>What the run does, in order:</p>
+  <ol>
+    <li>
+      <strong>Check configuration.</strong> Fails immediately, naming any
+      missing variable — intentional, so a typo in step 2 surfaces as
+      "MISSING: STATIC_BUCKET" rather than a deploy to the wrong place
+    </li>
+    <li>
+      <strong>Build.</strong> Same <code>npm ci</code> + <code>npm run build</code>
+      as the public Pages deploy, from the same commit — differing only in
+      the internal <code>PATH_PREFIX</code> and <code>SITE_URL</code>
+    </li>
+    <li>
+      <strong>Upload the build.</strong> The exact files deployed get
+      attached to the run as an artifact ("sharedservices-site") — download
+      it from the run's page if you ever need to inspect what went out
+    </li>
+    <li>
+      <strong>Sync to S3</strong> into <code>s3://&lt;bucket&gt;/cfa-static/</code>.
+      <code>--delete</code> means files removed from the site also disappear
+      from the bucket — no stale pages left behind
+    </li>
+    <li>
+      <strong>Invalidate CloudFront</strong> so the new content is live
+      immediately
+    </li>
+  </ol>
+</div>
+
+<div class="step">
+  <h2>Step 4 — Verify <span class="who who-you">You</span></h2>
+  <p>
+    Ask DevOps for the live URL from step 1 (the shared host plus
+    <code>/cfa-static/</code>). Then:
+  </p>
+  <ul class="checklist">
+    <li>
+      Visit the URL in a private/incognito window — you should hit the
+      Okta sign-in, <em>before</em> any part of the site loads. That's the
+      edge doing access control; the site itself never sees auth
+    </li>
+    <li>
+      Sign in, land on the homepage, and click into a deep page — links
+      should keep working under the <code>/cfa-static/</code> prefix
+    </li>
+    <li>
+      Try the search box on the search page — results should come from the
+      internal copy, not the public site
+    </li>
+    <li>
+      Spot-check the footer/social links and the feed at
+      <code>…/cfa-static/feed.xml</code> — URLs inside them should point at
+      the internal origin
+    </li>
+    <li>
+      While logged in, view source on the homepage and confirm
+      <code>rel="canonical"</code> points at the internal URL
+    </li>
+  </ul>
+</div>
+
+<h2>After the pilot</h2>
+<div class="step">
+  <p>
+    Two deliberate restrictions that can be lifted once this has proven
+    itself, both one-line changes:
+  </p>
+  <ul>
+    <li>
+      <strong>Deploys are manual.</strong> Adding an <code>on: push</code>
+      trigger makes every merge to <code>main</code> publish internally too,
+      matching the platform's other static apps
+    </li>
+    <li>
+      <strong>Deploy logic lives in this repo.</strong> The platform offers a
+      shared workflow for static apps; extending it to accept a pre-built
+      artifact lets this repo (and future sites from the template) call it
+      instead of running AWS commands directly — worth a follow-up issue
+    </li>
+  </ul>
+</div>
+
+<footer>
+  <p>
+    Questions at any point: <code>#eng-team</code> — the platform team who
+    own the infra in step 1. Background on how SharedServices treats static
+    apps is in the platform's own contract,
+    <a href="https://github.com/codeforamerica/sharedservices-app-template/blob/main/AGENTS/static.md"><code>AGENTS/static.md</code></a>.
+  </p>
+</footer>
+
+</body>
+</html>

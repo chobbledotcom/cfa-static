@@ -1,8 +1,8 @@
 /**
  * Test utilities for CfA Static
  *
- * Re-exports generic utilities from @chobble/js-toolkit with project-specific
- * wrappers, plus Eleventy-specific test helpers.
+ * Re-exports the generic helpers from test/test-utils/ with
+ * project-specific wrappers, plus Eleventy-specific test helpers.
  */
 
 import fs from "node:fs";
@@ -10,7 +10,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import { expect, vi } from "vitest";
 import { ROOT_DIR, SRC_DIR } from "#lib/paths.js";
-import { omit } from "#toolkit/fp/object.js";
+import { omit } from "#utils/fp/object.js";
 
 // Test fixture helpers for creating Eleventy-style collection items
 // (These are test-only utilities, not general FP functions)
@@ -55,25 +55,27 @@ import {
   expectErrorsInclude,
   expectObjectProps,
   expectProp,
-} from "#toolkit/test-utils/assertions.js";
+} from "#test/test-utils/assertions.js";
 import {
   ALWAYS_SKIP,
+  createExtractor,
   extractFunctions,
+  findFiles as getFilesRaw,
   memoizedFileGetter,
-  getFiles as toolkitGetFiles,
-} from "#toolkit/test-utils/code-analysis.js";
+} from "#test/test-utils/code-analysis.js";
 import {
   captureConsole,
   captureConsoleLogAsync,
   createConsoleCapture,
   mockFetch,
   withMockFetch,
-} from "#toolkit/test-utils/mocking.js";
-// Import from toolkit for internal use and re-export
+} from "#test/test-utils/mocking.js";
+// Import for internal use and re-export
 import {
   bracket,
   bracketAsync,
   cleanupTempDir,
+  createTempDir,
   createTempFile,
   withChdirAsync,
   withMockedCwd,
@@ -81,7 +83,10 @@ import {
   withMockedProcessExit,
   withSubDir,
   withSubDirAsync,
-} from "#toolkit/test-utils/resource.js";
+  withTempDir,
+  withTempDirAsync,
+  withTempFile,
+} from "#test/test-utils/resource.js";
 
 /** Shared no-op for mockImplementation calls. */
 const noop = () => undefined;
@@ -124,15 +129,6 @@ const captureCliFailure = async (run) => {
 const rootDir = ROOT_DIR;
 const srcDir = SRC_DIR;
 
-// Wrap toolkit's createTempDir to use test directory (not cwd)
-const createTempDir = (testName, suffix = "") => {
-  const uniqueId = `${Date.now()}-${process.pid}-${Math.random().toString(36).slice(2, 9)}`;
-  const dirName = `temp-${testName}${suffix ? `-${suffix}` : ""}-${uniqueId}`;
-  const tempDir = path.join(import.meta.dirname, dirName);
-  fs.mkdirSync(tempDir, { recursive: true });
-  return tempDir;
-};
-
 const createTempSnippetsDir = (testName) => {
   const tempDir = createTempDir(testName);
   const snippetsDir = path.join(tempDir, "src/snippets");
@@ -140,26 +136,15 @@ const createTempSnippetsDir = (testName) => {
   return { tempDir, snippetsDir };
 };
 
-// Create project-specific withTempDir functions using our createTempDir
-const withTempDir = bracket(createTempDir, cleanupTempDir);
-const withTempDirAsync = bracketAsync(createTempDir, cleanupTempDir);
-
-const withTempFile = (testName, filename, content, callback) =>
-  withTempDir(testName, (tempDir) => {
-    const filePath = path.join(tempDir, filename);
-    fs.writeFileSync(filePath, content);
-    return callback(tempDir, filePath);
-  });
-
 // ============================================
 // File discovery utilities (project-specific ROOT_DIR)
 // ============================================
 
 /**
  * Get all files matching a pattern from the project root.
- * Wrapper around toolkit's getFiles with implicit ROOT_DIR.
+ * Wrapper around the generic findFiles with implicit ROOT_DIR.
  */
-const getFiles = (pattern) => toolkitGetFiles(pattern, rootDir);
+const getFiles = (pattern) => getFilesRaw(pattern, rootDir);
 
 /**
  * Create a memoized file getter for a given pattern.
@@ -167,10 +152,8 @@ const getFiles = (pattern) => toolkitGetFiles(pattern, rootDir);
  */
 const memoizedFiles = memoizedFileGetter(rootDir);
 
-// Production JS files: src/ and packages/ (excluding test-utils which are test code)
-const SRC_JS_FILES = memoizedFiles(
-  /^(src\/|packages\/js-toolkit\/(?!test-utils\/)).*\.js$/,
-);
+// Production JS files: src/ only (test/ helpers are test code)
+const SRC_JS_FILES = memoizedFiles(/^src\/.*\.js$/);
 const SRC_HTML_FILES = memoizedFiles(/^src\/(_includes|_layouts)\/.*\.html$/);
 const SRC_SCSS_FILES = memoizedFiles(/^src\/css\/.*\.scss$/);
 const TEST_FILES = memoizedFiles(/^test\/.*\.js$/);
@@ -182,29 +165,6 @@ const SCRIPT_JS_FILES = memoizedFiles(/^(scripts\/|bin\/).*\.js$/);
 // deliberately exclude tooling (organisation-style rules) combine
 // SRC_JS_FILES and TEST_FILES instead.
 const ALL_JS_FILES = memoizedFiles(/^(src\/|test\/|scripts\/|bin\/).*\.js$/);
-
-/**
- * Create a pattern extractor for files.
- * Reads files directly (supports both absolute and relative paths).
- * For relative paths, prepends rootDir.
- */
-const createExtractor =
-  (pattern, transform = (m) => m[1]) =>
-  (files) => {
-    const fileList = Array.isArray(files) ? files : [files];
-    const results = new Set();
-
-    for (const file of fileList) {
-      // Support both absolute and relative paths
-      const filePath = path.isAbsolute(file) ? file : path.join(rootDir, file);
-      const content = fs.readFileSync(filePath, "utf-8");
-      for (const match of content.matchAll(pattern)) {
-        results.add(transform(match));
-      }
-    }
-
-    return results;
-  };
 
 // ============================================
 // Object Utilities (for test infrastructure)
@@ -356,17 +316,16 @@ const withConfiguredMock = (configureFn) => () => {
 // Exports
 // ============================================
 
-// Re-export toolkit utilities
 // Export project-specific utilities
 export {
   ALL_JS_FILES,
-  // Code analysis (from toolkit)
+  // Code analysis
   ALWAYS_SKIP,
-  // Resource management (from toolkit)
+  // Resource management
   bracket,
   bracketAsync,
   captureCliFailure,
-  // Mocking (from toolkit)
+  // Mocking
   captureConsole,
   captureConsoleLogAsync,
   cleanupTempDir,
@@ -385,7 +344,7 @@ export {
   data,
   everyEntry,
   expect,
-  // Assertions (from toolkit)
+  // Assertions
   expectArrayProp,
   expectAsyncThrows,
   expectDataArray,

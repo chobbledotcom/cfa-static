@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { data } from "#test/test-utils.js";
-import { compareBy, descending, orderThenString } from "#toolkit/fp/sorting.js";
+import { compareBy, descending, orderThenString } from "#utils/fp/sorting.js";
 import {
   sortByDateDescending,
   sortItems,

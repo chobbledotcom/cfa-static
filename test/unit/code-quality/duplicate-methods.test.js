@@ -8,7 +8,7 @@
 import { describe, expect, test } from "vitest";
 import { assertNoViolations, readSource } from "#test/code-scanner.js";
 import { ALL_JS_FILES } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 const THIS_FILE = "test/unit/code-quality/duplicate-methods.test.js";
 
@@ -26,6 +26,11 @@ const ALLOWED_DUPLICATE_NAMES = frozenSet([
   "createElement",
   "getJsConfigFilter",
   "transformHtml", // test helper with same name but different implementations
+  // Generic parser/recursion helper names that recur across unrelated
+  // scanners (source-analysis, yaml compaction, directory walking)
+  "processChar",
+  "processLine",
+  "walk",
   // Template fixture function names used in code-quality test cases
   "outer",
   "innerNested",

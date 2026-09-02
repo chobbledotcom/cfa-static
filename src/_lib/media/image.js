@@ -49,7 +49,7 @@ import {
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
-import { dedupeAsync, jsonKey } from "#toolkit/fp/memoize.js";
+import { dedupeAsync, jsonKey } from "#utils/fp/memoize.js";
 import { isExternalUrl } from "#utils/url-utils.js";
 
 /**

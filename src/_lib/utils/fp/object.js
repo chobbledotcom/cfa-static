@@ -169,11 +169,14 @@ const createFrozenObjectHandler = () => ({
 });
 
 /**
- * Create a frozen (deeply immutable) object from key-value pairs
+ * Create a frozen (shallowly immutable) object from key-value pairs
  *
  * Returns an object wrapped in a Proxy that throws TypeError on mutation
  * attempts (property assignment, deletion, definition). All read operations
  * work normally. Unlike Object.freeze, provides clear error messages.
+ *
+ * Protection is shallow: nested objects are returned unwrapped and stay
+ * mutable — freeze nested values separately if they must not change.
  *
  * @template {Record<string, unknown>} T
  * @param {T} obj - Object to freeze

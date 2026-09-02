@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import markdownIt from "markdown-it";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoize } from "#utils/fp/memoize.js";
 import { processLiquidStrings } from "#utils/liquid-render.js";
 import { validateSidebarBlocks } from "#utils/sidebar-blocks.js";
 

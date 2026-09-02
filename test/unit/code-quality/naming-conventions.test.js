@@ -7,7 +7,7 @@ import {
   SCRIPT_JS_FILES,
   SRC_JS_FILES,
 } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 // Configuration
 const MAX_WORDS = 4;

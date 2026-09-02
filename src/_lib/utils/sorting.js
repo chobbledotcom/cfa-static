@@ -2,11 +2,11 @@
  * Sorting utilities - Eleventy-specific comparators and sort helpers.
  *
  * For generic sorting utilities (compareBy, descending, orderThenString),
- * import directly from "#toolkit/fp/sorting.js".
+ * import directly from "#utils/fp/sorting.js".
  */
-import { orderThenString } from "#toolkit/fp/sorting.js";
+import { orderThenString } from "#utils/fp/sorting.js";
 
-// Eleventy-specific comparators (not in toolkit)
+// Eleventy-specific comparators (the generic ones live in fp/sorting.js)
 
 /**
  * @typedef {Object} CollectionItemData

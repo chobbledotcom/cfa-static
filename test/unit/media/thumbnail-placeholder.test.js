@@ -3,7 +3,7 @@ import {
   getPlaceholderForPath,
   PLACEHOLDER_COLORS,
 } from "#media/thumbnail-placeholder.js";
-import { unique } from "#toolkit/fp/array.js";
+import { unique } from "#utils/fp/array.js";
 
 describe("thumbnail-placeholder", () => {
   describe("getPlaceholderForPath", () => {

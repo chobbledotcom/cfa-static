@@ -15,7 +15,7 @@ compatibility: Requires git, Node.js 22+, npm, a POSIX-compatible shell, and a C
 metadata:
   author: chobbledotcom
   version: "1.0.0"
-  repository: https://github.com/chobbledotcom/cfa-static
+  repository: https://github.com/codeforamerica/cfa-static
 ---
 
 # CfA Static Site Builder

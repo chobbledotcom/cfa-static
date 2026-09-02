@@ -11,8 +11,8 @@ import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
 const THIS_FILE = "test/unit/code-quality/nullish-coalescing.test.js";
 
 // Files to check: src/ JS files excluding collections (where defaults belong)
-// and packages/ (shared utilities, not part of site data chain)
-const ALLOWED_DIRS = ["src/_lib/collections/", "packages/"];
+// and the generic fp utilities (library code, not part of site data chain)
+const ALLOWED_DIRS = ["src/_lib/collections/", "src/_lib/utils/fp/"];
 
 describe("nullish-coalescing", () => {
   const { find: findNullishCoalescing, analyze: analyzeNullishCoalescing } =

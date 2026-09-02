@@ -16,7 +16,7 @@ import {
   getContentFields,
   withEnabled,
 } from "#scripts/customise-cms/generator-helpers.js";
-import { compact } from "#toolkit/fp/array.js";
+import { compact } from "#utils/fp/array.js";
 
 /**
  * @typedef {import('./generator-helpers.js').CmsConfig} CmsConfig

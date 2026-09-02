@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     name: Build Site Artifact
-    runs-on: ubicloud-standard-16
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4

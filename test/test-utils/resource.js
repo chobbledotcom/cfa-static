@@ -5,6 +5,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { ROOT_DIR } from "#lib/paths.js";
 
 /**
  * Bracket pattern for resource management.
@@ -74,8 +75,9 @@ const bracketAsync = createBracket(true);
 const createTempDir = (testName, suffix = "") => {
   const uniqueId = `${Date.now()}-${process.pid}-${Math.random().toString(36).slice(2, 9)}`;
   const dirName = `temp-${testName}${suffix ? `-${suffix}` : ""}-${uniqueId}`;
-  // Use OS temp directory for better isolation
-  const tempDir = path.join(process.cwd(), "test", dirName);
+  // Keep temp dirs inside test/ so the temp-* ignore patterns apply,
+  // regardless of the process's working directory
+  const tempDir = path.join(ROOT_DIR, "test", dirName);
   fs.mkdirSync(tempDir, { recursive: true });
   return tempDir;
 };

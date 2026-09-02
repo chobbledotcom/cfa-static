@@ -15,7 +15,7 @@
 
 import { runIfMain } from "#scripts/lib/is-main-module.js";
 import { runToolCapture } from "#scripts/lib/run-tool.js";
-import { frozenObject } from "#toolkit/fp/object.js";
+import { frozenObject } from "#utils/fp/object.js";
 
 const STRICT_ERROR_BASELINE = frozenObject({});
 

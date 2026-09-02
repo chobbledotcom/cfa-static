@@ -7,8 +7,8 @@ import {
   scanLines,
 } from "#test/code-scanner.js";
 import { TEST_FILES } from "#test/test-utils.js";
-import { compact, filterMap } from "#toolkit/fp/array.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { compact, filterMap } from "#utils/fp/array.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 /**
  * Test Quality Enforcement

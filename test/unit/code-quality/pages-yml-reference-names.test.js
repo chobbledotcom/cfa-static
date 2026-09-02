@@ -8,7 +8,7 @@ import {
   collectReferenceFields,
   getCollectionMap,
 } from "#test/unit/utils/pages-yml-helpers.js";
-import { unique } from "#toolkit/fp/array.js";
+import { unique } from "#utils/fp/array.js";
 
 const pagesConfig = YAML.parse(
   readFileSync(join(rootDir, ".pages.yml"), "utf-8"),

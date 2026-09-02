@@ -4,8 +4,8 @@ import config from "#data/config.js";
 import { PAGES_DIR } from "#lib/paths.js";
 import { getIcon } from "#media/iconify.js";
 import { imageShortcode } from "#media/image.js";
-import { filter, mapAsync, pipe, sort } from "#toolkit/fp/array.js";
 import { createHtml } from "#utils/dom-builder.js";
+import { filter, mapAsync, pipe, sort } from "#utils/fp/array.js";
 import { sortNavigationItems } from "#utils/sorting.js";
 
 /** @typedef {import("../types/navigation.d.ts").NavigationEntry} NavigationEntry */

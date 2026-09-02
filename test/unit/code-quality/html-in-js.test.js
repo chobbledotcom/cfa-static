@@ -5,9 +5,9 @@ import {
   withAllowlist,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES } from "#test/test-utils.js";
-import { filterMap } from "#toolkit/fp/array.js";
-import { mapObject } from "#toolkit/fp/object.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { filterMap } from "#utils/fp/array.js";
+import { mapObject } from "#utils/fp/object.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 /**
  * Patterns that indicate HTML content in JavaScript.
