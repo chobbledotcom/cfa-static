@@ -15,8 +15,8 @@ import {
   map,
   pipe,
   pluralize,
-} from "#toolkit/fp/array.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+} from "#utils/fp/array.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 // Configuration
 const MAX_LINES = 30;

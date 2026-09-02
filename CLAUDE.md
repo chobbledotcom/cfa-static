@@ -65,7 +65,7 @@ src/
 │   ├── eleventy/    # Eleventy plugins (blocks, breadcrumbs, feed, …)
 │   ├── media/       # Image processing (sharp, eleventy-img)
 │   ├── public/      # Frontend JavaScript (bundled by esbuild)
-│   └── utils/       # Pure utility functions (block-schema, i18n, …)
+│   └── utils/       # Pure utility functions (block-schema, i18n, fp/, …)
 ├── css/             # SCSS stylesheets (design-system/ per-block partials)
 ├── pages/           # Page markdown files (blocks in frontmatter)
 ├── news/            # News posts
@@ -82,6 +82,7 @@ test/
 ├── integration/     # Integration tests (build real sites)
 ├── code-quality/    # Central allowlists for quality gates
 ├── test-utils.js    # Shared test utilities & factories
+├── test-utils/      # Generic test helpers (assertions, mocking, resources)
 └── TEST-QUALITY-CRITERIA.md  # Testing standards
 ```
 
@@ -131,7 +132,11 @@ import { ROOT_DIR } from "#lib/paths.js";
 | `#guide-categories/*` | `./src/guide-categories/*` |
 | `#test/*` | `./test/*` |
 | `#scripts/*` | `./scripts/*` |
-| `#toolkit/*` | `./packages/js-toolkit/*` |
+| `#bin/*` | `./bin/*` |
+
+The generic functional utilities live in `src/_lib/utils/fp/` (imported
+via `#utils/fp/...`); shared test helpers live in `test/test-utils/`
+(re-exported through `#test/test-utils.js`).
 
 ---
 
@@ -152,7 +157,7 @@ The codebase uses curried, composable functions extensively:
 
 ```javascript
 // Use pipe() for function composition
-import { pipe, filter, map, sort } from "#toolkit/fp/array.js";
+import { pipe, filter, map, sort } from "#utils/fp/array.js";
 
 pipe(
   filter(x => x > 0),
@@ -175,7 +180,8 @@ const expensiveComputation = memoize(
 );
 ```
 
-### Available Array Utilities (`#toolkit/fp/array.js`)
+### Available Array Utilities (`#utils/fp/array.js`)
+
 - `pipe(...fns)` - Left-to-right function composition
 - `filter(predicate)`, `map(fn)`, `flatMap(fn)`, `reduce(fn, initial)` - Curried array methods
 - `sort(comparator)` - Non-mutating sort
@@ -234,7 +240,7 @@ The project enforces strict code quality via Biome. Key rules:
 - **No unused imports/variables** - `noUnusedImports: error`, `noUnusedVariables: error`
 - **No forEach** - `noForEach: error` (use `for...of` or curried `map`/`filter`)
 - **No accumulating spread** - `noAccumulatingSpread: error` (push into one array, or use `flatMap`)
-- **Max cognitive complexity: 7** - `noExcessiveCognitiveComplexity` (30 in tests and packages/)
+- **Max cognitive complexity: 7** - `noExcessiveCognitiveComplexity` (30 in tests)
 - **No console.log** - except in `build/` and `test/`
 - **No skipped/focused tests** - `noSkippedTests: error`, `noFocusedTests: error`
 

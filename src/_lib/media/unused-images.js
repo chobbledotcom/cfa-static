@@ -2,14 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { globSync } from "tinyglobby";
-import {
-  filter,
-  map,
-  notMemberOf,
-  pipe,
-  pluralize,
-} from "#toolkit/fp/array.js";
 import { log } from "#utils/console.js";
+import { filter, map, notMemberOf, pipe, pluralize } from "#utils/fp/array.js";
 
 const IMAGE_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
 const IMAGE_REF_PATTERN =

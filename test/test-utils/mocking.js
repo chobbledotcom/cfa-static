@@ -45,9 +45,12 @@ const createConsoleCapture = (executor) => (fn) => {
  * // logs === ["hello", "world"]
  */
 const captureConsole = createConsoleCapture((fn, cleanup, logs) => {
-  fn();
-  cleanup();
-  return logs;
+  try {
+    fn();
+    return logs;
+  } finally {
+    cleanup();
+  }
 });
 
 /**
@@ -64,9 +67,12 @@ const captureConsole = createConsoleCapture((fn, cleanup, logs) => {
  */
 const captureConsoleLogAsync = createConsoleCapture(
   async (fn, cleanup, logs) => {
-    await fn();
-    cleanup();
-    return logs;
+    try {
+      await fn();
+      return logs;
+    } finally {
+      cleanup();
+    }
   },
 );
 
@@ -90,7 +96,7 @@ const mockFetch = (response, options = {}) => {
 
   globalThis.fetch = async () => ({
     ok: options.ok !== false,
-    status: options.status || 200,
+    status: options.status ?? 200,
     text: async () => responseText,
     json: async () =>
       typeof response === "string" ? JSON.parse(response) : response,

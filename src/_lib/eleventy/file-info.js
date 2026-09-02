@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoize } from "#utils/fp/memoize.js";
 
 /**
  * Build-time file metadata for the `downloads` block.

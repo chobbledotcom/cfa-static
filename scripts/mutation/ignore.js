@@ -24,7 +24,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT_DIR } from "#lib/paths.js";
 import { rel } from "#scripts/mutation/summary.js";
-import { unique } from "#toolkit/fp/array.js";
+import { unique } from "#utils/fp/array.js";
 
 /** @typedef {import("#scripts/mutation/generate.js").Mutant} Mutant */
 /** @typedef {import("#scripts/mutation/summary.js").MutantResult} MutantResult */

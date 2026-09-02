@@ -1,8 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import socialIcons from "#data/social-icons.json" with { type: "json" };
-import { dedupeAsync } from "#toolkit/fp/memoize.js";
 import { createHtml } from "#utils/dom-builder.js";
+import { dedupeAsync } from "#utils/fp/memoize.js";
 
 const ICONIFY_API_BASE = "https://api.iconify.design";
 const ICONS_DIR = "src/assets/icons/iconify";

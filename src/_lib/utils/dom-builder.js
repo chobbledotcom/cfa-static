@@ -1,6 +1,6 @@
-import { memoize } from "#toolkit/fp/memoize.js";
-import { filterObject, mapEntries } from "#toolkit/fp/object.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { memoize } from "#utils/fp/memoize.js";
+import { filterObject, mapEntries } from "#utils/fp/object.js";
+import { frozenSet } from "#utils/fp/set.js";
 import { loadDOM } from "#utils/lazy-dom.js";
 
 /** @typedef {import("#lib/types").ElementAttributes} ElementAttributes */

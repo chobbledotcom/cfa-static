@@ -17,7 +17,7 @@ import {
   parseWidths,
   prepareImageAttributes,
 } from "#media/image-utils.js";
-import { dedupeAsync, jsonKey } from "#toolkit/fp/memoize.js";
+import { dedupeAsync, jsonKey } from "#utils/fp/memoize.js";
 import { slugify } from "#utils/slug-utils.js";
 
 /** @param {string} str */

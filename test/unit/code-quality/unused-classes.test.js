@@ -11,8 +11,8 @@ import {
   SRC_HTML_FILES,
   SRC_SCSS_FILES,
 } from "#test/test-utils.js";
-import { filter, flatMap, map, pipe, split } from "#toolkit/fp/array.js";
-import { buildReverseIndex } from "#toolkit/fp/grouping.js";
+import { filter, flatMap, map, pipe, split } from "#utils/fp/array.js";
+import { buildReverseIndex } from "#utils/fp/grouping.js";
 
 const { readFileSync } = fs;
 const { join } = path;

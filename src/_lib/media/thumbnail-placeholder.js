@@ -1,4 +1,4 @@
-import { pipe } from "#toolkit/fp/array.js";
+import { pipe } from "#utils/fp/array.js";
 
 const PLACEHOLDER_COLORS = [
   "green",

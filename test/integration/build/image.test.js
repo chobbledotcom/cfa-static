@@ -8,7 +8,7 @@ import {
 import { getCropMaxWidth, getMetadata } from "#media/image-crop.js";
 import { useSharedSite } from "#test/test-site-factory.js";
 import { createMockEleventyConfig, wrapHtml } from "#test/test-utils.js";
-import { map } from "#toolkit/fp/array.js";
+import { map } from "#utils/fp/array.js";
 
 // ============================================
 // Functional Test Fixture Builders

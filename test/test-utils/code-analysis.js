@@ -6,8 +6,9 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { memoize } from "../fp/memoize.js";
-import { frozenSet } from "../fp/set.js";
+import { ROOT_DIR } from "#lib/paths.js";
+import { memoize } from "#utils/fp/memoize.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 // Directories always skipped during file discovery
 const ALWAYS_SKIP = frozenSet([
@@ -19,14 +20,14 @@ const ALWAYS_SKIP = frozenSet([
 ]);
 
 /**
- * Get all files matching a pattern from a directory.
+ * Find all files matching a pattern under a directory.
  * Returns relative paths from root that match the regex.
  *
  * @param {RegExp} pattern - Pattern to match file paths against
  * @param {string} rootDir - Root directory to search from
  * @returns {string[]} Array of matching file paths
  */
-const getFiles = (pattern, rootDir) => {
+const findFiles = (pattern, rootDir) => {
   const results = [];
 
   const walk = (dir) => {
@@ -67,23 +68,26 @@ const getFiles = (pattern, rootDir) => {
  * const files = SRC_JS_FILES(); // Returns array of matching files
  */
 const memoizedFileGetter = (rootDir) => (pattern) =>
-  memoize(() => getFiles(pattern, rootDir));
+  memoize(() => findFiles(pattern, rootDir));
 
 /**
  * Create a pattern extractor for files.
- * Curried: (pattern, transform) => (files) => Set
+ * Curried: (pattern, transform) => (files, rootDir) => Set
+ * Supports both absolute and relative file paths; relative paths
+ * resolve against rootDir (defaults to the project root).
  * @param {RegExp} pattern - Regex with capture group
  * @param {function} [transform] - Transform match to value (default: m => m[1])
- * @returns {function} - files => Set of extracted values
+ * @returns {function} - (files, rootDir?) => Set of extracted values
  */
 const createExtractor =
   (pattern, transform = (m) => m[1]) =>
-  (files, rootDir) => {
+  (files, rootDir = ROOT_DIR) => {
     const fileList = Array.isArray(files) ? files : [files];
     const results = new Set();
 
     for (const file of fileList) {
-      const content = fs.readFileSync(path.join(rootDir, file), "utf-8");
+      const filePath = path.isAbsolute(file) ? file : path.join(rootDir, file);
+      const content = fs.readFileSync(filePath, "utf-8");
       for (const match of content.matchAll(pattern)) {
         results.add(transform(match));
       }
@@ -291,6 +295,6 @@ export {
   ALWAYS_SKIP,
   createExtractor,
   extractFunctions,
-  getFiles,
+  findFiles,
   memoizedFileGetter,
 };

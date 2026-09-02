@@ -23,7 +23,7 @@ This project enforces strict functional programming patterns and code quality ru
 
 ### Prohibited Patterns (Fix Automatically)
 
-1. **Array mutation with .push()** - Replace with spread operator, concat, or accumulate helper
+1. **Array mutation with .push()** - Replace with spread operator, concat, or flatMap
    ```javascript
    // BAD
    const items = [];
@@ -31,7 +31,7 @@ This project enforces strict functional programming patterns and code quality ru
 
    // GOOD
    const items = [...existingItems, newItem];
-   // OR in reduce: accumulate((acc, item) => [...acc, item])
+   // OR build in one pass: items.flatMap(item => keep(item) ? [item] : [])
    ```
 
 2. **Mutable variables (let)** - Replace with const and functional patterns
@@ -94,8 +94,7 @@ The file `test/code-quality/code-quality-exceptions.js` contains ONLY grandfathe
 ## Fixing Strategy
 
 ### 1. Array.push() violations
-- Replace with: `[...array, newItem]`, `array.concat(newItem)`, or `accumulate()` helper
-- In reduce: Use `accumulate((acc, item) => [...acc, transformed])` from #toolkit/fp/array.js
+- Replace with: `[...array, newItem]`, `array.concat(newItem)`, or `flatMap()`
 
 ### 2. Let declarations
 - Convert to const with functional patterns
@@ -104,7 +103,7 @@ The file `test/code-quality/code-quality-exceptions.js` contains ONLY grandfathe
 
 ### 3. Mutable const (empty [], {})
 - Convert forEach loops to map/filter
-- Use reduce with spread (or accumulate helper for performance)
+- Use `flatMap()` or `concat()` when an operation must create a new array
 - Build objects with Object.fromEntries or direct literals
 
 ### 4. HTML in JS
@@ -137,14 +136,13 @@ npx vitest run test/unit/code-quality/let-usage.test.js
 
 ## Functional Utilities Available
 
-Import from `#toolkit/fp/array.js`:
+Import from `#utils/fp/array.js`:
 - `pipe(...fns)` - Compose functions left-to-right
 - `filter(predicate)`, `map(fn)`, `reduce(fn, initial)` - Curried array methods
-- `accumulate(fn)` - Safe array building in reduce (O(1) amortized)
+- `flatMap(fn)` - Map and flatten (also used for filter+map in one pass)
 - `sort(comparator)` - Non-mutating sort
 - `unique(arr)`, `uniqueBy(getKey)` - Deduplicate
 - `compact(arr)` - Remove falsy values
-- `chunk(arr, size)` - Split into groups
 
 ## Output Format
 

@@ -1,6 +1,6 @@
 import path from "node:path";
-import { filter, map, pipe, sort } from "#toolkit/fp/array.js";
-import { frozenSetFrom, setLacks } from "#toolkit/fp/set.js";
+import { filter, map, pipe, sort } from "#utils/fp/array.js";
+import { frozenSetFrom, setLacks } from "#utils/fp/set.js";
 
 const DEFINITION_PATTERN = /(--[a-z][a-z0-9-]*):/g;
 const USAGE_PATTERN = /var\(--([a-z][a-z0-9-]*)/g;

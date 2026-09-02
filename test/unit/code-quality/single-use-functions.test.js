@@ -20,7 +20,7 @@ import {
   readSource,
 } from "#test/code-scanner.js";
 import { SRC_JS_FILES, TEST_FILES } from "#test/test-utils.js";
-import { filterMap, pipe } from "#toolkit/fp/array.js";
+import { filterMap, pipe } from "#utils/fp/array.js";
 
 const THIS_FILE = "test/unit/code-quality/single-use-functions.test.js";
 
@@ -195,11 +195,12 @@ const buildReferenceCountMap = (fileData) => {
  */
 const analyzeSingleUseFunctions = () => {
   // Organisation-style rule: kept to runtime src/ and test/ code - the
-  // toolkit and imperative CLI tooling are exempt.
+  // generic fp utilities and the shared test infrastructure are exempt.
+  const exemptDirs = ["src/_lib/utils/fp/", "test/test-utils/"];
   const allFiles = combineFileLists(
     [SRC_JS_FILES(), TEST_FILES()],
     [THIS_FILE],
-  ).filter((file) => !file.startsWith("packages/"));
+  ).filter((file) => !exemptDirs.some((dir) => file.startsWith(dir)));
 
   // First pass: collect all function definitions and exports per file
   const fileData = new Map();

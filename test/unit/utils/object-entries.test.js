@@ -1,7 +1,9 @@
 import { describe, expect, test } from "vitest";
 import { everyEntry } from "#test/test-utils.js";
 import {
+  filterObject,
   fromPairs,
+  frozenObject,
   mapBoth,
   mapEntries,
   mapObject,
@@ -9,10 +11,55 @@ import {
   pickNonNull,
   pickTruthy,
   toObject,
-} from "#toolkit/fp/object.js";
+} from "#utils/fp/object.js";
 
 describe("object-entries utilities", () => {
   const testObj = { a: 1, b: 2, c: 3 };
+
+  describe("frozenObject", () => {
+    test("allows reading properties", () => {
+      const obj = frozenObject({ a: 1, b: 2 });
+
+      expect(obj.a).toBe(1);
+      expect(obj.b).toBe(2);
+    });
+
+    test("throws TypeError on property assignment", () => {
+      const obj = frozenObject({ value: 42 });
+
+      expect(() => {
+        obj.value = 100;
+      }).toThrow("Cannot set property 'value' on a frozen object");
+    });
+
+    test("throws TypeError on property deletion", () => {
+      const obj = frozenObject({ key: "value" });
+
+      expect(() => {
+        delete obj.key;
+      }).toThrow("Cannot delete property 'key' from a frozen object");
+    });
+
+    test("throws TypeError on defineProperty", () => {
+      const obj = frozenObject({ a: 1 });
+
+      expect(() => {
+        Object.defineProperty(obj, "b", { value: 2 });
+      }).toThrow("Cannot define property 'b' on a frozen object");
+    });
+  });
+
+  describe("filterObject", () => {
+    test("keeps entries matching the key/value predicate", () => {
+      const positiveExceptDropped = filterObject(
+        (k, v) => k !== "drop" && v > 0,
+      );
+
+      expect(positiveExceptDropped({ keep: 1, drop: 2, zero: 0 })).toEqual({
+        keep: 1,
+      });
+    });
+  });
 
   describe("mapEntries", () => {
     test("maps entries with (key, value) callback", () => {

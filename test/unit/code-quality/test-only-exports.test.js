@@ -1,5 +1,5 @@
 /**
- * Detects exports from src/ and packages/ that are only imported in test/ files.
+ * Detects exports from src/ that are only imported in test/ files.
  *
  * When a function is exported but only ever imported in test/,
  * it suggests the tests are testing implementation details rather than
@@ -37,7 +37,6 @@ const IMPORT_ALIASES = {
   "#test/": "test/",
   "#scripts/": "scripts/",
   "#bin/": "bin/",
-  "#toolkit/": "packages/js-toolkit/",
   // NOTE: #transforms/ and #guide-categories/ are deliberately absent for
   // now: resolving them makes this gate see the transform test suites'
   // white-box imports, which need their own refactor before the gate can
@@ -46,7 +45,7 @@ const IMPORT_ALIASES = {
 
 /**
  * Resolve an import path to a relative file path.
- * @param {string} importPath - The import path (e.g., "#toolkit/fp/memoize.js")
+ * @param {string} importPath - The import path (e.g., "#utils/fp/memoize.js")
  * @returns {string|null} - The resolved path or null if not a src/ file
  */
 const resolveImportPath = (importPath) => {
@@ -280,9 +279,9 @@ import { orig as alias } from "#utils/test.js";
   });
 
   describe("resolveImportPath", () => {
-    test("resolves #toolkit/ alias", () => {
-      expect(resolveImportPath("#toolkit/fp/memoize.js")).toBe(
-        "packages/js-toolkit/fp/memoize.js",
+    test("resolves #utils/fp/ alias", () => {
+      expect(resolveImportPath("#utils/fp/memoize.js")).toBe(
+        "src/_lib/utils/fp/memoize.js",
       );
     });
 

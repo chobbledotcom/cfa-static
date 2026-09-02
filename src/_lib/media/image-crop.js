@@ -2,7 +2,7 @@
  * Image cropping utilities for aspect ratio manipulation.
  * Handles EXIF orientation, width clamping, and Eleventy Image transforms.
  */
-import { memoize } from "#toolkit/fp/memoize.js";
+import { memoize } from "#utils/fp/memoize.js";
 import { simplifyRatio } from "#utils/math-utils.js";
 
 /** @typedef {import("sharp").Metadata} Metadata */

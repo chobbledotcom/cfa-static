@@ -26,8 +26,8 @@ import {
   map,
   pipe,
   split,
-} from "#toolkit/fp/array.js";
-import { fromPairs, frozenObject } from "#toolkit/fp/object.js";
+} from "#utils/fp/array.js";
+import { fromPairs, frozenObject } from "#utils/fp/object.js";
 
 export const SCOPES = ["header", "nav", "article", "form", "button"];
 

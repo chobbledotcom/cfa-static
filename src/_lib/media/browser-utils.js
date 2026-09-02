@@ -5,7 +5,7 @@ import { ROOT_DIR } from "#lib/paths.js";
 import { log, error as logError } from "#utils/console.js";
 import { isExternalUrl } from "#utils/url-utils.js";
 
-export { frozenObject } from "#toolkit/fp/object.js";
+export { frozenObject } from "#utils/fp/object.js";
 export { log };
 
 export const BROWSER_ARGS = [

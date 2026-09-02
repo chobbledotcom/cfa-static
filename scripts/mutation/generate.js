@@ -27,7 +27,7 @@ import {
   logicalOperators,
   logicalOperatorsExhaustive,
 } from "#scripts/mutation/operators.js";
-import { flatMap } from "#toolkit/fp/array.js";
+import { flatMap } from "#utils/fp/array.js";
 
 /**
  * @typedef {Object} Mutant

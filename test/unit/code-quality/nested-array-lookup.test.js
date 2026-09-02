@@ -31,7 +31,7 @@ import {
   removeStrings,
 } from "#test/code-scanner.js";
 import { SCRIPT_JS_FILES, SRC_JS_FILES } from "#test/test-utils.js";
-import { frozenSet } from "#toolkit/fp/set.js";
+import { frozenSet } from "#utils/fp/set.js";
 
 // Match .find( or .filter( — the array lookup methods that suggest linear scans
 const LOOKUP_PATTERN = /\.(?:find|filter)\s*\(/;
@@ -47,7 +47,7 @@ const ITERATION_CONTEXT_PATTERNS = [
   /\.reduce\s*\(/, // .reduce() callback
 ];
 
-// Curried toolkit function patterns: map(, flatMap(, reduce( without a dot
+// Curried fp function patterns: map(, flatMap(, reduce( without a dot
 const CURRIED_ITERATION_PATTERNS = [/(?:^|[^\w.])(?:map|flatMap|reduce)\s*\(/];
 
 // Detect expression arrow (=> without a following {) on iteration lines
