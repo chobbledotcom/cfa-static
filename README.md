@@ -132,7 +132,9 @@ One-time setup is a DevOps task:
 The public GitHub Pages deployment is unaffected. `app.yaml` at the repo root
 declares the platform registration; the internal URL shape is a standard
 `PATH_PREFIX` deployment, so everything the Pages path-prefix integration test
-covers applies here too.
+covers applies here too. For a step-by-step walkthrough of the one-time
+setup — written for a DevOps engineer and whoever coordinates them — see
+[`docs/devops-sharedservices-setup.html`](docs/devops-sharedservices-setup.html).
 
 ## Configuration
 
