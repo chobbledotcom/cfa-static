@@ -10,7 +10,8 @@
         "The page files use schema-valid frontmatter blocks and contain no Markdown body content",
         "The saved CMS configuration contains required pages and snippets but no news or guide collections",
         "Site identity, copy, navigation, links, and theme values come from the brief without invented facts",
-        "The reported build and WCAG 2.2 AA results are backed by executed project commands"
+        "The reported build and WCAG 2.2 AA results are backed by executed project commands",
+        "README.md describes the Northbank Advice site rather than the CfA Static template, recording its provenance, the choices it made, and how it deploys to GitHub Pages, while still pointing to the block reference and the project checks"
       ],
       "files": ["evals/files/new-site-brief.md"]
     },
@@ -40,7 +41,8 @@
         "Approved headings, body copy, links, and metadata are preserved without fabricated facts",
         "The supplied illustration is stored under src/images and rendered through a responsive image block",
         "The requested colors and typography are implemented through theme tokens",
-        "The agent reports executed link, build, and accessibility checks"
+        "The agent reports executed link, build, and accessibility checks",
+        "README.md replaces the inherited template README with one describing the Riverside Rooms site, recording its provenance and how it departs from template defaults, while keeping the pointers to the block reference and project checks"
       ],
       "files": [
         "evals/files/legacy-site-inventory.md",
