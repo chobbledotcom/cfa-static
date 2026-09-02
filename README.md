@@ -80,7 +80,7 @@ data fails the build rather than being published.
 Updates flow one way and only when a site asks for them:
 
 ```bash
-git remote add upstream https://github.com/chobbledotcom/cfa-static.git
+git remote add upstream https://github.com/codeforamerica/cfa-static.git
 git fetch upstream
 git merge upstream/main      # deliberate, reviewed, and never automatic
 ```
@@ -96,9 +96,9 @@ immediately whether the update broke anything it publishes.
 The repo ships a workflow (`.github/workflows/pages.yml`) that builds and
 deploys to GitHub Pages on every push to `main`. One-time setup: under the
 repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
-The workflow uses Ubicloud runners, so a new fork must also configure the
-Ubicloud GitHub integration and billing, or deliberately change both jobs to an
-available runner such as `ubuntu-latest`.
+On a fork that keeps the Pages workflow, confirm Pages is enabled the same
+way; the jobs run on standard `ubuntu-latest` runners, so no extra
+integration or billing is required.
 
 The workflow handles both hosting shapes automatically: on a project site
 (`https://<owner>.github.io/<repo>/`) it builds with the `/<repo>/` path
@@ -107,6 +107,32 @@ user/organization site it builds with no prefix. Canonical URLs, the sitemap,
 and feeds pick up the public site base URL via `SITE_URL`. Keep `site.json`'s
 `url` set to the site's public base URL as the fallback for local and
 non-workflow builds.
+
+## Deploying to SharedServices (internal)
+
+The repo can also publish the same site unchanged to SharedServices, CfA's
+Okta-protected internal hosting. The `sharedservices-deploy.yaml` workflow
+builds `_site/` from the same commit as the Pages deployment — differing only
+in `PATH_PREFIX` and `SITE_URL` — then syncs it to the platform's static S3
+bucket and invalidates the shared CloudFront distribution. Okta SSO is
+enforced at the edge, so the site itself never handles authentication.
+Deployment is manual while piloted: run **Actions → Deploy to
+SharedServices** on `main`.
+
+One-time setup is a DevOps task:
+
+1. Register the app by adding a spec to
+   `shared-services-infra/tofu/configs/static-app/specs/` and applying it.
+2. Create the `sharedservices` environment on this repo with the variables
+   `AWS_REGION`, `STATIC_BUCKET`, `STATIC_PREFIX` (set to `cfa-static`),
+   `CLOUDFRONT_DISTRIBUTION_ID`, and `SITE_URL` (the internal base URL
+   including the prefix, with no trailing slash), plus the `AWS_ROLE_ARN`
+   secret from the static-app layer.
+
+The public GitHub Pages deployment is unaffected. `app.yaml` at the repo root
+declares the platform registration; the internal URL shape is a standard
+`PATH_PREFIX` deployment, so everything the Pages path-prefix integration test
+covers applies here too.
 
 ## Configuration
 

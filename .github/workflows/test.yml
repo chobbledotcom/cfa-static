@@ -13,8 +13,7 @@ permissions:
 jobs:
   test:
     name: Run Tests
-    # runs-on: ubuntu-latest  # Uncomment to test on GitHub runners
-    runs-on: ubicloud-standard-8
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
