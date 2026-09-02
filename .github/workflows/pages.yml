@@ -60,6 +60,11 @@ jobs:
           SITE_URL: ${{ steps.pages.outputs.base_url }}
         run: npm run build
 
+      # Repository docs (e.g. the SharedServices setup guide) publish
+      # alongside the site at /docs/.
+      - name: Merge docs into site output
+        run: cp -r docs _site/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

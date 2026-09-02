@@ -135,6 +135,8 @@ declares the platform registration; the internal URL shape is a standard
 covers applies here too. For a step-by-step walkthrough of the one-time
 setup — written for a DevOps engineer and whoever coordinates them — see
 [`docs/devops-sharedservices-setup.html`](docs/devops-sharedservices-setup.html).
+Both deploy workflows merge `docs/` into the built site, so the walkthrough is
+also served at `/docs/` on each deployment.
 
 ## Configuration
 

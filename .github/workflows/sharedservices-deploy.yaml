@@ -73,6 +73,12 @@ jobs:
           SITE_URL: ${{ vars.SITE_URL }}
         run: npm run build
 
+      # Repository docs (e.g. this deployment's own setup guide) publish
+      # alongside the site at /docs/ — same content as the public Pages
+      # deployment, per-commit.
+      - name: Merge docs into site output
+        run: cp -r docs _site/
+
       - name: Upload site artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
