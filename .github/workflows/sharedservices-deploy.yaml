@@ -2,13 +2,16 @@ name: Deploy to SharedServices
 
 # Internal deployment of the same site unchanged: CfA Okta SSO at the edge,
 # S3 + CloudFront delivery. Mirrors the public GitHub Pages deployment from
-# the same commit, differing only in PATH_PREFIX and SITE_URL.
+# the same commit, differing only in SITE_URL — SharedServices serves each
+# app at the root of its own subdomain (https://<name>.apps.<domain>), so
+# the internal build needs no path prefix.
 #
 # Manual-only while piloted: run from Actions → Deploy to SharedServices.
 #
 # Required configuration on the `sharedservices` environment (set by DevOps):
-#   vars:   AWS_REGION, STATIC_BUCKET, STATIC_PREFIX, CLOUDFRONT_DISTRIBUTION_ID,
-#           SITE_URL (internal base URL including the prefix, no trailing slash)
+#   vars:   AWS_REGION, STATIC_BUCKET, STATIC_PREFIX (the app's S3 prefix —
+#           the app name from its platform spec), CLOUDFRONT_DISTRIBUTION_ID,
+#           SITE_URL (the app's endpoint URL, no trailing slash)
 #   secret: AWS_ROLE_ARN (per-app deploy role, OIDC)
 
 on:
@@ -68,8 +71,10 @@ jobs:
         run: npm ci
 
       - name: Build site
+        # PATH_PREFIX stays unset on purpose: the platform serves this app at
+        # the root of its own subdomain, and the build defaults the prefix to
+        # "/" — deriving it from STATIC_PREFIX would double-prefix every URL.
         env:
-          PATH_PREFIX: /${{ vars.STATIC_PREFIX }}/
           SITE_URL: ${{ vars.SITE_URL }}
         run: npm run build
 

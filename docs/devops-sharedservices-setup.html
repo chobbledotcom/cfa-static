@@ -136,20 +136,24 @@
     own canonical repo rather than an app scaffolded from the platform template.
   </p>
   <p>
-    Ask DevOps to hand back three values from the apply — the next step needs
+    Ask DevOps to hand back four values from the apply — the next steps need
     them exactly:
   </p>
   <ul>
     <li>the <strong>deploy role ARN</strong> (the layer's <code>deploy_role_arn</code> output) — what lets GitHub upload to this app's corner of the bucket</li>
     <li>the <strong>bucket name</strong> of the shared static-hosting bucket</li>
     <li>the <strong>CloudFront distribution ID</strong> of the shared distribution</li>
+    <li>the app's <strong>endpoint URL</strong> (the layer's <code>endpoint_url</code> output) — <code>https://cfa-static.apps.dev.services.cfa.codes</code> in the development environment</li>
   </ul>
   <div class="callout">
     <strong>What applying actually does:</strong> provisions a per-app deploy
     role and grants that role permission to write to the shared static bucket
     under this app's prefix and to invalidate the shared CloudFront
     distribution. Nothing else — the app is static, so there's no container,
-    no database, no network config to make.
+    no database, no network config to make. The app is served at the root of
+    its own subdomain; a CloudFront edge function maps that subdomain to the
+    app's prefix in the bucket behind the scenes, so the site itself never
+    needs a path prefix.
   </div>
 </div>
 
@@ -181,9 +185,9 @@
       <td><code>STATIC_PREFIX</code></td>
       <td><code>cfa-static</code></td>
       <td>
-        The app's slot in the shared bucket — also the site's path in the URL.
-        The build receives it as <code>PATH_PREFIX</code> so every internal
-        link, image, and search asset points under <code>/cfa-static/</code>
+        The app's slot in the shared bucket — where the workflow uploads.
+        Must match the app name in the platform spec; the URL is unaffected
+        (each app gets its own subdomain)
       </td>
     </tr>
     <tr>
@@ -193,13 +197,13 @@
     </tr>
     <tr>
       <td><code>SITE_URL</code></td>
-      <td><em>internal base URL</em>, e.g. <code>https://internal.example.org/cfa-static</code></td>
+      <td><em>the app's endpoint URL</em>, e.g. <code>https://cfa-static.apps.dev.services.cfa.codes</code></td>
       <td>
         The address the site stamps into its canonical URLs, sitemap, and
         social cards. Get the real value from DevOps after step 1 — it's the
-        shared static host's address plus <code>/cfa-static</code>.
-        <strong>No trailing slash</strong> — the build validates this and
-        fails loudly rather than publishing odd URLs
+        static-app layer's <code>endpoint_url</code> output: one subdomain
+        per app, no path appended. <strong>No trailing slash</strong> — the
+        build validates this and fails loudly rather than publishing odd URLs
       </td>
     </tr>
   </table>
@@ -242,7 +246,8 @@
     <li>
       <strong>Build.</strong> Same <code>npm ci</code> + <code>npm run build</code>
       as the public Pages deploy, from the same commit — differing only in
-      the internal <code>PATH_PREFIX</code> and <code>SITE_URL</code>
+      the internal <code>SITE_URL</code>. No path prefix applies, because
+      the app is served at the root of its own subdomain
     </li>
     <li>
       <strong>Upload the build.</strong> The exact files deployed get
@@ -264,8 +269,8 @@
 <div class="step">
   <h2>Step 4 — Verify <span class="who who-you">You</span></h2>
   <p>
-    Ask DevOps for the live URL from step 1 (the shared host plus
-    <code>/cfa-static/</code>). Then:
+    Ask DevOps for the live URL from step 1 — the app's own subdomain, e.g.
+    <code>https://cfa-static.apps.dev.services.cfa.codes</code>. Then:
   </p>
   <ul class="checklist">
     <li>
@@ -275,7 +280,7 @@
     </li>
     <li>
       Sign in, land on the homepage, and click into a deep page — links
-      should keep working under the <code>/cfa-static/</code> prefix
+      should keep working at the subdomain root
     </li>
     <li>
       Try the search box on the search page — results should come from the
@@ -283,8 +288,8 @@
     </li>
     <li>
       Spot-check the footer/social links and the feed at
-      <code>…/cfa-static/feed.xml</code> — URLs inside them should point at
-      the internal origin
+      <code>/feed.xml</code> on the subdomain — URLs inside them should
+      point at the internal origin
     </li>
     <li>
       While logged in, view source on the homepage and confirm

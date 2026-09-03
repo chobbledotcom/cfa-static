@@ -122,7 +122,7 @@ non-workflow builds.
 The repo can also publish the same site unchanged to SharedServices, CfA's
 Okta-protected internal hosting. The `sharedservices-deploy.yaml` workflow
 builds `_site/` from the same commit as the Pages deployment — differing only
-in `PATH_PREFIX` and `SITE_URL` — then syncs it to the platform's static S3
+in `SITE_URL` — then syncs it to the platform's static S3
 bucket and invalidates the shared CloudFront distribution. Okta SSO is
 enforced at the edge, so the site itself never handles authentication.
 Deployment is manual while piloted: run **Actions → Deploy to
@@ -134,14 +134,15 @@ One-time setup is a DevOps task:
    `shared-services-infra/tofu/configs/static-app/specs/` and applying it.
 2. Create the `sharedservices` environment on this repo with the variables
    `AWS_REGION`, `STATIC_BUCKET`, `STATIC_PREFIX` (set to `cfa-static`),
-   `CLOUDFRONT_DISTRIBUTION_ID`, and `SITE_URL` (the internal base URL
-   including the prefix, with no trailing slash), plus the `AWS_ROLE_ARN`
+   `CLOUDFRONT_DISTRIBUTION_ID`, and `SITE_URL` (the app's endpoint URL,
+   with no trailing slash), plus the `AWS_ROLE_ARN`
    secret from the static-app layer.
 
 The public GitHub Pages deployment is unaffected. `app.yaml` at the repo root
-declares the platform registration; the internal URL shape is a standard
-`PATH_PREFIX` deployment, so everything the Pages path-prefix integration test
-covers applies here too. For a step-by-step walkthrough of the one-time
+declares the platform registration. SharedServices serves each app at the
+root of its own subdomain (`https://<name>.apps.<domain>`), so the internal
+build involves no path prefix — only `SITE_URL` differs from the public one.
+For a step-by-step walkthrough of the one-time
 setup — written for a DevOps engineer and whoever coordinates them — see
 [`docs/devops-sharedservices-setup.html`](docs/devops-sharedservices-setup.html).
 Both deploy workflows merge `docs/` into the built site, so the walkthrough is
