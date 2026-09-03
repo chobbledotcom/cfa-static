@@ -153,6 +153,12 @@ screenshots/
 lighthouse-reports/
 src/assets/icons/iconify/test/
 
+# AI assistant scratch directories (Claude Code writes plan-mode notes here).
+# Root-anchored so the pattern cannot leak past the repo: an unanchored tmp/
+# also excludes OS-temp paths (e.g. /tmp/cpd-fixture-*) from jscpd's
+# gitignore-aware scans, which breaks test/unit/scripts/cpd.test.js.
+/tmp/
+
 .claude
 .codex
 
